@@ -325,50 +325,81 @@ let activeRec = null, activeBtn = null;
 function setupTalk(btnId, lang, dir){
   const btn = document.getElementById(btnId);
   if(!SR){ return; }
+  let userStopped = false;
+
   btn.addEventListener('click', ()=>{
-    if(activeRec){ activeRec.stop(); return; } // tap again to stop
+    if(activeRec){
+      userStopped = true;
+      activeRec.stop();
+      return; // tap again to stop
+    }
+    userStopped = false;
+    startListening();
+  });
+
+  function startListening(){
     const rec = new SR();
     rec.lang = lang;
     rec.interimResults = true;
-    rec.continuous = false;
-    let finalText = '';
+    rec.continuous = true; // keep listening through pauses, don't stop after one phrase
 
     rec.onstart = ()=>{
       activeRec = rec; activeBtn = btn;
       btn.classList.add('listening');
       document.querySelectorAll('.talk').forEach(b=>{ if(b!==btn) b.disabled = true; });
-      setStatus(lang==='ja-JP' ? '聞いています… もう一度タップで停止' : 'Listening… tap again to stop');
+      setStatus(lang==='ja-JP' ? '聞いています… タップで停止' : 'Listening continuously… tap to stop');
       interimEl.classList.add('show'); interimEl.textContent='…';
       log.scrollTop = log.scrollHeight;
     };
+
     rec.onresult = (e)=>{
-      let interim='';
-      for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal) finalText += e.results[i][0].transcript;
-        else interim += e.results[i][0].transcript;
+      let interim = '';
+      for(let i=e.resultIndex; i<e.results.length; i++){
+        const chunk = e.results[i][0].transcript;
+        if(e.results[i].isFinal){
+          const text = chunk.trim();
+          if(text) translate(dir, text);
+        } else {
+          interim += chunk;
+        }
       }
-      interimEl.textContent = finalText + interim || '…';
+      interimEl.textContent = interim || '…';
     };
+
     rec.onerror = (e)=>{
       if(e.error==='not-allowed' || e.error==='service-not-allowed'){
         setStatus('Microphone blocked here — use typed input below. / マイクが使用できません。キーボード入力をご利用ください。', true);
         showTyped(true);
-      } else if(e.error!=='aborted' && e.error!=='no-speech'){
+        userStopped = true;
+      } else if(e.error==='no-speech'){
+        // normal during pauses in continuous mode
+      } else if(e.error!=='aborted'){
         setStatus('Mic error: '+e.error, true);
       }
     };
+
     rec.onend = ()=>{
-      btn.classList.remove('listening');
-      document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
-      interimEl.classList.remove('show');
-      activeRec = null; activeBtn = null;
-      const text = finalText.trim();
-      if(text){ setStatus(''); translate(dir, text); }
-      else if(!statusEl.classList.contains('err')) setStatus('');
+      activeRec = null;
+      if(userStopped){
+        btn.classList.remove('listening');
+        document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
+        interimEl.classList.remove('show');
+        activeBtn = null;
+        setStatus('');
+      } else {
+        try{ startListening(); }
+        catch(err){
+          btn.classList.remove('listening');
+          document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
+          setStatus('Listening stopped — tap to resume.', true);
+        }
+      }
     };
+
     try{ rec.start(); }
     catch(err){ setStatus('Could not start microphone.', true); showTyped(true); }
-  });
+  }
+}
 }
 setupTalk('talkEn','en-US','en-ja');
 setupTalk('talkJa','ja-JP','ja-en');
