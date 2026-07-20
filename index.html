@@ -6,6 +6,7 @@
 <title>Kaigi Bridge — EN ⇄ JA Interpreter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
     --paper:#F5F4EF;
@@ -146,10 +147,22 @@
     <span class="jp">会議ブリッジ — 二方向通訳 / Two-Way Interpreter</span>
   </div>
   <div class="controls">
+    <span id="userBadge" style="font-size:.78rem;color:var(--muted);display:none"></span>
     <label class="toggle"><input type="checkbox" id="autoSpeak" checked>Speak translations aloud / 音声読み上げ</label>
     <button class="clear-btn" id="clearBtn">Clear / クリア</button>
   </div>
 </header>
+
+<div id="signinScreen" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:20px">
+  <div>
+    <div style="font-size:1.3rem;font-weight:900;margin-bottom:6px">Sign in with your company Google account</div>
+    <div style="color:var(--muted);font-size:.9rem">会社のGoogleアカウントでサインインしてください</div>
+  </div>
+  <div id="gsiButton"></div>
+  <div id="signinError" style="color:var(--ja);font-weight:700;font-size:.85rem;display:none"></div>
+</div>
+
+<div id="appScreen" style="display:none;flex-direction:column;flex:1;min-height:0">
 
 <main id="log">
   <div class="empty" id="emptyState">
@@ -183,6 +196,8 @@
   <button class="kbd-link" id="typedToggle">Prefer typing? / キーボード入力に切り替え</button>
 </footer>
 
+</div><!-- /appScreen -->
+
 <script>
 const log = document.getElementById('log');
 const emptyState = document.getElementById('emptyState');
@@ -192,7 +207,42 @@ const autoSpeak = document.getElementById('autoSpeak');
 const history = []; // {dir:'en-ja'|'ja-en', orig, trans}
 
 // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE (ends in /exec)
-const API_URL = 'https://script.google.com/macros/s/AKfycbweow5hyTczWzBSTrCGrvDlIJDh4SQOjDHovUFnrTLFhMyX4cOef-bMVMR9FyQwp7QYsA/exec';
+const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+// PASTE YOUR OAUTH CLIENT ID FROM console.cloud.google.com (must match Code.gs)
+const GOOGLE_CLIENT_ID = 'PASTE_YOUR_OAUTH_CLIENT_ID_HERE.apps.googleusercontent.com';
+let idToken = null;
+
+function handleSignIn(response){
+  idToken = response.credential;
+  // Decode the JWT payload just to show a friendly name/email — not used for security,
+  // the backend independently re-verifies the token with Google.
+  try{
+    const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    document.getElementById('userBadge').textContent = payload.email || '';
+    document.getElementById('userBadge').style.display = 'inline';
+  }catch(e){}
+  document.getElementById('signinScreen').style.display = 'none';
+  document.getElementById('signinError').style.display = 'none';
+  const app = document.getElementById('appScreen');
+  app.style.display = 'flex';
+}
+
+window.onload = function(){
+  if(GOOGLE_CLIENT_ID.indexOf('PASTE_YOUR')===0){
+    document.getElementById('signinError').textContent = '⚠ Set GOOGLE_CLIENT_ID at the top of the script.';
+    document.getElementById('signinError').style.display = 'block';
+    return;
+  }
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleSignIn
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('gsiButton'),
+    { theme: 'filled_blue', size: 'large', text: 'signin_with' }
+  );
+};
 
 function setStatus(msg, isErr){ statusEl.textContent = msg||''; statusEl.className = 'status'+(isErr?' err':''); }
 
@@ -235,9 +285,18 @@ async function translate(dir, orig){
     const res = await fetch(API_URL,{
       method:'POST',
       headers:{'Content-Type':'text/plain'}, // avoids GAS CORS preflight issues
-      body:JSON.stringify({ text:orig, dir:dir })
+      body:JSON.stringify({ text:orig, dir:dir, idToken:idToken })
     });
     const data = await res.json();
+    if(data.authFailed){
+      card.remove();
+      idToken = null;
+      document.getElementById('appScreen').style.display = 'none';
+      document.getElementById('signinScreen').style.display = 'flex';
+      document.getElementById('signinError').textContent = data.error || 'Please sign in again.';
+      document.getElementById('signinError').style.display = 'block';
+      return;
+    }
     if(data.error) throw new Error(data.error);
     const text = (data.translation||'').trim();
     if(!text) throw new Error('Empty translation');
