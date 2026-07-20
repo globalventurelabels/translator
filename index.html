@@ -329,6 +329,27 @@ function setupTalk(btnId, lang, dir){
     startListening();
   });
 
+  let watchdogTimer = null;
+  let sawAnyAudio = false; // Web Speech API also exposes onaudiostart/onspeechstart per-session
+
+  function clearWatchdog(){
+    if(watchdogTimer){ clearTimeout(watchdogTimer); watchdogTimer = null; }
+  }
+
+  function armWatchdog(){
+    clearWatchdog();
+    // If nothing at all — not even interim/onspeechstart — happens within 15s of starting
+    // or since the last result, flag it. A normal conversation has pauses, but 15s of total
+    // silence including no mic-level audio detection usually means the mic isn't reaching us.
+    watchdogTimer = setTimeout(()=>{
+      if(!sawAnyAudio){
+        setStatus('⚠ No audio detected — check your microphone (input device, OS permissions, or volume). / マイクが検出されていません。', true);
+        playAlertChime();
+      }
+      armWatchdog(); // keep checking periodically while still listening
+    }, 15000);
+  }
+
   function startListening(){
     const rec = new SR();
     rec.lang = lang;
@@ -342,9 +363,17 @@ function setupTalk(btnId, lang, dir){
       setStatus(lang==='ja-JP' ? '聞いています… タップで停止' : 'Listening continuously… tap to stop');
       interimEl.classList.add('show'); interimEl.textContent='…';
       log.scrollTop = log.scrollHeight;
+      sawAnyAudio = false;
+      armWatchdog();
+    };
+
+    rec.onspeechstart = ()=>{
+      // Fires the moment the browser detects ANY voice-like audio, even before words resolve
+      sawAnyAudio = true;
     };
 
     rec.onresult = (e)=>{
+      sawAnyAudio = true;
       let interim = '';
       for(let i=e.resultIndex; i<e.results.length; i++){
         const chunk = e.results[i][0].transcript;
@@ -372,6 +401,7 @@ function setupTalk(btnId, lang, dir){
 
     rec.onend = ()=>{
       activeRec = null;
+      clearWatchdog();
       if(userStopped){
         btn.classList.remove('listening');
         document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
