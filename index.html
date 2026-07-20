@@ -11,8 +11,8 @@
   :root{
     --paper:#F5F4EF;
     --ink:#171F33;
-    --en:#25507A;        /* indigo ink — English speaker */
-    --ja:#9E2B20;        /* seal (hanko) red — Japanese speaker */
+    --en:#25507A;
+    --ja:#9E2B20;
     --en-soft:#E8EEF4;
     --ja-soft:#F6E9E7;
     --line:#D8D4C9;
@@ -28,8 +28,6 @@
     display:flex;flex-direction:column;
     height:100dvh;
   }
-
-  /* ---------- header ---------- */
   header{
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 20px;border-bottom:2px solid var(--ink);
@@ -47,8 +45,6 @@
     padding:5px 14px;cursor:pointer;color:var(--ink);
   }
   .clear-btn:hover{background:var(--ink);color:var(--paper)}
-
-  /* ---------- log ---------- */
   main{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
   .empty{
     max-width:520px;margin:8vh auto 0;text-align:center;color:var(--muted);
@@ -69,31 +65,23 @@
   .msg.en .tag{background:var(--en)}
   .msg.ja .tag{background:var(--ja)}
   .msg .orig{padding:10px 14px 4px;font-size:1rem;line-height:1.6}
-  .msg .trans{
-    padding:8px 14px 12px;font-size:1.15rem;font-weight:700;line-height:1.6;
-  }
-  .msg.en .trans{color:var(--ja)}   /* EN speech → JA translation shown in red */
-  .msg.ja .trans{color:var(--en)}   /* JA speech → EN translation shown in indigo */
+  .msg .trans{padding:8px 14px 12px;font-size:1.15rem;font-weight:700;line-height:1.6}
+  .msg.en .trans{color:var(--ja)}
+  .msg.ja .trans{color:var(--en)}
   .msg .trans.pending{color:var(--muted);font-weight:400;font-style:italic}
   .speak-btn{
     background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:4px;
     font-size:.7rem;padding:2px 8px;cursor:pointer;font-family:inherit;
   }
   .speak-btn:hover{background:rgba(255,255,255,.45)}
-
-  /* live interim transcript */
   .interim{
     max-width:680px;margin:0 auto 14px;padding:10px 14px;
     border:1.5px dashed var(--line);border-radius:10px;color:var(--muted);
     font-size:1rem;display:none;
   }
   .interim.show{display:block}
-
-  /* ---------- footer / talk deck ---------- */
   footer{border-top:2px solid var(--ink);background:var(--card);padding:14px 16px 18px}
-  .status{
-    text-align:center;font-size:.78rem;color:var(--muted);min-height:1.2em;margin-bottom:10px;
-  }
+  .status{text-align:center;font-size:.78rem;color:var(--muted);min-height:1.2em;margin-bottom:10px}
   .status.err{color:var(--ja);font-weight:700}
   .deck{display:flex;gap:14px;max-width:680px;margin:0 auto}
   .talk{
@@ -113,8 +101,6 @@
   @keyframes pulse{50%{opacity:.85}}
   @media (prefers-reduced-motion:reduce){.talk.listening{animation:none}}
   .talk:disabled{opacity:.45;cursor:not-allowed}
-
-  /* typed fallback */
   .typed{max-width:680px;margin:12px auto 0;display:none;gap:8px}
   .typed.show{display:flex}
   .typed input{
@@ -204,19 +190,35 @@ const emptyState = document.getElementById('emptyState');
 const interimEl = document.getElementById('interim');
 const statusEl = document.getElementById('status');
 const autoSpeak = document.getElementById('autoSpeak');
-const history = []; // {dir:'en-ja'|'ja-en', orig, trans}
+const history = [];
 
-// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE (ends in /exec)
 const API_URL = 'https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec';
-
-// PASTE YOUR OAUTH CLIENT ID FROM console.cloud.google.com (must match Code.gs)
 const GOOGLE_CLIENT_ID = '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
 let idToken = null;
 
+function playAlertChime(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const playTone = (freq, startTime, duration)=>{
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    };
+    const now = ctx.currentTime;
+    playTone(660, now, 0.15);
+    playTone(440, now + 0.18, 0.25);
+  }catch(e){}
+}
+
 function handleSignIn(response){
   idToken = response.credential;
-  // Decode the JWT payload just to show a friendly name/email — not used for security,
-  // the backend independently re-verifies the token with Google.
   try{
     const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
     document.getElementById('userBadge').textContent = payload.email || '';
@@ -224,8 +226,7 @@ function handleSignIn(response){
   }catch(e){}
   document.getElementById('signinScreen').style.display = 'none';
   document.getElementById('signinError').style.display = 'none';
-  const app = document.getElementById('appScreen');
-  app.style.display = 'flex';
+  document.getElementById('appScreen').style.display = 'flex';
 }
 
 window.onload = function(){
@@ -234,14 +235,8 @@ window.onload = function(){
     document.getElementById('signinError').style.display = 'block';
     return;
   }
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleSignIn
-  });
-  google.accounts.id.renderButton(
-    document.getElementById('gsiButton'),
-    { theme: 'filled_blue', size: 'large', text: 'signin_with' }
-  );
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleSignIn });
+  google.accounts.id.renderButton(document.getElementById('gsiButton'), { theme: 'filled_blue', size: 'large', text: 'signin_with' });
 };
 
 function setStatus(msg, isErr){ statusEl.textContent = msg||''; statusEl.className = 'status'+(isErr?' err':''); }
@@ -256,7 +251,7 @@ function speak(text, lang){
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
-if('speechSynthesis' in window) speechSynthesis.getVoices(); // warm voice list
+if('speechSynthesis' in window) speechSynthesis.getVoices();
 
 function addMessage(dir, orig){
   emptyState.style.display='none';
@@ -279,12 +274,10 @@ async function translate(dir, orig){
   const targetLang = dir==='en-ja' ? 'ja-JP' : 'en-US';
 
   try{
-    if(API_URL.indexOf('PASTE_YOUR')===0){
-      throw new Error('CONFIG');
-    }
+    if(API_URL.indexOf('PASTE_YOUR')===0){ throw new Error('CONFIG'); }
     const res = await fetch(API_URL,{
       method:'POST',
-      headers:{'Content-Type':'text/plain'}, // avoids GAS CORS preflight issues
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({ text:orig, dir:dir, idToken:idToken })
     });
     const data = await res.json();
@@ -318,7 +311,6 @@ async function translate(dir, orig){
   log.scrollTop = log.scrollHeight;
 }
 
-/* ---------- speech recognition ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let activeRec = null, activeBtn = null;
 
@@ -331,7 +323,7 @@ function setupTalk(btnId, lang, dir){
     if(activeRec){
       userStopped = true;
       activeRec.stop();
-      return; // tap again to stop
+      return;
     }
     userStopped = false;
     startListening();
@@ -341,7 +333,7 @@ function setupTalk(btnId, lang, dir){
     const rec = new SR();
     rec.lang = lang;
     rec.interimResults = true;
-    rec.continuous = true; // keep listening through pauses, don't stop after one phrase
+    rec.continuous = true;
 
     rec.onstart = ()=>{
       activeRec = rec; activeBtn = btn;
@@ -387,12 +379,17 @@ function setupTalk(btnId, lang, dir){
         activeBtn = null;
         setStatus('');
       } else {
-        try{ startListening(); }
-        catch(err){
-          btn.classList.remove('listening');
-          document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
-          setStatus('Listening stopped — tap to resume.', true);
-        }
+        setStatus(lang==='ja-JP' ? '再接続中…' : 'Reconnecting…');
+        setTimeout(()=>{
+          try{
+            startListening();
+          }catch(err){
+            btn.classList.remove('listening');
+            document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
+            setStatus('⚠ Listening stopped — tap to resume. / 聞き取りが停止しました。タップして再開してください。', true);
+            playAlertChime();
+          }
+        }, 300);
       }
     };
 
@@ -411,7 +408,6 @@ if(!SR){
   showTyped(true);
 }
 
-/* ---------- typed fallback ---------- */
 const typedRow = document.getElementById('typedRow');
 const typedInput = document.getElementById('typedInput');
 function showTyped(on){ typedRow.classList.toggle('show', on!==false); }
@@ -429,13 +425,11 @@ document.getElementById('sendEn').addEventListener('click', ()=>sendTyped('en-ja
 document.getElementById('sendJa').addEventListener('click', ()=>sendTyped('ja-en'));
 typedInput.addEventListener('keydown', e=>{
   if(e.key==='Enter'){
-    // guess direction: if input contains Japanese chars, JA→EN, else EN→JA
     const hasJa = /[\u3040-\u30ff\u4e00-\u9faf]/.test(typedInput.value);
     sendTyped(hasJa ? 'ja-en' : 'en-ja');
   }
 });
 
-/* ---------- clear ---------- */
 document.getElementById('clearBtn').addEventListener('click', ()=>{
   document.querySelectorAll('.msg').forEach(m=>m.remove());
   history.length = 0;
