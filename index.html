@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kaigi Bridge — EN ⇄ JA Interpreter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F4EF;
+    --ink:#171F33;
+    --en:#25507A;        /* indigo ink — English speaker */
+    --ja:#9E2B20;        /* seal (hanko) red — Japanese speaker */
+    --en-soft:#E8EEF4;
+    --ja-soft:#F6E9E7;
+    --line:#D8D4C9;
+    --card:#FFFFFF;
+    --muted:#6B6A63;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    display:flex;flex-direction:column;
+    height:100dvh;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;border-bottom:2px solid var(--ink);
+    gap:12px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{font-size:1.15rem;font-weight:900;letter-spacing:.02em}
+  .brand .jp{font-size:.85rem;color:var(--muted);font-weight:500}
+  .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer;user-select:none}
+  .toggle input{accent-color:var(--ink);width:16px;height:16px;cursor:pointer}
+  .clear-btn{
+    font-family:inherit;font-size:.8rem;font-weight:700;
+    background:none;border:1.5px solid var(--ink);border-radius:999px;
+    padding:5px 14px;cursor:pointer;color:var(--ink);
+  }
+  .clear-btn:hover{background:var(--ink);color:var(--paper)}
+
+  /* ---------- log ---------- */
+  main{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
+  .empty{
+    max-width:520px;margin:8vh auto 0;text-align:center;color:var(--muted);
+    font-size:.95rem;line-height:1.7;
+  }
+  .empty .big{font-size:1.5rem;font-weight:900;color:var(--ink);margin-bottom:10px}
+  .msg{
+    max-width:680px;margin:0 auto 14px;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;
+    animation:pop .18s ease-out;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.msg{animation:none}}
+  .msg .tag{
+    font-size:.68rem;font-weight:700;letter-spacing:.08em;
+    padding:5px 12px;color:#fff;display:flex;justify-content:space-between;align-items:center;
+  }
+  .msg.en .tag{background:var(--en)}
+  .msg.ja .tag{background:var(--ja)}
+  .msg .orig{padding:10px 14px 4px;font-size:1rem;line-height:1.6}
+  .msg .trans{
+    padding:8px 14px 12px;font-size:1.15rem;font-weight:700;line-height:1.6;
+  }
+  .msg.en .trans{color:var(--ja)}   /* EN speech → JA translation shown in red */
+  .msg.ja .trans{color:var(--en)}   /* JA speech → EN translation shown in indigo */
+  .msg .trans.pending{color:var(--muted);font-weight:400;font-style:italic}
+  .speak-btn{
+    background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:4px;
+    font-size:.7rem;padding:2px 8px;cursor:pointer;font-family:inherit;
+  }
+  .speak-btn:hover{background:rgba(255,255,255,.45)}
+
+  /* live interim transcript */
+  .interim{
+    max-width:680px;margin:0 auto 14px;padding:10px 14px;
+    border:1.5px dashed var(--line);border-radius:10px;color:var(--muted);
+    font-size:1rem;display:none;
+  }
+  .interim.show{display:block}
+
+  /* ---------- footer / talk deck ---------- */
+  footer{border-top:2px solid var(--ink);background:var(--card);padding:14px 16px 18px}
+  .status{
+    text-align:center;font-size:.78rem;color:var(--muted);min-height:1.2em;margin-bottom:10px;
+  }
+  .status.err{color:var(--ja);font-weight:700}
+  .deck{display:flex;gap:14px;max-width:680px;margin:0 auto}
+  .talk{
+    flex:1;border:none;border-radius:14px;cursor:pointer;
+    padding:18px 10px;font-family:inherit;color:#fff;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .talk:active{transform:scale(.97)}
+  .talk:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+  .talk .mic{font-size:1.6rem;line-height:1}
+  .talk .lbl{font-size:1.05rem;font-weight:900;letter-spacing:.03em}
+  .talk .sub{font-size:.72rem;opacity:.85}
+  .talk.en{background:var(--en)}
+  .talk.ja{background:var(--ja)}
+  .talk.listening{box-shadow:0 0 0 4px var(--paper),0 0 0 7px currentColor;animation:pulse 1.2s infinite}
+  @keyframes pulse{50%{opacity:.85}}
+  @media (prefers-reduced-motion:reduce){.talk.listening{animation:none}}
+  .talk:disabled{opacity:.45;cursor:not-allowed}
+
+  /* typed fallback */
+  .typed{max-width:680px;margin:12px auto 0;display:none;gap:8px}
+  .typed.show{display:flex}
+  .typed input{
+    flex:1;font-family:inherit;font-size:1rem;padding:10px 14px;
+    border:1.5px solid var(--line);border-radius:10px;background:var(--paper);
+  }
+  .typed input:focus-visible{outline:2px solid var(--ink)}
+  .typed button{
+    font-family:inherit;font-weight:700;font-size:.85rem;border:none;border-radius:10px;
+    padding:0 16px;color:#fff;cursor:pointer;
+  }
+  .typed .send-en{background:var(--en)}
+  .typed .send-ja{background:var(--ja)}
+  .kbd-link{
+    display:block;text-align:center;margin-top:10px;font-size:.75rem;color:var(--muted);
+    background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit;
+  }
+  @media (max-width:480px){
+    .brand .jp{display:none}
+    .msg .orig{font-size:.92rem}
+    .msg .trans{font-size:1.05rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Kaigi Bridge</h1>
+    <span class="jp">会議ブリッジ — 二方向通訳 / Two-Way Interpreter</span>
+  </div>
+  <div class="controls">
+    <label class="toggle"><input type="checkbox" id="autoSpeak" checked>Speak translations aloud / 音声読み上げ</label>
+    <button class="clear-btn" id="clearBtn">Clear / クリア</button>
+  </div>
+</header>
+
+<main id="log">
+  <div class="empty" id="emptyState">
+    <div class="big">Hold a conversation across two languages.</div>
+    Press your language button, speak, and release. Your words are translated
+    and read aloud for the other person.<br><br>
+    ボタンを押して話してください。発言が翻訳され、相手に読み上げられます。
+  </div>
+  <div class="interim" id="interim"></div>
+</main>
+
+<footer>
+  <div class="status" id="status"></div>
+  <div class="deck">
+    <button class="talk en" id="talkEn">
+      <span class="mic">🎤</span>
+      <span class="lbl">Speak English</span>
+      <span class="sub">translated to 日本語</span>
+    </button>
+    <button class="talk ja" id="talkJa">
+      <span class="mic">🎤</span>
+      <span class="lbl">日本語で話す</span>
+      <span class="sub">英語に翻訳されます</span>
+    </button>
+  </div>
+  <div class="typed" id="typedRow">
+    <input id="typedInput" placeholder="Type here / ここに入力…" aria-label="Type text to translate">
+    <button class="send-en" id="sendEn">EN→JA</button>
+    <button class="send-ja" id="sendJa">JA→EN</button>
+  </div>
+  <button class="kbd-link" id="typedToggle">Prefer typing? / キーボード入力に切り替え</button>
+</footer>
+
+<script>
+const log = document.getElementById('log');
+const emptyState = document.getElementById('emptyState');
+const interimEl = document.getElementById('interim');
+const statusEl = document.getElementById('status');
+const autoSpeak = document.getElementById('autoSpeak');
+const history = []; // {dir:'en-ja'|'ja-en', orig, trans}
+
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE (ends in /exec)
+const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+function setStatus(msg, isErr){ statusEl.textContent = msg||''; statusEl.className = 'status'+(isErr?' err':''); }
+
+function speak(text, lang){
+  if(!autoSpeak.checked || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang;
+  const v = speechSynthesis.getVoices().find(v=>v.lang && v.lang.startsWith(lang.slice(0,2)));
+  if(v) u.voice = v;
+  u.rate = 0.95;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+if('speechSynthesis' in window) speechSynthesis.getVoices(); // warm voice list
+
+function addMessage(dir, orig){
+  emptyState.style.display='none';
+  const div = document.createElement('div');
+  div.className = 'msg ' + (dir==='en-ja'?'en':'ja');
+  const tagLabel = dir==='en-ja' ? 'ENGLISH → 日本語' : '日本語 → ENGLISH';
+  div.innerHTML =
+    '<div class="tag"><span>'+tagLabel+'</span><button class="speak-btn" title="Replay">🔊 Replay</button></div>'+
+    '<div class="orig"></div>'+
+    '<div class="trans pending">Translating… / 翻訳中…</div>';
+  div.querySelector('.orig').textContent = orig;
+  log.insertBefore(div, interimEl);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+async function translate(dir, orig){
+  const card = addMessage(dir, orig);
+  const transEl = card.querySelector('.trans');
+  const targetLang = dir==='en-ja' ? 'ja-JP' : 'en-US';
+
+  try{
+    if(API_URL.indexOf('PASTE_YOUR')===0){
+      throw new Error('CONFIG');
+    }
+    const res = await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'}, // avoids GAS CORS preflight issues
+      body:JSON.stringify({ text:orig, dir:dir })
+    });
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+    const text = (data.translation||'').trim();
+    if(!text) throw new Error('Empty translation');
+    transEl.textContent = text;
+    transEl.classList.remove('pending');
+    history.push({dir, orig, trans:text});
+    speak(text, targetLang);
+    card.querySelector('.speak-btn').onclick = ()=>speak(text, targetLang);
+  }catch(err){
+    if(err.message==='CONFIG'){
+      transEl.textContent = '⚠ Set API_URL at the top of the script to your Apps Script Web App URL.';
+    }else{
+      transEl.textContent = 'Translation failed — tap 🔊 Replay to retry / 翻訳に失敗しました';
+    }
+    transEl.classList.remove('pending');
+    card.querySelector('.speak-btn').textContent = '↻ Retry';
+    card.querySelector('.speak-btn').onclick = ()=>{ card.remove(); translate(dir, orig); };
+  }
+  log.scrollTop = log.scrollHeight;
+}
+
+/* ---------- speech recognition ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let activeRec = null, activeBtn = null;
+
+function setupTalk(btnId, lang, dir){
+  const btn = document.getElementById(btnId);
+  if(!SR){ return; }
+  btn.addEventListener('click', ()=>{
+    if(activeRec){ activeRec.stop(); return; } // tap again to stop
+    const rec = new SR();
+    rec.lang = lang;
+    rec.interimResults = true;
+    rec.continuous = false;
+    let finalText = '';
+
+    rec.onstart = ()=>{
+      activeRec = rec; activeBtn = btn;
+      btn.classList.add('listening');
+      document.querySelectorAll('.talk').forEach(b=>{ if(b!==btn) b.disabled = true; });
+      setStatus(lang==='ja-JP' ? '聞いています… もう一度タップで停止' : 'Listening… tap again to stop');
+      interimEl.classList.add('show'); interimEl.textContent='…';
+      log.scrollTop = log.scrollHeight;
+    };
+    rec.onresult = (e)=>{
+      let interim='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal) finalText += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      interimEl.textContent = finalText + interim || '…';
+    };
+    rec.onerror = (e)=>{
+      if(e.error==='not-allowed' || e.error==='service-not-allowed'){
+        setStatus('Microphone blocked here — use typed input below. / マイクが使用できません。キーボード入力をご利用ください。', true);
+        showTyped(true);
+      } else if(e.error!=='aborted' && e.error!=='no-speech'){
+        setStatus('Mic error: '+e.error, true);
+      }
+    };
+    rec.onend = ()=>{
+      btn.classList.remove('listening');
+      document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
+      interimEl.classList.remove('show');
+      activeRec = null; activeBtn = null;
+      const text = finalText.trim();
+      if(text){ setStatus(''); translate(dir, text); }
+      else if(!statusEl.classList.contains('err')) setStatus('');
+    };
+    try{ rec.start(); }
+    catch(err){ setStatus('Could not start microphone.', true); showTyped(true); }
+  });
+}
+setupTalk('talkEn','en-US','en-ja');
+setupTalk('talkJa','ja-JP','ja-en');
+
+if(!SR){
+  setStatus('Speech recognition not supported in this browser — typed mode enabled. Chrome or Edge recommended for voice. / 音声認識非対応のためキーボード入力モードです。', true);
+  document.getElementById('talkEn').disabled = true;
+  document.getElementById('talkJa').disabled = true;
+  showTyped(true);
+}
+
+/* ---------- typed fallback ---------- */
+const typedRow = document.getElementById('typedRow');
+const typedInput = document.getElementById('typedInput');
+function showTyped(on){ typedRow.classList.toggle('show', on!==false); }
+document.getElementById('typedToggle').addEventListener('click', ()=>{
+  typedRow.classList.toggle('show');
+  if(typedRow.classList.contains('show')) typedInput.focus();
+});
+function sendTyped(dir){
+  const t = typedInput.value.trim();
+  if(!t) return;
+  typedInput.value='';
+  translate(dir, t);
+}
+document.getElementById('sendEn').addEventListener('click', ()=>sendTyped('en-ja'));
+document.getElementById('sendJa').addEventListener('click', ()=>sendTyped('ja-en'));
+typedInput.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    // guess direction: if input contains Japanese chars, JA→EN, else EN→JA
+    const hasJa = /[\u3040-\u30ff\u4e00-\u9faf]/.test(typedInput.value);
+    sendTyped(hasJa ? 'ja-en' : 'en-ja');
+  }
+});
+
+/* ---------- clear ---------- */
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('.msg').forEach(m=>m.remove());
+  history.length = 0;
+  emptyState.style.display='block';
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+  setStatus('');
+});
+</script>
+</body>
+</html>
