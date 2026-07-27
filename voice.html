@@ -15,64 +15,92 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0}
-  body{
-    background:var(--paper); color:var(--ink);
-    font-family:"Archivo",system-ui,sans-serif;
-    -webkit-font-smoothing:antialiased;
-    padding:var(--pad); max-width:1180px; margin:0 auto;
-  }
+  body{background:var(--paper);color:var(--ink);font-family:"Archivo",system-ui,sans-serif;
+       -webkit-font-smoothing:antialiased;padding:var(--pad);max-width:1180px;margin:0 auto}
   h1,h2{margin:0}
   button{font:inherit;cursor:pointer}
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;
+       text-transform:uppercase;color:var(--ink-2)}
   .mono{font-family:"IBM Plex Mono",monospace}
-  .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
 
   .rig{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
        padding-bottom:14px;border-bottom:2px solid var(--ink)}
-  .rig h1{font-size:clamp(23px,4vw,36px);font-variation-settings:"wdth" 118,"wght" 700;letter-spacing:-.02em;line-height:.95}
+  .rig h1{font-size:clamp(23px,4vw,36px);font-variation-settings:"wdth" 118,"wght" 700;
+          letter-spacing:-.02em;line-height:.95}
   .rig .sub{margin:6px 0 0;font-size:13px;color:var(--ink-2)}
   .status{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
           border:1px solid var(--rule);border-radius:var(--r);padding:7px 11px;background:var(--card);white-space:nowrap}
   .status[data-state="live"]{border-color:var(--signal);color:#7a5a00;background:#FBF3DC}
   .status[data-state="error"]{border-color:var(--ja);color:var(--ja);background:#FBEBE8}
 
-  /* ---------- telemetry strip: shows which stage is costing you ---------- */
-  .telemetry{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:1px;
-    margin:16px 0 0;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;
+  /* ---------- backend bar ---------- */
+  .backend{margin:16px 0 0;background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:12px 14px}
+  .backend[data-unset="true"]{border-color:var(--signal);background:#FCF7E7}
+  .backend__row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+  .seg{display:flex;border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;background:#fff}
+  .seg button{
+    background:none;border:0;padding:8px 14px;font-size:13px;color:var(--ink-2);
+    display:flex;align-items:center;gap:7px;max-width:290px;
   }
+  .seg button + button{border-left:1px solid var(--rule)}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .seg button .dot{width:7px;height:7px;border-radius:50%;background:var(--rule);flex:none}
+  .seg button[aria-pressed="true"] .dot{background:var(--signal)}
+  .seg button[data-ok="true"] .dot{background:var(--good)}
+  .seg button[data-ok="false"] .dot{background:var(--ja)}
+  .seg button .host{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+                    font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+  .seg button .empty{font-style:italic;opacity:.7}
+
+  .ghost{background:none;border:1px solid var(--rule);border-radius:var(--r);
+         padding:8px 12px;font-size:13px;color:var(--ink-2)}
+  .ghost:hover{border-color:var(--ink);color:var(--ink)}
+  .probe{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-2);margin-left:auto}
+  .probe[data-state="ok"]{color:var(--good)}
+  .probe[data-state="bad"]{color:var(--ja)}
+
+  .editor{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--rule);gap:10px;flex-direction:column}
+  .editor.open{display:flex}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;
+               text-transform:uppercase;color:var(--ink-2)}
+  .field input{font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12.5px;padding:9px 10px;
+               border:1px solid var(--rule);border-radius:var(--r);background:#fff;color:var(--ink);width:100%}
+  .field input:focus{border-color:var(--ink)}
+  .hint{font-size:11.5px;color:var(--ja);min-height:1.2em;margin:0}
+  .editor__actions{display:flex;gap:8px;flex-wrap:wrap}
+  .save{background:var(--ink);color:#fff;border:0;border-radius:var(--r);padding:9px 18px;
+        font-variation-settings:"wght" 600}
+
+  .telemetry{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;margin:14px 0 0;
+             background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden}
   .tm{background:var(--card);padding:9px 11px}
   .tm b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;line-height:1.3;margin-top:3px}
   .tm[data-warn="true"] b{color:var(--ja)}
   .tm[data-warn="false"] b{color:var(--good)}
 
-  /* ---------- caption stage: the thing you actually read ---------- */
-  .stage{
-    margin:16px 0;background:var(--card);border:1px solid var(--rule);
-    border-top:3px solid var(--en);border-radius:var(--r);padding:18px 20px 20px;
-  }
+  .stage{margin:14px 0;background:var(--card);border:1px solid var(--rule);border-top:3px solid var(--en);
+         border-radius:var(--r);padding:18px 20px 20px}
   .stage__head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-  .caption{
-    font-family:"Noto Sans JP","Archivo",sans-serif;
-    font-size:clamp(21px,3.4vw,34px);line-height:1.4;font-weight:500;
-    margin:12px 0 0;min-height:2.8em;
-  }
+  .caption{font-family:"Noto Sans JP","Archivo",sans-serif;font-size:clamp(21px,3.4vw,34px);
+           line-height:1.4;font-weight:500;margin:12px 0 0;min-height:2.8em}
   .caption.is-placeholder{color:#A2A8A5;font-size:16px;font-weight:400}
-  .heard{
-    font-family:"Noto Sans JP",sans-serif;font-size:14px;color:var(--ink-2);
-    line-height:1.5;margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--rule);min-height:2.4em;
-  }
+  .heard{font-family:"Noto Sans JP",sans-serif;font-size:14px;color:var(--ink-2);line-height:1.5;
+         margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--rule);min-height:2.4em}
   .meter{display:flex;gap:3px;height:16px;width:150px}
   .meter i{flex:1;background:#DEDFD9;border-radius:1px;transition:background .07s linear}
   .meter i.on{background:var(--signal)}
   .meter i.on.hot{background:var(--ja)}
 
-  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
-            padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:14px 0;
+            border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
   .mic{background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:12px 22px;
        font-variation-settings:"wdth" 108,"wght" 650}
-  .mic:hover{background:#000}
+  .mic:hover:not(:disabled){background:#000}
   .mic[data-on="true"]{background:var(--ja)}
+  .mic:disabled{opacity:.4;cursor:not-allowed}
   .swap{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:11px 15px;font-size:15px}
   .swap:hover{border-color:var(--ink)}
   .opt{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2)}
@@ -83,7 +111,8 @@
 
   .log{margin-top:24px}
   .log__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-  .log__head h2{font-size:13px;font-family:"IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+  .log__head h2{font-size:13px;font-family:"IBM Plex Mono",monospace;letter-spacing:.14em;
+                text-transform:uppercase;font-weight:500}
   .log__head button{background:none;border:1px solid var(--rule);border-radius:var(--r);
                     padding:5px 10px;font-size:12px;color:var(--ink-2);margin-left:6px}
   .log__head button:hover{border-color:var(--ink);color:var(--ink)}
@@ -107,9 +136,12 @@
   .note{margin:18px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.65;
         border-left:2px solid var(--rule);padding-left:12px}
   .fatal{background:#FBEBE8;border:1px solid var(--ja);color:#7A2418;border-radius:var(--r);
-         padding:14px 16px;font-size:14px;line-height:1.55;margin:18px 0}
+         padding:14px 16px;font-size:14px;line-height:1.55;margin:14px 0}
   .fatal:empty{display:none}
   @media (prefers-reduced-motion:reduce){.meter i{transition:none}}
+  @media (max-width:640px){
+    .seg{width:100%} .seg button{flex:1;max-width:none} .probe{margin-left:0;width:100%}
+  }
 </style>
 </head>
 <body>
@@ -124,7 +156,41 @@
 
 <div class="fatal" id="fatal"></div>
 
-<!-- Telemetry: tells you which stage to blame -->
+<!-- ---------- backend selector ---------- -->
+<section class="backend" id="backendBar" data-unset="true">
+  <div class="backend__row">
+    <span class="tag">Backend</span>
+    <div class="seg" role="group" aria-label="Choose translation backend">
+      <button id="segA" aria-pressed="true"><span class="dot"></span><span class="host" id="hostA">Not set</span></button>
+      <button id="segB" aria-pressed="false"><span class="dot"></span><span class="host" id="hostB">Not set</span></button>
+    </div>
+    <button class="ghost" id="editBtn">Edit</button>
+    <button class="ghost" id="testBtn">Test</button>
+    <span class="probe" id="probe" data-state="">No endpoint set</span>
+  </div>
+
+  <div class="editor" id="editor">
+    <div class="field">
+      <label for="urlA">Endpoint A — name and URL</label>
+      <input id="nameA" type="text" placeholder="Apps Script" autocomplete="off" style="margin-bottom:6px">
+      <input id="urlA" type="url" inputmode="url" spellcheck="false" autocomplete="off"
+             placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <div class="field">
+      <label for="urlB">Endpoint B — name and URL</label>
+      <input id="nameB" type="text" placeholder="Worker" autocomplete="off" style="margin-bottom:6px">
+      <input id="urlB" type="url" inputmode="url" spellcheck="false" autocomplete="off"
+             placeholder="https://translate.your-name.workers.dev/">
+    </div>
+    <p class="hint" id="hint"></p>
+    <div class="editor__actions">
+      <button class="save" id="saveBtn">Save endpoints</button>
+      <button class="ghost" id="cancelBtn">Cancel</button>
+      <button class="ghost" id="forgetBtn">Forget saved settings</button>
+    </div>
+  </div>
+</section>
+
 <div class="telemetry">
   <div class="tm"><span class="tag">Behind by</span><b id="tmLag">—</b></div>
   <div class="tm"><span class="tag">Pause detect</span><b id="tmPause">—</b></div>
@@ -138,7 +204,7 @@
     <span class="tag">Translation · <span id="tgtLabel">English</span></span>
     <div class="meter" id="meter" aria-hidden="true"></div>
   </div>
-  <p class="caption is-placeholder" id="caption">Press start. Translations appear here as each sentence completes.</p>
+  <p class="caption is-placeholder" id="caption">Set a backend, then press start. Translations appear here as each sentence completes.</p>
   <p class="heard mono" id="heard"></p>
 </section>
 
@@ -154,57 +220,73 @@
 <section class="log">
   <div class="log__head">
     <h2>Transcript</h2>
-    <div>
-      <button id="copyBtn">Copy all</button>
-      <button id="clearBtn">Clear</button>
-    </div>
+    <div><button id="copyBtn">Copy all</button><button id="clearBtn">Clear</button></div>
   </div>
   <ol id="logList"></ol>
 </section>
 
 <p class="note">
-  Audio is off by default. Reading the captions is roughly two seconds faster than waiting for
-  playback, and you never fall behind. Turn audio on when you need to look away from the screen.
-  If you uncheck headphones the mic pauses during playback, which means you miss whatever is
-  said while it plays.
+  Endpoints and settings are stored in this browser only — nothing is committed to the repo, so the
+  page is safe to publish. Switching between A and B mid-call takes effect on the next sentence,
+  which makes it easy to compare the two on the Backend RTT readout.
 </p>
 
 <script>
 /* ============================================================
-   CONFIG
-   Point BACKEND_URL at the Cloudflare Worker (fast) or the
-   Apps Script /exec URL (slower, but no extra infrastructure).
+   0. STORAGE — falls back to memory where storage is unavailable
+      (private windows, blocked cookies, sandboxed previews)
    ============================================================ */
-const BACKEND_URL = "https://PASTE_YOUR_WORKER.workers.dev/";
+const store=(()=>{
+  const mem={}; let ok=false;
+  try{ localStorage.setItem("__probe","1"); localStorage.removeItem("__probe"); ok=true; }catch(e){}
+  return {
+    available:ok,
+    get(k){ try{ return ok?localStorage.getItem(k):(k in mem?mem[k]:null); }catch(e){ return k in mem?mem[k]:null; } },
+    set(k,v){ try{ ok?localStorage.setItem(k,v):(mem[k]=v); }catch(e){ mem[k]=v; } },
+    del(k){ try{ ok?localStorage.removeItem(k):(delete mem[k]); }catch(e){ delete mem[k]; } }
+  };
+})();
+const K="gvl.interpreter.v3";
 
-const DIRECTIONS = {
-  "ja-en": { recLang:"ja-JP", src:"ja", tgt:"en", ttsLang:"en-US", label:"日本語 → English", tgtName:"English" },
-  "en-ja": { recLang:"en-US", src:"en", tgt:"ja", ttsLang:"ja-JP", label:"English → 日本語", tgtName:"日本語" }
+let cfg={
+  A:{name:"Apps Script",url:""},
+  B:{name:"Worker",url:""},
+  active:"A",
+  dir:"ja-en",
+  speak:false, phones:true, rate:1.25, voice:""
 };
 
-/* Beyond this many sentences waiting for audio, drop the stale ones and
-   jump to the newest. Queuing them all is what makes you drift minutes
-   behind in a meeting; captions keep the full record either way. */
-const MAX_AUDIO_BACKLOG = 2;
+function loadCfg(){
+  const raw=store.get(K);
+  if(!raw) return;
+  try{ cfg=Object.assign(cfg,JSON.parse(raw)); }catch(e){}
+}
+function saveCfg(){ store.set(K,JSON.stringify(cfg)); }
 
-const el = id => document.getElementById(id);
+/* ============================================================
+   1. REFS + STATE
+   ============================================================ */
+const el=id=>document.getElementById(id);
 const statusEl=el("status"), fatalEl=el("fatal"), micBtn=el("micBtn"), swapBtn=el("swapBtn"),
       dirLabel=el("dirLabel"), tgtLabel=el("tgtLabel"), caption=el("caption"), heard=el("heard"),
       meter=el("meter"), optSpeak=el("optSpeak"), optPhones=el("optPhones"), optRate=el("optRate"),
       voiceSel=el("voiceSel"), logList=el("logList"), copyBtn=el("copyBtn"), clearBtn=el("clearBtn"),
-      tmLag=el("tmLag"), tmPause=el("tmPause"), tmRtt=el("tmRtt"), tmQueue=el("tmQueue"), tmDrop=el("tmDrop");
+      tmLag=el("tmLag"), tmPause=el("tmPause"), tmRtt=el("tmRtt"), tmQueue=el("tmQueue"), tmDrop=el("tmDrop"),
+      backendBar=el("backendBar"), segA=el("segA"), segB=el("segB"), hostA=el("hostA"), hostB=el("hostB"),
+      editBtn=el("editBtn"), testBtn=el("testBtn"), probe=el("probe"), editor=el("editor"),
+      nameA=el("nameA"), urlA=el("urlA"), nameB=el("nameB"), urlB=el("urlB"), hint=el("hint"),
+      saveBtn=el("saveBtn"), cancelBtn=el("cancelBtn"), forgetBtn=el("forgetBtn");
 
-let dir="ja-en", wantListening=false, recRunning=false, speaking=false, recognition=null;
-let lastFinal={text:"",at:0};
-let seq=0, nextReady=0;
-const readyBuffer=new Map();   // seq -> item awaiting its turn in order
-const audioQueue=[];           // ordered items waiting to be spoken
-const entries=[];
-let droppedCount=0;
+const DIRECTIONS={
+  "ja-en":{recLang:"ja-JP",src:"ja",tgt:"en",ttsLang:"en-US",label:"日本語 → English",tgtName:"English",probe:"テスト"},
+  "en-ja":{recLang:"en-US",src:"en",tgt:"ja",ttsLang:"ja-JP",label:"English → 日本語",tgtName:"日本語",probe:"test"}
+};
+const MAX_AUDIO_BACKLOG=2;
 
-/* Pause-detection timing: gap between last speech activity and isFinal */
-let lastVoiceActivity=0;
-const rtts=[], pauses=[];
+let wantListening=false, recRunning=false, speaking=false, recognition=null;
+let lastFinal={text:"",at:0}, seq=0, nextReady=0, droppedCount=0, lastVoiceActivity=0;
+const readyBuffer=new Map(), audioQueue=[], entries=[], rtts=[], pauses=[];
+const health={A:null,B:null};
 
 const SEGMENTS=14;
 for(let i=0;i<SEGMENTS;i++) meter.appendChild(document.createElement("i"));
@@ -214,29 +296,125 @@ function setStatus(t,s="idle"){statusEl.textContent=t;statusEl.dataset.state=s}
 function fatal(m){fatalEl.textContent=m}
 function ms(v){return v==null?"—":(v>=1000?(v/1000).toFixed(1)+"s":Math.round(v)+"ms")}
 function median(a){if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]}
-
-function refreshTelemetry(){
-  const p=median(pauses.slice(-8)), r=median(rtts.slice(-8));
-  tmPause.textContent=ms(p);
-  tmRtt.textContent=ms(r);
-  tmRtt.parentElement.dataset.warn = r==null?"":String(r>700);
-  tmQueue.textContent=audioQueue.length;
-  tmDrop.textContent=droppedCount;
-}
+function activeUrl(){return cfg[cfg.active].url}
 
 /* ============================================================
-   1. RECOGNITION
+   2. BACKEND BAR
    ============================================================ */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-if(!SR){ fatal("This browser can't do speech recognition. Use Chrome or Edge."); micBtn.disabled=true; }
+function hostOf(url){
+  try{ const u=new URL(url); return u.hostname.replace(/^www\./,""); }catch(e){ return url; }
+}
+
+function renderBackend(){
+  [["A",segA,hostA],["B",segB,hostB]].forEach(([slot,btn,host])=>{
+    const e=cfg[slot];
+    btn.setAttribute("aria-pressed",String(cfg.active===slot));
+    if(e.url){
+      host.className="host"; host.textContent=e.name||hostOf(e.url);
+      btn.title=e.url;
+    }else{
+      host.className="host empty"; host.textContent=(e.name||slot)+" — not set";
+      btn.title="No URL set for this slot";
+    }
+    if(health[slot]==null) btn.removeAttribute("data-ok");
+    else btn.dataset.ok=String(health[slot].ok);
+  });
+
+  const has=!!activeUrl();
+  backendBar.dataset.unset=String(!has);
+  micBtn.disabled=!has;
+  if(!has){
+    probe.dataset.state=""; probe.textContent="No endpoint set — press Edit";
+  }
+  const h=health[cfg.active];
+  if(has && h){
+    probe.dataset.state=h.ok?"ok":"bad";
+    probe.textContent=h.ok?`Reachable · ${ms(h.rtt)}`:`Failed · ${h.error}`;
+  }else if(has){
+    probe.dataset.state=""; probe.textContent="Untested";
+  }
+}
+
+function pickSlot(slot){
+  if(!cfg[slot].url){ openEditor(); return; }
+  cfg.active=slot; saveCfg(); renderBackend();
+}
+segA.addEventListener("click",()=>pickSlot("A"));
+segB.addEventListener("click",()=>pickSlot("B"));
+
+function openEditor(){
+  nameA.value=cfg.A.name; urlA.value=cfg.A.url;
+  nameB.value=cfg.B.name; urlB.value=cfg.B.url;
+  hint.textContent="";
+  editor.classList.add("open");
+  urlA.focus();
+}
+editBtn.addEventListener("click",()=>{
+  editor.classList.contains("open")?editor.classList.remove("open"):openEditor();
+});
+cancelBtn.addEventListener("click",()=>{ editor.classList.remove("open"); hint.textContent=""; });
+
+/* Catch the two mistakes that produce a silent CORS failure. */
+function validate(url){
+  if(!url) return null;
+  if(!/^https:\/\//i.test(url)) return "URLs must start with https:// — the mic won't work over http.";
+  if(/script\.google\.com/.test(url) && /\/dev\/?$/.test(url))
+    return "Use the Apps Script /exec URL, not /dev. The /dev URL requires a logged-in session and fails from the browser.";
+  if(/script\.google\.com/.test(url) && !/\/exec\/?$/.test(url))
+    return "Apps Script URLs should end in /exec.";
+  return null;
+}
+
+saveBtn.addEventListener("click",()=>{
+  const a=urlA.value.trim(), b=urlB.value.trim();
+  const err=validate(a)||validate(b);
+  if(err){ hint.textContent=err; return; }
+  cfg.A={name:nameA.value.trim()||"Endpoint A",url:a};
+  cfg.B={name:nameB.value.trim()||"Endpoint B",url:b};
+  if(!cfg[cfg.active].url) cfg.active = a?"A":(b?"B":"A");
+  health.A=health.B=null;
+  saveCfg(); renderBackend();
+  editor.classList.remove("open"); hint.textContent=""; fatal("");
+  if(activeUrl()) runTest();
+});
+
+forgetBtn.addEventListener("click",()=>{
+  store.del(K);
+  cfg={A:{name:"Apps Script",url:""},B:{name:"Worker",url:""},active:"A",
+       dir:"ja-en",speak:false,phones:true,rate:1.25,voice:""};
+  health.A=health.B=null;
+  applyPrefs(); applyDirection(); renderBackend();
+  editor.classList.remove("open");
+});
+
+async function runTest(){
+  const slot=cfg.active, url=cfg[slot].url;
+  if(!url) return;
+  probe.dataset.state=""; probe.textContent="Testing…";
+  testBtn.disabled=true;
+  const d=DIRECTIONS[cfg.dir];
+  const t0=performance.now();
+  try{
+    const r=await translateVia(url,d.probe,d.src,d.tgt);
+    health[slot]={ok:true,rtt:performance.now()-t0,sample:r.text};
+  }catch(err){
+    health[slot]={ok:false,error:err.message};
+  }
+  testBtn.disabled=false;
+  renderBackend();
+}
+testBtn.addEventListener("click",runTest);
+
+/* ============================================================
+   3. RECOGNITION
+   ============================================================ */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){ fatal("This browser can't do speech recognition. Use Chrome or Edge."); }
 
 function buildRecognizer(){
   const r=new SR();
-  r.lang=DIRECTIONS[dir].recLang;
-  r.continuous=true;
-  r.interimResults=true;
-  r.maxAlternatives=1;
-
+  r.lang=DIRECTIONS[cfg.dir].recLang;
+  r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
   r.onstart=()=>{recRunning=true;setStatus("Listening","live")};
 
   r.onresult=ev=>{
@@ -244,12 +422,10 @@ function buildRecognizer(){
     for(let i=ev.resultIndex;i<ev.results.length;i++){
       const res=ev.results[i], text=res[0].transcript.trim();
       if(res.isFinal){
-        // Time from last interim update to finalisation = Chrome's pause threshold.
         if(lastVoiceActivity) pauses.push(Date.now()-lastVoiceActivity);
         if(text) handleFinal(text);
-      } else {
-        interim+=res[0].transcript;
-        lastVoiceActivity=Date.now();
+      }else{
+        interim+=res[0].transcript; lastVoiceActivity=Date.now();
       }
     }
     if(interim.trim()) heard.textContent=interim.trim();
@@ -262,58 +438,66 @@ function buildRecognizer(){
       wantListening=false;syncMic();
       fatal("Microphone access is blocked. Allow it from the padlock icon in the address bar, then reload.");
       setStatus("Mic blocked","error");
-    } else if(ev.error==="audio-capture"){
+    }else if(ev.error==="audio-capture"){
       wantListening=false;syncMic();
       fatal("No microphone found. Check your input device and reload.");
       setStatus("No mic","error");
-    } else setStatus(ev.error,"error");
+    }else setStatus(ev.error,"error");
   };
 
-  // Chrome ends the session on its own roughly every 30-60s. Restart it.
   r.onend=()=>{
     recRunning=false;
     if(wantListening && !(speaking && !optPhones.checked)){
       setTimeout(()=>{ if(wantListening && !recRunning) safeStart(); },120);
-    } else if(!wantListening) setStatus("Idle","idle");
+    }else if(!wantListening) setStatus("Idle","idle");
   };
   return r;
 }
-
 function safeStart(){ if(recRunning)return; try{recognition.start()}catch(e){} }
 function stopRecognition(){ if(!recognition)return; try{recognition.abort()}catch(e){} recRunning=false; }
 
 /* ============================================================
-   2. TRANSLATION
+   4. TRANSLATION
    ============================================================ */
-async function translate(text,source,target){
+async function translateVia(url,text,source,target){
   const t0=performance.now();
-  const res=await fetch(BACKEND_URL,{
+  const res=await fetch(url,{
     method:"POST",
     // text/plain avoids a CORS preflight, which Apps Script won't answer.
     headers:{"Content-Type":"text/plain;charset=utf-8"},
     body:JSON.stringify({text,source,target})
   });
   const rtt=performance.now()-t0;
-  rtts.push(rtt);
-  if(!res.ok) throw new Error("Backend returned "+res.status);
-  const data=await res.json();
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  let data;
+  try{ data=await res.json(); }catch(e){ throw new Error("Response wasn't JSON"); }
   if(!data.ok) throw new Error(data.error||"Translation failed");
-  return {text:data.translation, rtt, cached:!!data.cached};
+  return {text:data.translation,rtt,cached:!!data.cached};
+}
+
+function refreshTelemetry(){
+  const p=median(pauses.slice(-8)), r=median(rtts.slice(-8));
+  tmPause.textContent=ms(p);
+  tmRtt.textContent=ms(r);
+  tmRtt.parentElement.dataset.warn=r==null?"":String(r>700);
+  tmQueue.textContent=audioQueue.length;
+  tmDrop.textContent=droppedCount;
 }
 
 function handleFinal(text){
   const now=Date.now();
-  if(text===lastFinal.text && now-lastFinal.at<1500) return;  // Chrome repeats finals sometimes
+  if(text===lastFinal.text && now-lastFinal.at<1500) return;
   lastFinal={text,at:now};
   heard.textContent=text;
 
-  const d=DIRECTIONS[dir], id=seq++, finalAt=now;
+  const d=DIRECTIONS[cfg.dir], id=seq++, finalAt=now;
   const row=addEntry(id,text,d.src);
+  const url=activeUrl(), slot=cfg.active;
 
-  translate(text,d.src,d.tgt).then(r=>{
-    row.out.textContent=r.text;
-    row.out.classList.remove("pending");
-    row.lat.textContent=`backend ${ms(r.rtt)}${r.cached?" · cached":""}`;
+  translateVia(url,text,d.src,d.tgt).then(r=>{
+    rtts.push(r.rtt);
+    row.out.textContent=r.text; row.out.classList.remove("pending");
+    row.lat.textContent=`${cfg[slot].name} · ${ms(r.rtt)}${r.cached?" · cached":""}`;
     row.li.dataset.text=r.text; row.li.dataset.lang=d.ttsLang;
     caption.textContent=r.text; caption.classList.remove("is-placeholder");
     readyBuffer.set(id,{text:r.text,lang:d.ttsLang,finalAt});
@@ -322,51 +506,46 @@ function handleFinal(text){
     row.out.textContent=err.message;
     row.out.classList.remove("pending"); row.out.classList.add("failed");
     row.replay.remove();
-    readyBuffer.set(id,null);
-    releaseInOrder();
+    health[slot]={ok:false,error:err.message}; renderBackend();
+    readyBuffer.set(id,null); releaseInOrder();
   });
 }
 
-/* Responses can return out of order; release them in spoken order. */
 function releaseInOrder(){
   while(readyBuffer.has(nextReady)){
     const item=readyBuffer.get(nextReady);
-    readyBuffer.delete(nextReady);
-    nextReady++;
+    readyBuffer.delete(nextReady); nextReady++;
     if(item) audioQueue.push(item);
   }
-  refreshTelemetry();
-  pumpAudio();
+  refreshTelemetry(); pumpAudio();
 }
 
 /* ============================================================
-   3. PLAYBACK — one utterance at a time, newest wins when behind
+   5. PLAYBACK
    ============================================================ */
 let voices=[];
 function loadVoices(){
   voices=speechSynthesis.getVoices();
-  const want=DIRECTIONS[dir].ttsLang.slice(0,2);
+  const want=DIRECTIONS[cfg.dir].ttsLang.slice(0,2);
   const matching=voices.filter(v=>v.lang.toLowerCase().startsWith(want));
   voiceSel.innerHTML="";
   if(!matching.length){ voiceSel.innerHTML='<option value="">System default voice</option>'; return; }
   matching.forEach(v=>{
-    const o=document.createElement("option");
-    o.value=v.name; o.textContent=v.name; voiceSel.appendChild(o);
+    const o=document.createElement("option"); o.value=v.name; o.textContent=v.name;
+    voiceSel.appendChild(o);
   });
+  if(cfg.voice && matching.some(v=>v.name===cfg.voice)) voiceSel.value=cfg.voice;
 }
 speechSynthesis.addEventListener("voiceschanged",loadVoices);
 loadVoices();
 
 function pumpAudio(){
   if(!optSpeak.checked){ audioQueue.length=0; refreshTelemetry(); return; }
-  if(speaking || !audioQueue.length) return;
+  if(speaking||!audioQueue.length) return;
 
-  // Catch-up: skip stale sentences rather than drifting further behind.
   if(audioQueue.length>MAX_AUDIO_BACKLOG){
     const drop=audioQueue.length-1;
-    audioQueue.splice(0,drop);
-    droppedCount+=drop;
-    markSkipped(drop);
+    audioQueue.splice(0,drop); droppedCount+=drop; markSkipped(drop);
   }
 
   const item=audioQueue.shift();
@@ -375,29 +554,18 @@ function pumpAudio(){
   tmLag.parentElement.dataset.warn=String(lag>2500);
   refreshTelemetry();
 
-  // Without headphones the mic hears the playback and translates it back.
   if(!optPhones.checked && recRunning) stopRecognition();
 
   const u=new SpeechSynthesisUtterance(item.text);
-  u.lang=item.lang;
-  u.rate=parseFloat(optRate.value);
+  u.lang=item.lang; u.rate=parseFloat(optRate.value);
   const chosen=voices.find(v=>v.name===voiceSel.value);
   if(chosen) u.voice=chosen;
 
   speaking=true;
-  const done=()=>{
-    speaking=false;
-    if(wantListening && !recRunning) safeStart();
-    pumpAudio();
-  };
+  const done=()=>{ speaking=false; if(wantListening&&!recRunning) safeStart(); pumpAudio(); };
   u.onend=done; u.onerror=done;
   speechSynthesis.speak(u);
 }
-
-optSpeak.addEventListener("change",()=>{
-  if(!optSpeak.checked){ speechSynthesis.cancel(); audioQueue.length=0; speaking=false; }
-  refreshTelemetry();
-});
 
 function speakOne(text,lang){
   speechSynthesis.cancel(); speaking=false;
@@ -409,7 +577,7 @@ function speakOne(text,lang){
 }
 
 /* ============================================================
-   4. INPUT METER
+   6. METER
    ============================================================ */
 let audioCtx=null,analyser=null,micStream=null,rafId=null;
 async function startMeter(){
@@ -442,41 +610,33 @@ function stopMeter(){
 }
 
 /* ============================================================
-   5. TRANSCRIPT
+   7. TRANSCRIPT
    ============================================================ */
 function addEntry(id,sourceText,srcCode){
   const li=document.createElement("li");
   li.className="entry"; li.dataset.src=srcCode;
-
   const t=document.createElement("time");
   t.textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-
   const body=document.createElement("div");
   const src=document.createElement("p"); src.className="src"; src.textContent=sourceText;
   const out=document.createElement("p"); out.className="out pending"; out.textContent="translating…";
   const lat=document.createElement("p"); lat.className="lat";
   body.append(src,out,lat);
-
   const replay=document.createElement("button");
   replay.className="replay"; replay.textContent="▶";
   replay.setAttribute("aria-label","Play this translation");
   replay.addEventListener("click",()=>{ if(li.dataset.text) speakOne(li.dataset.text,li.dataset.lang); });
-
   li.append(t,body,replay);
   logList.appendChild(li);
   li.scrollIntoView({block:"nearest",behavior:"smooth"});
-
   const rec={id,li,src,out,lat,replay,sourceText};
-  entries.push(rec);
-  return rec;
+  entries.push(rec); return rec;
 }
-
 function markSkipped(n){
   const li=document.createElement("li");
   li.innerHTML=`<button class="skipmark" disabled>— audio skipped for ${n} sentence${n>1?"s":""} to catch up —</button>`;
   logList.appendChild(li);
 }
-
 copyBtn.addEventListener("click",async()=>{
   const text=entries.map(e=>`${e.sourceText}\n${e.out.textContent}`).join("\n\n");
   try{ await navigator.clipboard.writeText(text); copyBtn.textContent="Copied"; }
@@ -486,18 +646,22 @@ copyBtn.addEventListener("click",async()=>{
 clearBtn.addEventListener("click",()=>{ logList.innerHTML=""; entries.length=0; });
 
 /* ============================================================
-   6. CONTROLS
+   8. CONTROLS
    ============================================================ */
 function syncMic(){
   micBtn.dataset.on=String(wantListening);
   micBtn.textContent=wantListening?"Stop listening":"Start listening";
 }
 function applyDirection(){
-  const d=DIRECTIONS[dir];
-  dirLabel.textContent=d.label;
-  tgtLabel.textContent=d.tgtName;
+  const d=DIRECTIONS[cfg.dir];
+  dirLabel.textContent=d.label; tgtLabel.textContent=d.tgtName;
   loadVoices();
   if(recognition) recognition.lang=d.recLang;
+}
+function applyPrefs(){
+  optSpeak.checked=!!cfg.speak;
+  optPhones.checked=cfg.phones!==false;
+  optRate.value=cfg.rate||1.25;
 }
 
 micBtn.addEventListener("click",()=>{
@@ -505,11 +669,9 @@ micBtn.addEventListener("click",()=>{
     wantListening=false; stopRecognition(); stopMeter();
     speechSynthesis.cancel(); audioQueue.length=0; speaking=false;
     setStatus("Idle","idle");
-  } else {
-    if(BACKEND_URL.includes("PASTE_YOUR_WORKER")){
-      fatal("Set BACKEND_URL at the top of the script to your Worker or Apps Script URL first.");
-      return;
-    }
+  }else{
+    if(!activeUrl()){ openEditor(); return; }
+    if(!SR){ fatal("This browser can't do speech recognition. Use Chrome or Edge."); return; }
     fatal(""); recognition=buildRecognizer(); wantListening=true;
     safeStart(); startMeter();
   }
@@ -519,12 +681,20 @@ micBtn.addEventListener("click",()=>{
 swapBtn.addEventListener("click",()=>{
   const was=wantListening;
   if(was){ wantListening=false; stopRecognition(); }
-  dir = dir==="ja-en" ? "en-ja" : "ja-en";
-  applyDirection();
-  heard.textContent="";
+  cfg.dir = cfg.dir==="ja-en" ? "en-ja" : "ja-en";
+  saveCfg(); applyDirection(); heard.textContent="";
   if(was){ recognition=buildRecognizer(); wantListening=true; safeStart(); }
   syncMic();
 });
+
+optSpeak.addEventListener("change",()=>{
+  cfg.speak=optSpeak.checked; saveCfg();
+  if(!optSpeak.checked){ speechSynthesis.cancel(); audioQueue.length=0; speaking=false; }
+  refreshTelemetry();
+});
+optPhones.addEventListener("change",()=>{ cfg.phones=optPhones.checked; saveCfg(); });
+optRate.addEventListener("change",()=>{ cfg.rate=parseFloat(optRate.value); saveCfg(); });
+voiceSel.addEventListener("change",()=>{ cfg.voice=voiceSel.value; saveCfg(); });
 
 document.addEventListener("keydown",e=>{
   if(e.code!=="Space") return;
@@ -532,7 +702,13 @@ document.addEventListener("keydown",e=>{
   e.preventDefault(); micBtn.click();
 });
 
-applyDirection(); syncMic(); refreshTelemetry();
+/* ---------- boot ---------- */
+loadCfg();
+applyPrefs(); applyDirection(); renderBackend(); refreshTelemetry();
+if(!store.available){
+  fatal("This browser won't persist settings (private window or blocked storage). Endpoints will work but won't be remembered after a reload.");
+}
+if(!activeUrl()) openEditor();
 </script>
 </body>
 </html>
