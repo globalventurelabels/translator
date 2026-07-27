@@ -6,195 +6,110 @@
 <title>Voice Interpreter — Global Venture Labels</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#E7E8E3;
-    --card:#F6F6F3;
-    --ink:#171B1F;
-    --ink-2:#5A6167;
-    --rule:#C9CBC4;
-    --ja:#B23A26;
-    --en:#1B4A7A;
-    --signal:#C99418;
-    --r:3px;
-    --pad:clamp(16px,3vw,32px);
+    --paper:#E7E8E3; --card:#F6F6F3; --ink:#171B1F; --ink-2:#5A6167;
+    --rule:#C9CBC4; --ja:#B23A26; --en:#1B4A7A; --signal:#C99418; --good:#2E6B4F;
+    --r:3px; --pad:clamp(14px,3vw,32px);
   }
-
   *{box-sizing:border-box}
   html,body{margin:0}
   body{
-    background:var(--paper);
-    color:var(--ink);
+    background:var(--paper); color:var(--ink);
     font-family:"Archivo",system-ui,sans-serif;
-    font-variation-settings:"wdth" 100;
     -webkit-font-smoothing:antialiased;
-    padding:var(--pad);
-    max-width:1120px;
-    margin:0 auto;
+    padding:var(--pad); max-width:1180px; margin:0 auto;
   }
   h1,h2{margin:0}
   button{font:inherit;cursor:pointer}
   :focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .mono{font-family:"IBM Plex Mono",monospace}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
 
-  .tag{
-    font-family:"IBM Plex Mono",monospace;
-    font-size:10px;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:var(--ink-2);
-  }
-
-  /* ---------- header ---------- */
-  .rig{
-    display:flex;align-items:flex-end;justify-content:space-between;
-    gap:16px;flex-wrap:wrap;
-    padding-bottom:14px;border-bottom:2px solid var(--ink);
-  }
-  .rig h1{
-    font-size:clamp(24px,4vw,38px);
-    font-variation-settings:"wdth" 118,"wght" 700;
-    letter-spacing:-.02em;line-height:.95;
-  }
+  .rig{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
+       padding-bottom:14px;border-bottom:2px solid var(--ink)}
+  .rig h1{font-size:clamp(23px,4vw,36px);font-variation-settings:"wdth" 118,"wght" 700;letter-spacing:-.02em;line-height:.95}
   .rig .sub{margin:6px 0 0;font-size:13px;color:var(--ink-2)}
-  .status{
-    font-family:"IBM Plex Mono",monospace;font-size:11px;
-    letter-spacing:.1em;text-transform:uppercase;
-    border:1px solid var(--rule);border-radius:var(--r);
-    padding:7px 11px;background:var(--card);white-space:nowrap;
-  }
+  .status{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+          border:1px solid var(--rule);border-radius:var(--r);padding:7px 11px;background:var(--card);white-space:nowrap}
   .status[data-state="live"]{border-color:var(--signal);color:#7a5a00;background:#FBF3DC}
   .status[data-state="error"]{border-color:var(--ja);color:var(--ja);background:#FBEBE8}
 
-  /* ---------- console ---------- */
-  .console{
-    display:grid;
-    grid-template-columns:1fr auto 1fr;
-    gap:12px;align-items:stretch;
-    margin:22px 0;
+  /* ---------- telemetry strip: shows which stage is costing you ---------- */
+  .telemetry{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:1px;
+    margin:16px 0 0;background:var(--rule);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;
   }
-  .lane{
-    background:var(--card);
-    border:1px solid var(--rule);
-    border-top:3px solid var(--rule);
-    border-radius:var(--r);
-    padding:14px 16px 16px;
-    min-height:190px;
-    display:flex;flex-direction:column;
-  }
-  .lane--source[data-lang="ja"],.lane--target[data-lang="ja"]{border-top-color:var(--ja)}
-  .lane--source[data-lang="en"],.lane--target[data-lang="en"]{border-top-color:var(--en)}
-  .lane__head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-  .lane__lang{
-    font-family:"Noto Sans JP","Archivo",sans-serif;
-    font-size:15px;font-weight:700;
-  }
-  .lane--source .lane__lang{color:var(--ja)}
-  .lane--target .lane__lang{color:var(--en)}
-  .lane--source[data-lang="en"] .lane__lang{color:var(--en)}
-  .lane--target[data-lang="ja"] .lane__lang{color:var(--ja)}
+  .tm{background:var(--card);padding:9px 11px}
+  .tm b{display:block;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:600;line-height:1.3;margin-top:3px}
+  .tm[data-warn="true"] b{color:var(--ja)}
+  .tm[data-warn="false"] b{color:var(--good)}
 
-  .lane__live{
+  /* ---------- caption stage: the thing you actually read ---------- */
+  .stage{
+    margin:16px 0;background:var(--card);border:1px solid var(--rule);
+    border-top:3px solid var(--en);border-radius:var(--r);padding:18px 20px 20px;
+  }
+  .stage__head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .caption{
     font-family:"Noto Sans JP","Archivo",sans-serif;
-    font-size:clamp(17px,2.2vw,22px);
-    line-height:1.5;margin:14px 0 0;flex:1;
+    font-size:clamp(21px,3.4vw,34px);line-height:1.4;font-weight:500;
+    margin:12px 0 0;min-height:2.8em;
   }
-  .lane__live.is-placeholder{color:#A2A8A5;font-size:15px}
-  .lane__live--out{font-weight:500}
-
-  /* signature: segmented input meter */
-  .meter{display:flex;gap:3px;margin-top:14px;height:22px}
-  .meter i{
-    flex:1;background:#DEDFD9;border-radius:1px;
-    transition:background .07s linear;
+  .caption.is-placeholder{color:#A2A8A5;font-size:16px;font-weight:400}
+  .heard{
+    font-family:"Noto Sans JP",sans-serif;font-size:14px;color:var(--ink-2);
+    line-height:1.5;margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--rule);min-height:2.4em;
   }
+  .meter{display:flex;gap:3px;height:16px;width:150px}
+  .meter i{flex:1;background:#DEDFD9;border-radius:1px;transition:background .07s linear}
   .meter i.on{background:var(--signal)}
   .meter i.on.hot{background:var(--ja)}
-  .meter.is-idle i{background:#DEDFD9}
 
-  .swap{
-    align-self:center;
-    background:var(--card);border:1px solid var(--rule);border-radius:var(--r);
-    width:44px;height:44px;font-size:19px;color:var(--ink);
-  }
-  .swap:hover{background:#fff;border-color:var(--ink)}
-
-  /* ---------- controls ---------- */
-  .controls{
-    display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
-    padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
-  }
-  .mic{
-    background:var(--ink);color:#fff;border:none;border-radius:var(--r);
-    padding:12px 22px;font-weight:600;letter-spacing:.01em;
-    font-variation-settings:"wdth" 108,"wght" 650;
-  }
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
+            padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+  .mic{background:var(--ink);color:#fff;border:none;border-radius:var(--r);padding:12px 22px;
+       font-variation-settings:"wdth" 108,"wght" 650}
   .mic:hover{background:#000}
   .mic[data-on="true"]{background:var(--ja)}
+  .swap{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);padding:11px 15px;font-size:15px}
+  .swap:hover{border-color:var(--ink)}
   .opt{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2)}
   .opt input[type=checkbox]{accent-color:var(--en);width:15px;height:15px}
-  .opt--range input{width:96px;accent-color:var(--en)}
-  select{
-    font:inherit;font-size:13px;padding:6px 8px;
-    border:1px solid var(--rule);border-radius:var(--r);background:var(--card);color:var(--ink);
-    max-width:210px;
-  }
+  .opt--range input{width:88px;accent-color:var(--en)}
+  select{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--rule);
+         border-radius:var(--r);background:var(--card);color:var(--ink);max-width:200px}
 
-  /* ---------- transcript ---------- */
-  .log{margin-top:26px}
+  .log{margin-top:24px}
   .log__head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-  .log__head h2{
-    font-size:13px;font-family:"IBM Plex Mono",monospace;
-    letter-spacing:.14em;text-transform:uppercase;font-weight:500;
-  }
-  .log__head button{
-    background:none;border:1px solid var(--rule);border-radius:var(--r);
-    padding:5px 10px;font-size:12px;color:var(--ink-2);margin-left:6px;
-  }
+  .log__head h2{font-size:13px;font-family:"IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+  .log__head button{background:none;border:1px solid var(--rule);border-radius:var(--r);
+                    padding:5px 10px;font-size:12px;color:var(--ink-2);margin-left:6px}
   .log__head button:hover{border-color:var(--ink);color:var(--ink)}
-
   .log ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
-  .entry{
-    display:grid;grid-template-columns:64px 1fr auto;gap:14px;
-    padding:13px 14px;background:var(--card);
-    border-left:3px solid var(--rule);align-items:start;
-  }
+  .entry{display:grid;grid-template-columns:58px 1fr auto;gap:13px;padding:12px 14px;
+         background:var(--card);border-left:3px solid var(--rule);align-items:start}
   .entry[data-src="ja"]{border-left-color:var(--ja)}
   .entry[data-src="en"]{border-left-color:var(--en)}
   .entry time{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2);padding-top:3px}
-  .entry .src{
-    font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink-2);
-    margin:0 0 5px;line-height:1.5;
-  }
-  .entry .out{
-    font-family:"Noto Sans JP","Archivo",sans-serif;font-size:16px;
-    line-height:1.5;margin:0;font-weight:500;
-  }
+  .entry .src{font-family:"Noto Sans JP",sans-serif;font-size:13px;color:var(--ink-2);margin:0 0 5px;line-height:1.5}
+  .entry .out{font-family:"Noto Sans JP","Archivo",sans-serif;font-size:16px;line-height:1.5;margin:0;font-weight:500}
   .entry .out.pending{color:#A2A8A5;font-weight:400}
   .entry .out.failed{color:var(--ja);font-weight:400;font-size:13px}
-  .replay{
-    background:none;border:1px solid var(--rule);border-radius:var(--r);
-    width:30px;height:30px;font-size:13px;color:var(--ink-2);line-height:1;
-  }
+  .entry .lat{font-family:"IBM Plex Mono",monospace;font-size:10px;color:#9AA09C;margin:4px 0 0}
+  .replay{background:none;border:1px solid var(--rule);border-radius:var(--r);
+          width:30px;height:30px;font-size:13px;color:var(--ink-2);line-height:1}
   .replay:hover{border-color:var(--ink);color:var(--ink)}
+  .skipmark{background:none;border:0;padding:6px 14px;font-size:11px;color:var(--ink-2);
+            font-family:"IBM Plex Mono",monospace;letter-spacing:.06em}
 
-  .note{
-    margin:20px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.6;
-    border-left:2px solid var(--rule);padding-left:12px;
-  }
-  .fatal{
-    background:#FBEBE8;border:1px solid var(--ja);color:#7A2418;
-    border-radius:var(--r);padding:14px 16px;font-size:14px;line-height:1.55;margin:22px 0;
-  }
+  .note{margin:18px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.65;
+        border-left:2px solid var(--rule);padding-left:12px}
+  .fatal{background:#FBEBE8;border:1px solid var(--ja);color:#7A2418;border-radius:var(--r);
+         padding:14px 16px;font-size:14px;line-height:1.55;margin:18px 0}
   .fatal:empty{display:none}
-
-  @media (max-width:720px){
-    .console{grid-template-columns:1fr}
-    .swap{justify-self:start;transform:rotate(90deg)}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .meter i{transition:none}
-  }
+  @media (prefers-reduced-motion:reduce){.meter i{transition:none}}
 </style>
 </head>
 <body>
@@ -209,32 +124,30 @@
 
 <div class="fatal" id="fatal"></div>
 
-<section class="console">
-  <div class="lane lane--source" id="laneSource" data-lang="ja">
-    <div class="lane__head">
-      <span class="tag">Listening for</span>
-      <span class="lane__lang" id="srcLabel">日本語</span>
-    </div>
-    <div class="meter is-idle" id="meter" aria-hidden="true"></div>
-    <p class="lane__live is-placeholder" id="liveText">Nothing heard yet.</p>
-  </div>
+<!-- Telemetry: tells you which stage to blame -->
+<div class="telemetry">
+  <div class="tm"><span class="tag">Behind by</span><b id="tmLag">—</b></div>
+  <div class="tm"><span class="tag">Pause detect</span><b id="tmPause">—</b></div>
+  <div class="tm"><span class="tag">Backend RTT</span><b id="tmRtt">—</b></div>
+  <div class="tm"><span class="tag">Queued</span><b id="tmQueue">0</b></div>
+  <div class="tm"><span class="tag">Dropped audio</span><b id="tmDrop">0</b></div>
+</div>
 
-  <button class="swap" id="swapBtn" aria-label="Swap translation direction" title="Swap direction">⇄</button>
-
-  <div class="lane lane--target" id="laneTarget" data-lang="en">
-    <div class="lane__head">
-      <span class="tag">Playing back</span>
-      <span class="lane__lang" id="tgtLabel">English</span>
-    </div>
-    <p class="lane__live lane__live--out is-placeholder" id="liveOut">Translations appear and play here.</p>
+<section class="stage">
+  <div class="stage__head">
+    <span class="tag">Translation · <span id="tgtLabel">English</span></span>
+    <div class="meter" id="meter" aria-hidden="true"></div>
   </div>
+  <p class="caption is-placeholder" id="caption">Press start. Translations appear here as each sentence completes.</p>
+  <p class="heard mono" id="heard"></p>
 </section>
 
 <div class="controls">
   <button class="mic" id="micBtn" data-on="false">Start listening</button>
-  <label class="opt"><input type="checkbox" id="optSpeak" checked> Play translations aloud</label>
-  <label class="opt"><input type="checkbox" id="optDuck" checked> Pause mic while playing</label>
-  <label class="opt opt--range" for="optRate">Speed <input type="range" id="optRate" min="0.6" max="1.4" step="0.05" value="1"></label>
+  <button class="swap" id="swapBtn">⇄ <span id="dirLabel">日本語 → English</span></button>
+  <label class="opt"><input type="checkbox" id="optSpeak"> Play audio</label>
+  <label class="opt"><input type="checkbox" id="optPhones" checked> I'm on headphones</label>
+  <label class="opt opt--range" for="optRate">Speed <input type="range" id="optRate" min="0.8" max="1.8" step="0.05" value="1.25"></label>
   <select id="voiceSel" aria-label="Playback voice"></select>
 </div>
 
@@ -250,415 +163,376 @@
 </section>
 
 <p class="note">
-  Wear headphones. Without them the microphone picks up the English playback and translates it back
-  into Japanese. "Pause mic while playing" limits this but headphones eliminate it.
-  Chrome or Edge required — speech recognition is unavailable in Firefox.
+  Audio is off by default. Reading the captions is roughly two seconds faster than waiting for
+  playback, and you never fall behind. Turn audio on when you need to look away from the screen.
+  If you uncheck headphones the mic pauses during playback, which means you miss whatever is
+  said while it plays.
 </p>
 
 <script>
 /* ============================================================
-   CONFIG — point this at your Apps Script Web App /exec URL
+   CONFIG
+   Point BACKEND_URL at the Cloudflare Worker (fast) or the
+   Apps Script /exec URL (slower, but no extra infrastructure).
    ============================================================ */
-const GAS_URL = "https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec";
+const BACKEND_URL = "https://PASTE_YOUR_WORKER.workers.dev/";
 
 const DIRECTIONS = {
-  "ja-en": { recLang:"ja-JP", src:"ja", tgt:"en", ttsLang:"en-US", srcName:"日本語", tgtName:"English" },
-  "en-ja": { recLang:"en-US", src:"en", tgt:"ja", ttsLang:"ja-JP", srcName:"English", tgtName:"日本語" }
+  "ja-en": { recLang:"ja-JP", src:"ja", tgt:"en", ttsLang:"en-US", label:"日本語 → English", tgtName:"English" },
+  "en-ja": { recLang:"en-US", src:"en", tgt:"ja", ttsLang:"ja-JP", label:"English → 日本語", tgtName:"日本語" }
 };
 
-/* ---------- element refs ---------- */
+/* Beyond this many sentences waiting for audio, drop the stale ones and
+   jump to the newest. Queuing them all is what makes you drift minutes
+   behind in a meeting; captions keep the full record either way. */
+const MAX_AUDIO_BACKLOG = 2;
+
 const el = id => document.getElementById(id);
 const statusEl=el("status"), fatalEl=el("fatal"), micBtn=el("micBtn"), swapBtn=el("swapBtn"),
-      liveText=el("liveText"), liveOut=el("liveOut"), meter=el("meter"),
-      laneSource=el("laneSource"), laneTarget=el("laneTarget"),
-      srcLabel=el("srcLabel"), tgtLabel=el("tgtLabel"),
-      optSpeak=el("optSpeak"), optDuck=el("optDuck"), optRate=el("optRate"),
-      voiceSel=el("voiceSel"), logList=el("logList"), copyBtn=el("copyBtn"), clearBtn=el("clearBtn");
+      dirLabel=el("dirLabel"), tgtLabel=el("tgtLabel"), caption=el("caption"), heard=el("heard"),
+      meter=el("meter"), optSpeak=el("optSpeak"), optPhones=el("optPhones"), optRate=el("optRate"),
+      voiceSel=el("voiceSel"), logList=el("logList"), copyBtn=el("copyBtn"), clearBtn=el("clearBtn"),
+      tmLag=el("tmLag"), tmPause=el("tmPause"), tmRtt=el("tmRtt"), tmQueue=el("tmQueue"), tmDrop=el("tmDrop");
 
-/* ---------- state ---------- */
-let dir = "ja-en";
-let wantListening = false;   // what the user asked for
-let recRunning = false;      // what the engine is actually doing
-let speaking = false;
-let recognition = null;
-let lastFinal = { text:"", at:0 };
-let seq = 0, nextToSpeak = 0;
-const speakBuffer = new Map();
-const entries = [];
+let dir="ja-en", wantListening=false, recRunning=false, speaking=false, recognition=null;
+let lastFinal={text:"",at:0};
+let seq=0, nextReady=0;
+const readyBuffer=new Map();   // seq -> item awaiting its turn in order
+const audioQueue=[];           // ordered items waiting to be spoken
+const entries=[];
+let droppedCount=0;
 
-/* ---------- build the meter segments ---------- */
-const SEGMENTS = 16;
-for (let i=0;i<SEGMENTS;i++) meter.appendChild(document.createElement("i"));
-const segs = [...meter.querySelectorAll("i")];
+/* Pause-detection timing: gap between last speech activity and isFinal */
+let lastVoiceActivity=0;
+const rtts=[], pauses=[];
 
-/* ---------- status helper ---------- */
-function setStatus(text, state="idle"){
-  statusEl.textContent = text;
-  statusEl.dataset.state = state;
+const SEGMENTS=14;
+for(let i=0;i<SEGMENTS;i++) meter.appendChild(document.createElement("i"));
+const segs=[...meter.querySelectorAll("i")];
+
+function setStatus(t,s="idle"){statusEl.textContent=t;statusEl.dataset.state=s}
+function fatal(m){fatalEl.textContent=m}
+function ms(v){return v==null?"—":(v>=1000?(v/1000).toFixed(1)+"s":Math.round(v)+"ms")}
+function median(a){if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)]}
+
+function refreshTelemetry(){
+  const p=median(pauses.slice(-8)), r=median(rtts.slice(-8));
+  tmPause.textContent=ms(p);
+  tmRtt.textContent=ms(r);
+  tmRtt.parentElement.dataset.warn = r==null?"":String(r>700);
+  tmQueue.textContent=audioQueue.length;
+  tmDrop.textContent=droppedCount;
 }
-function fatal(msg){ fatalEl.textContent = msg; }
 
 /* ============================================================
-   1. SPEECH RECOGNITION  (microphone -> text)
+   1. RECOGNITION
    ============================================================ */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (!SR) {
-  fatal("This browser can't do speech recognition. Open the page in Chrome or Edge.");
-  micBtn.disabled = true;
-}
+if(!SR){ fatal("This browser can't do speech recognition. Use Chrome or Edge."); micBtn.disabled=true; }
 
 function buildRecognizer(){
-  const r = new SR();
-  r.lang = DIRECTIONS[dir].recLang;
-  r.continuous = true;      // keep going between sentences
-  r.interimResults = true;  // stream partial words for the live display
-  r.maxAlternatives = 1;
+  const r=new SR();
+  r.lang=DIRECTIONS[dir].recLang;
+  r.continuous=true;
+  r.interimResults=true;
+  r.maxAlternatives=1;
 
-  r.onstart = () => { recRunning = true; setStatus("Listening", "live"); };
+  r.onstart=()=>{recRunning=true;setStatus("Listening","live")};
 
-  r.onresult = ev => {
-    let interim = "";
-    for (let i = ev.resultIndex; i < ev.results.length; i++) {
-      const res = ev.results[i];
-      const text = res[0].transcript.trim();
-      if (res.isFinal) {
-        if (text) handleFinal(text);
+  r.onresult=ev=>{
+    let interim="";
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const res=ev.results[i], text=res[0].transcript.trim();
+      if(res.isFinal){
+        // Time from last interim update to finalisation = Chrome's pause threshold.
+        if(lastVoiceActivity) pauses.push(Date.now()-lastVoiceActivity);
+        if(text) handleFinal(text);
       } else {
-        interim += res[0].transcript;
+        interim+=res[0].transcript;
+        lastVoiceActivity=Date.now();
       }
     }
-    if (interim.trim()) {
-      liveText.textContent = interim.trim();
-      liveText.classList.remove("is-placeholder");
-    }
+    if(interim.trim()) heard.textContent=interim.trim();
+    refreshTelemetry();
   };
 
-  r.onerror = ev => {
-    // no-speech and aborted are routine, not failures
-    if (ev.error === "no-speech" || ev.error === "aborted") return;
-    if (ev.error === "not-allowed" || ev.error === "service-not-allowed") {
-      wantListening = false; syncMicButton();
-      fatal("Microphone access was blocked. Allow it in the padlock menu in the address bar, then reload.");
-      setStatus("Mic blocked", "error");
-    } else if (ev.error === "audio-capture") {
-      wantListening = false; syncMicButton();
+  r.onerror=ev=>{
+    if(ev.error==="no-speech"||ev.error==="aborted") return;
+    if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){
+      wantListening=false;syncMic();
+      fatal("Microphone access is blocked. Allow it from the padlock icon in the address bar, then reload.");
+      setStatus("Mic blocked","error");
+    } else if(ev.error==="audio-capture"){
+      wantListening=false;syncMic();
       fatal("No microphone found. Check your input device and reload.");
-      setStatus("No mic", "error");
-    } else if (ev.error === "network") {
-      setStatus("Network error", "error");
-    } else {
-      setStatus(ev.error, "error");
-    }
+      setStatus("No mic","error");
+    } else setStatus(ev.error,"error");
   };
 
-  // Chrome ends the session on its own every 30-60s. Restart it.
-  r.onend = () => {
-    recRunning = false;
-    if (wantListening && !speaking) {
-      setTimeout(() => { if (wantListening && !recRunning) safeStart(); }, 150);
-    } else if (!wantListening) {
-      setStatus("Idle", "idle");
-    }
+  // Chrome ends the session on its own roughly every 30-60s. Restart it.
+  r.onend=()=>{
+    recRunning=false;
+    if(wantListening && !(speaking && !optPhones.checked)){
+      setTimeout(()=>{ if(wantListening && !recRunning) safeStart(); },120);
+    } else if(!wantListening) setStatus("Idle","idle");
   };
-
   return r;
 }
 
-function safeStart(){
-  if (recRunning) return;
-  try { recognition.start(); }
-  catch (err) { /* InvalidStateError = already starting; harmless */ }
-}
-
-function stopRecognition(){
-  if (!recognition) return;
-  try { recognition.abort(); } catch (e) {}
-  recRunning = false;
-}
+function safeStart(){ if(recRunning)return; try{recognition.start()}catch(e){} }
+function stopRecognition(){ if(!recognition)return; try{recognition.abort()}catch(e){} recRunning=false; }
 
 /* ============================================================
-   2. TRANSLATION  (text -> Apps Script -> text)
+   2. TRANSLATION
    ============================================================ */
-async function translate(text, source, target){
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    // text/plain keeps the browser from sending a CORS preflight,
-    // which Apps Script Web Apps do not answer.
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ text, source, target })
+async function translate(text,source,target){
+  const t0=performance.now();
+  const res=await fetch(BACKEND_URL,{
+    method:"POST",
+    // text/plain avoids a CORS preflight, which Apps Script won't answer.
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({text,source,target})
   });
-  if (!res.ok) throw new Error("Backend returned " + res.status);
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || "Translation failed");
-  return data.translation;
+  const rtt=performance.now()-t0;
+  rtts.push(rtt);
+  if(!res.ok) throw new Error("Backend returned "+res.status);
+  const data=await res.json();
+  if(!data.ok) throw new Error(data.error||"Translation failed");
+  return {text:data.translation, rtt, cached:!!data.cached};
 }
 
-/* Each finalised sentence gets a sequence number so playback stays in
-   spoken order even when the network returns responses out of order. */
 function handleFinal(text){
-  const now = Date.now();
-  if (text === lastFinal.text && now - lastFinal.at < 1500) return; // drop duplicate finals
-  lastFinal = { text, at: now };
+  const now=Date.now();
+  if(text===lastFinal.text && now-lastFinal.at<1500) return;  // Chrome repeats finals sometimes
+  lastFinal={text,at:now};
+  heard.textContent=text;
 
-  liveText.textContent = text;
-  liveText.classList.remove("is-placeholder");
+  const d=DIRECTIONS[dir], id=seq++, finalAt=now;
+  const row=addEntry(id,text,d.src);
 
-  const d = DIRECTIONS[dir];
-  const id = seq++;
-  const row = addEntry(id, text, d.src);
+  translate(text,d.src,d.tgt).then(r=>{
+    row.out.textContent=r.text;
+    row.out.classList.remove("pending");
+    row.lat.textContent=`backend ${ms(r.rtt)}${r.cached?" · cached":""}`;
+    row.li.dataset.text=r.text; row.li.dataset.lang=d.ttsLang;
+    caption.textContent=r.text; caption.classList.remove("is-placeholder");
+    readyBuffer.set(id,{text:r.text,lang:d.ttsLang,finalAt});
+    releaseInOrder();
+  }).catch(err=>{
+    row.out.textContent=err.message;
+    row.out.classList.remove("pending"); row.out.classList.add("failed");
+    row.replay.remove();
+    readyBuffer.set(id,null);
+    releaseInOrder();
+  });
+}
 
-  translate(text, d.src, d.tgt)
-    .then(out => {
-      row.out.textContent = out;
-      row.out.classList.remove("pending");
-      row.li.dataset.text = out;
-      row.li.dataset.lang = d.ttsLang;
-      liveOut.textContent = out;
-      liveOut.classList.remove("is-placeholder");
-      speakBuffer.set(id, { text: out, lang: d.ttsLang });
-      drainSpeakQueue();
-    })
-    .catch(err => {
-      row.out.textContent = err.message;
-      row.out.classList.remove("pending");
-      row.out.classList.add("failed");
-      row.replay.remove();
-      speakBuffer.set(id, null);
-      drainSpeakQueue();
-    });
+/* Responses can return out of order; release them in spoken order. */
+function releaseInOrder(){
+  while(readyBuffer.has(nextReady)){
+    const item=readyBuffer.get(nextReady);
+    readyBuffer.delete(nextReady);
+    nextReady++;
+    if(item) audioQueue.push(item);
+  }
+  refreshTelemetry();
+  pumpAudio();
 }
 
 /* ============================================================
-   3. SPEECH SYNTHESIS  (text -> audio out)
+   3. PLAYBACK — one utterance at a time, newest wins when behind
    ============================================================ */
-let voices = [];
+let voices=[];
 function loadVoices(){
-  voices = speechSynthesis.getVoices();
-  const want = DIRECTIONS[dir].ttsLang.slice(0,2);
-  const matching = voices.filter(v => v.lang.toLowerCase().startsWith(want));
-  voiceSel.innerHTML = "";
-  if (!matching.length) {
-    voiceSel.innerHTML = '<option value="">System default voice</option>';
-    return;
-  }
-  matching.forEach(v => {
-    const o = document.createElement("option");
-    o.value = v.name; o.textContent = v.name;
-    voiceSel.appendChild(o);
+  voices=speechSynthesis.getVoices();
+  const want=DIRECTIONS[dir].ttsLang.slice(0,2);
+  const matching=voices.filter(v=>v.lang.toLowerCase().startsWith(want));
+  voiceSel.innerHTML="";
+  if(!matching.length){ voiceSel.innerHTML='<option value="">System default voice</option>'; return; }
+  matching.forEach(v=>{
+    const o=document.createElement("option");
+    o.value=v.name; o.textContent=v.name; voiceSel.appendChild(o);
   });
 }
-// getVoices() is empty on first call in Chrome; it fires this event when ready.
-speechSynthesis.addEventListener("voiceschanged", loadVoices);
+speechSynthesis.addEventListener("voiceschanged",loadVoices);
 loadVoices();
 
-function drainSpeakQueue(){
-  while (speakBuffer.has(nextToSpeak)) {
-    const item = speakBuffer.get(nextToSpeak);
-    speakBuffer.delete(nextToSpeak);
-    nextToSpeak++;
-    if (item) speak(item.text, item.lang);
+function pumpAudio(){
+  if(!optSpeak.checked){ audioQueue.length=0; refreshTelemetry(); return; }
+  if(speaking || !audioQueue.length) return;
+
+  // Catch-up: skip stale sentences rather than drifting further behind.
+  if(audioQueue.length>MAX_AUDIO_BACKLOG){
+    const drop=audioQueue.length-1;
+    audioQueue.splice(0,drop);
+    droppedCount+=drop;
+    markSkipped(drop);
   }
-}
 
-function speak(text, lang){
-  if (!optSpeak.checked) return;
+  const item=audioQueue.shift();
+  const lag=Date.now()-item.finalAt;
+  tmLag.textContent=ms(lag);
+  tmLag.parentElement.dataset.warn=String(lag>2500);
+  refreshTelemetry();
 
-  // Stop the mic first so it doesn't hear the playback and translate it back.
-  if (optDuck.checked && recRunning) { speaking = true; stopRecognition(); }
+  // Without headphones the mic hears the playback and translates it back.
+  if(!optPhones.checked && recRunning) stopRecognition();
 
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  u.rate = parseFloat(optRate.value);
-  const chosen = voices.find(v => v.name === voiceSel.value);
-  if (chosen) u.voice = chosen;
+  const u=new SpeechSynthesisUtterance(item.text);
+  u.lang=item.lang;
+  u.rate=parseFloat(optRate.value);
+  const chosen=voices.find(v=>v.name===voiceSel.value);
+  if(chosen) u.voice=chosen;
 
-  speaking = true;
-  setStatus("Playing", "live");
-
-  const done = () => {
-    // Only release the mic once the whole synthesis queue has drained.
-    if (speechSynthesis.speaking || speechSynthesis.pending) return;
-    speaking = false;
-    if (wantListening) safeStart(); else setStatus("Idle", "idle");
+  speaking=true;
+  const done=()=>{
+    speaking=false;
+    if(wantListening && !recRunning) safeStart();
+    pumpAudio();
   };
-  u.onend = done;
-  u.onerror = done;
-
+  u.onend=done; u.onerror=done;
   speechSynthesis.speak(u);
 }
 
-function speakOne(text, lang){
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  u.rate = parseFloat(optRate.value);
-  const chosen = voices.find(v => v.name === voiceSel.value);
-  if (chosen) u.voice = chosen;
+optSpeak.addEventListener("change",()=>{
+  if(!optSpeak.checked){ speechSynthesis.cancel(); audioQueue.length=0; speaking=false; }
+  refreshTelemetry();
+});
+
+function speakOne(text,lang){
+  speechSynthesis.cancel(); speaking=false;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=parseFloat(optRate.value);
+  const chosen=voices.find(v=>v.name===voiceSel.value);
+  if(chosen) u.voice=chosen;
   speechSynthesis.speak(u);
 }
 
 /* ============================================================
-   4. INPUT LEVEL METER — confirms the mic is actually hearing you
+   4. INPUT METER
    ============================================================ */
-let audioCtx = null, analyser = null, micStream = null, rafId = null;
-
+let audioCtx=null,analyser=null,micStream=null,rafId=null;
 async function startMeter(){
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({ audio:true });
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 512;
+  try{
+    micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    analyser=audioCtx.createAnalyser(); analyser.fftSize=512;
     audioCtx.createMediaStreamSource(micStream).connect(analyser);
-    meter.classList.remove("is-idle");
     tickMeter();
-  } catch (err) {
-    meter.style.display = "none"; // meter is a nicety, not a requirement
-  }
+  }catch(e){ meter.style.display="none"; }
 }
-
 function tickMeter(){
-  const buf = new Uint8Array(analyser.frequencyBinCount);
+  const buf=new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(buf);
-  let sum = 0;
-  for (const v of buf) sum += v * v;
-  const rms = Math.sqrt(sum / buf.length) / 255;
-  const lit = Math.min(SEGMENTS, Math.round(rms * SEGMENTS * 2.6));
-  segs.forEach((s, i) => {
-    s.classList.toggle("on", i < lit);
-    s.classList.toggle("hot", i < lit && i >= SEGMENTS - 3);
+  let sum=0; for(const v of buf) sum+=v*v;
+  const rms=Math.sqrt(sum/buf.length)/255;
+  const lit=Math.min(SEGMENTS,Math.round(rms*SEGMENTS*2.6));
+  segs.forEach((s,i)=>{
+    s.classList.toggle("on",i<lit);
+    s.classList.toggle("hot",i<lit&&i>=SEGMENTS-3);
   });
-  rafId = requestAnimationFrame(tickMeter);
+  rafId=requestAnimationFrame(tickMeter);
 }
-
 function stopMeter(){
-  if (rafId) cancelAnimationFrame(rafId);
-  rafId = null;
-  if (micStream) micStream.getTracks().forEach(t => t.stop());
-  if (audioCtx) audioCtx.close();
-  micStream = audioCtx = analyser = null;
-  segs.forEach(s => s.classList.remove("on","hot"));
-  meter.classList.add("is-idle");
+  if(rafId) cancelAnimationFrame(rafId); rafId=null;
+  if(micStream) micStream.getTracks().forEach(t=>t.stop());
+  if(audioCtx) audioCtx.close();
+  micStream=audioCtx=analyser=null;
+  segs.forEach(s=>s.classList.remove("on","hot"));
 }
 
 /* ============================================================
-   5. TRANSCRIPT LOG
+   5. TRANSCRIPT
    ============================================================ */
-function addEntry(id, sourceText, srcCode){
-  const li = document.createElement("li");
-  li.className = "entry";
-  li.dataset.src = srcCode;
+function addEntry(id,sourceText,srcCode){
+  const li=document.createElement("li");
+  li.className="entry"; li.dataset.src=srcCode;
 
-  const t = document.createElement("time");
-  t.textContent = new Date().toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"});
+  const t=document.createElement("time");
+  t.textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit",second:"2-digit"});
 
-  const body = document.createElement("div");
-  const src = document.createElement("p");
-  src.className = "src"; src.textContent = sourceText;
-  const out = document.createElement("p");
-  out.className = "out pending"; out.textContent = "translating…";
-  body.append(src, out);
+  const body=document.createElement("div");
+  const src=document.createElement("p"); src.className="src"; src.textContent=sourceText;
+  const out=document.createElement("p"); out.className="out pending"; out.textContent="translating…";
+  const lat=document.createElement("p"); lat.className="lat";
+  body.append(src,out,lat);
 
-  const replay = document.createElement("button");
-  replay.className = "replay"; replay.title = "Play again";
-  replay.setAttribute("aria-label", "Play this translation again");
-  replay.textContent = "▶";
-  replay.addEventListener("click", () => {
-    if (li.dataset.text) speakOne(li.dataset.text, li.dataset.lang);
-  });
+  const replay=document.createElement("button");
+  replay.className="replay"; replay.textContent="▶";
+  replay.setAttribute("aria-label","Play this translation");
+  replay.addEventListener("click",()=>{ if(li.dataset.text) speakOne(li.dataset.text,li.dataset.lang); });
 
-  li.append(t, body, replay);
+  li.append(t,body,replay);
   logList.appendChild(li);
-  li.scrollIntoView({ block:"nearest", behavior:"smooth" });
+  li.scrollIntoView({block:"nearest",behavior:"smooth"});
 
-  const rec = { id, li, src, out, replay, sourceText };
+  const rec={id,li,src,out,lat,replay,sourceText};
   entries.push(rec);
   return rec;
 }
 
-copyBtn.addEventListener("click", async () => {
-  const text = entries
-    .map(e => `${e.sourceText}\n${e.out.textContent}`)
-    .join("\n\n");
-  try {
-    await navigator.clipboard.writeText(text);
-    copyBtn.textContent = "Copied";
-    setTimeout(() => copyBtn.textContent = "Copy all", 1400);
-  } catch (e) {
-    copyBtn.textContent = "Copy blocked";
-    setTimeout(() => copyBtn.textContent = "Copy all", 1400);
-  }
-});
+function markSkipped(n){
+  const li=document.createElement("li");
+  li.innerHTML=`<button class="skipmark" disabled>— audio skipped for ${n} sentence${n>1?"s":""} to catch up —</button>`;
+  logList.appendChild(li);
+}
 
-clearBtn.addEventListener("click", () => {
-  logList.innerHTML = "";
-  entries.length = 0;
+copyBtn.addEventListener("click",async()=>{
+  const text=entries.map(e=>`${e.sourceText}\n${e.out.textContent}`).join("\n\n");
+  try{ await navigator.clipboard.writeText(text); copyBtn.textContent="Copied"; }
+  catch(e){ copyBtn.textContent="Copy blocked"; }
+  setTimeout(()=>copyBtn.textContent="Copy all",1400);
 });
+clearBtn.addEventListener("click",()=>{ logList.innerHTML=""; entries.length=0; });
 
 /* ============================================================
    6. CONTROLS
    ============================================================ */
-function syncMicButton(){
-  micBtn.dataset.on = String(wantListening);
-  micBtn.textContent = wantListening ? "Stop listening" : "Start listening";
+function syncMic(){
+  micBtn.dataset.on=String(wantListening);
+  micBtn.textContent=wantListening?"Stop listening":"Start listening";
 }
-
 function applyDirection(){
-  const d = DIRECTIONS[dir];
-  srcLabel.textContent = d.srcName;
-  tgtLabel.textContent = d.tgtName;
-  laneSource.dataset.lang = d.src;
-  laneTarget.dataset.lang = d.tgt;
+  const d=DIRECTIONS[dir];
+  dirLabel.textContent=d.label;
+  tgtLabel.textContent=d.tgtName;
   loadVoices();
-  if (recognition) recognition.lang = d.recLang;
+  if(recognition) recognition.lang=d.recLang;
 }
 
-micBtn.addEventListener("click", () => {
-  if (wantListening) {
-    wantListening = false;
-    stopRecognition();
-    stopMeter();
-    speechSynthesis.cancel();
-    setStatus("Idle", "idle");
+micBtn.addEventListener("click",()=>{
+  if(wantListening){
+    wantListening=false; stopRecognition(); stopMeter();
+    speechSynthesis.cancel(); audioQueue.length=0; speaking=false;
+    setStatus("Idle","idle");
   } else {
-    if (GAS_URL.includes("PASTE_YOUR_DEPLOYMENT_ID")) {
-      fatal("Set GAS_URL at the top of the script to your Apps Script /exec URL first.");
+    if(BACKEND_URL.includes("PASTE_YOUR_WORKER")){
+      fatal("Set BACKEND_URL at the top of the script to your Worker or Apps Script URL first.");
       return;
     }
-    fatal("");
-    recognition = buildRecognizer();
-    wantListening = true;
-    safeStart();
-    startMeter();
+    fatal(""); recognition=buildRecognizer(); wantListening=true;
+    safeStart(); startMeter();
   }
-  syncMicButton();
+  syncMic(); refreshTelemetry();
 });
 
-swapBtn.addEventListener("click", () => {
-  const wasOn = wantListening;
-  if (wasOn) { wantListening = false; stopRecognition(); }
-  dir = dir === "ja-en" ? "en-ja" : "ja-en";
+swapBtn.addEventListener("click",()=>{
+  const was=wantListening;
+  if(was){ wantListening=false; stopRecognition(); }
+  dir = dir==="ja-en" ? "en-ja" : "ja-en";
   applyDirection();
-  liveText.textContent = "Nothing heard yet.";
-  liveText.classList.add("is-placeholder");
-  if (wasOn) {
-    recognition = buildRecognizer();
-    wantListening = true;
-    safeStart();
-  }
-  syncMicButton();
+  heard.textContent="";
+  if(was){ recognition=buildRecognizer(); wantListening=true; safeStart(); }
+  syncMic();
 });
 
-// Space toggles listening, unless you're typing in a field
-document.addEventListener("keydown", e => {
-  if (e.code !== "Space") return;
-  if (/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(document.activeElement.tagName)) return;
-  e.preventDefault();
-  micBtn.click();
+document.addEventListener("keydown",e=>{
+  if(e.code!=="Space") return;
+  if(/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(document.activeElement.tagName)) return;
+  e.preventDefault(); micBtn.click();
 });
 
-applyDirection();
-syncMicButton();
+applyDirection(); syncMic(); refreshTelemetry();
 </script>
 </body>
 </html>
