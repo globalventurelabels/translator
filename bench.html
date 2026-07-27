@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaigi Bench — endpoint testing &amp; captions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --paper:#F5F4EF; --ink:#171F33; --en:#25507A; --ja:#9E2B20;
+    --line:#D8D4C9; --card:#FFFFFF; --muted:#6B6A63; --good:#2E6B4F; --warn:#B08217;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;
+    background:var(--paper);color:var(--ink);padding:0 0 40px;
+  }
+  .mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+  header{border-bottom:2px solid var(--ink);padding:16px 0;margin-bottom:20px}
+  header .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  h1{font-size:1.15rem;font-weight:900}
+  .jp{font-size:.82rem;color:var(--muted);font-weight:500}
+  h2{font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;
+     color:var(--muted);margin:26px 0 10px}
+  a{color:var(--en)}
+
+  .card{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:16px}
+  .slots{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;
+         background:var(--paper);margin-bottom:12px}
+  .slots button{flex:1;background:none;border:0;padding:10px;font-family:inherit;font-size:.82rem;
+                color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .slots button + button{border-left:1.5px solid var(--line)}
+  .slots button[aria-pressed="true"]{background:var(--ink);color:#fff;font-weight:700}
+  .slots .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+  .slots button[aria-pressed="true"] .dot{background:var(--warn)}
+  .slots button[data-ok="true"] .dot{background:var(--good)}
+  .slots button[data-ok="false"] .dot{background:var(--ja)}
+
+  .fld{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+  .fld label{font-size:.68rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+  .fld input{font-family:"IBM Plex Mono",monospace;font-size:.8rem;padding:9px 12px;
+             border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+  .fld .nm-in{font-family:inherit;font-size:.85rem;margin-bottom:6px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{font-family:inherit;font-size:.8rem;font-weight:700;border-radius:8px;cursor:pointer;
+       padding:9px 16px;border:1.5px solid var(--ink);background:none;color:var(--ink)}
+  .btn:hover:not(:disabled){background:var(--ink);color:#fff}
+  .btn.primary{background:var(--ink);color:#fff}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .hint{font-size:.75rem;color:var(--ja);font-weight:700;min-height:1.1em;margin:8px 0}
+
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:6px}
+  th,td{text-align:right;padding:8px 10px;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:.65rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  td.num{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  tr.win td{color:var(--good);font-weight:700}
+  .verdict{margin-top:12px;font-size:.85rem;line-height:1.6;padding:12px 14px;
+           background:var(--paper);border-left:3px solid var(--ink);border-radius:4px}
+  .verdict:empty{display:none}
+
+  .diag{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:1px;
+        background:var(--line);border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+  .diag div{background:var(--card);padding:8px 10px}
+  .diag span{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+  .diag b{display:block;font-size:1.05rem;font-weight:900;margin-top:2px;
+          font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  .diag div[data-warn="true"] b{color:var(--ja)}
+  .diag div[data-warn="false"] b{color:var(--good)}
+
+  .stage{background:var(--card);border:1.5px solid var(--line);border-top:3px solid var(--en);
+         border-radius:10px;padding:18px;margin-top:10px}
+  .caption{font-size:clamp(1.3rem,3.6vw,2rem);font-weight:700;line-height:1.45;min-height:2.6em}
+  .caption.ph{color:var(--muted);font-size:1rem;font-weight:400}
+  .heard{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+         font-size:.9rem;color:var(--muted);min-height:2.2em}
+  .lines{list-style:none;margin-top:10px}
+  .lines li{background:var(--card);border-left:3px solid var(--line);padding:10px 12px;margin-bottom:1px}
+  .lines li[data-src="ja"]{border-left-color:var(--ja)}
+  .lines li[data-src="en"]{border-left-color:var(--en)}
+  .lines .o{font-size:.82rem;color:var(--muted);line-height:1.5}
+  .lines .t{font-size:1rem;font-weight:700;line-height:1.5;margin-top:3px}
+  .lines .t.ph{color:var(--muted);font-weight:400;font-style:italic}
+  .lines .m{font-family:"IBM Plex Mono",monospace;font-size:.62rem;color:#A6A49C;margin-top:3px}
+  .status{font-size:.78rem;color:var(--muted);min-height:1.2em;margin-top:10px}
+  .status.err{color:var(--ja);font-weight:700}
+  .note{font-size:.78rem;color:var(--muted);line-height:1.65;
+        border-left:2px solid var(--line);padding-left:12px;margin-top:22px}
+  #signin{text-align:center;padding:60px 20px;display:flex;flex-direction:column;align-items:center;gap:16px}
+  #app{display:none}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <div>
+    <h1>Kaigi Bench</h1>
+    <span class="jp">エンドポイント検証・字幕モード / Endpoint testing &amp; captions</span>
+  </div>
+  <span class="mono" id="badge" style="font-size:.75rem;color:var(--muted)"></span>
+</div></header>
+
+<div class="wrap">
+
+<div id="signin">
+  <div>
+    <div style="font-size:1.1rem;font-weight:900;margin-bottom:6px">Sign in with your company Google account</div>
+    <div style="color:var(--muted);font-size:.88rem">会社のGoogleアカウントでサインインしてください</div>
+  </div>
+  <div id="gsiButton"></div>
+  <div id="signinError" style="color:var(--ja);font-weight:700;font-size:.85rem;display:none"></div>
+</div>
+
+<div id="app">
+
+  <h2>Endpoints / エンドポイント</h2>
+  <div class="card">
+    <div class="slots" role="group" aria-label="Active endpoint">
+      <button id="slotA" aria-pressed="true"><span class="dot"></span><span id="nmA">A</span></button>
+      <button id="slotB" aria-pressed="false"><span class="dot"></span><span id="nmB">B</span></button>
+    </div>
+    <div class="fld">
+      <label for="urlA">Endpoint A / エンドポイントA</label>
+      <input class="nm-in" id="nameA" type="text" placeholder="Apps Script" autocomplete="off">
+      <input id="urlA" type="url" spellcheck="false" autocomplete="off"
+             placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <div class="fld">
+      <label for="urlB">Endpoint B / エンドポイントB</label>
+      <input class="nm-in" id="nameB" type="text" placeholder="Worker" autocomplete="off">
+      <input id="urlB" type="url" spellcheck="false" autocomplete="off"
+             placeholder="https://translate.your-name.workers.dev/">
+    </div>
+    <p class="hint" id="hint"></p>
+    <div class="row">
+      <button class="btn primary" id="saveBtn">Save / 保存</button>
+      <button class="btn" id="benchBtn">Benchmark both / 両方を計測</button>
+    </div>
+    <p class="note" style="margin-top:14px">
+      Shares saved endpoints with the main app — anything set here shows up there.
+      The benchmark sends five different phrases per endpoint so edge caches can't
+      flatter the result. / 5種類の異なる文を送信するためキャッシュの影響を受けません。
+    </p>
+  </div>
+
+  <h2>Results / 結果</h2>
+  <div class="card">
+    <table>
+      <thead><tr><th>Endpoint</th><th>Min</th><th>Median</th><th>Max</th><th>Fails</th></tr></thead>
+      <tbody id="results"><tr><td colspan="5" style="color:var(--muted);text-align:center">Not run yet / 未計測</td></tr></tbody>
+    </table>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <h2>Caption mode / 字幕モード</h2>
+  <div class="diag">
+    <div><span>Behind / 遅延</span><b id="dLag">—</b></div>
+    <div><span>Pause / 無音検出</span><b id="dPause">—</b></div>
+    <div><span>Backend / 応答</span><b id="dRtt">—</b></div>
+    <div><span>Lines / 行数</span><b id="dLines">0</b></div>
+  </div>
+
+  <div class="stage">
+    <p class="caption ph" id="caption">Captions only — no audio, so nothing queues up behind you. / 音声なしの字幕専用モードです。</p>
+    <p class="heard" id="heard"></p>
+  </div>
+
+  <div class="row" style="margin-top:12px">
+    <button class="btn primary" id="micBtn">Start · 日本語 → English</button>
+    <button class="btn" id="swapBtn">⇄ Swap / 方向切替</button>
+    <button class="btn" id="clearBtn">Clear / クリア</button>
+  </div>
+  <p class="status" id="status"></p>
+
+  <ol class="lines" id="lines"></ol>
+
+  <p class="note">
+    This page is a diagnostic harness, not the app your colleagues should open —
+    send them the main page. Use this to check an endpoint before a meeting and to
+    decide whether a faster backend is worth deploying.
+  </p>
+</div>
+
+</div>
+
+<script>
+const GOOGLE_CLIENT_ID = '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
+const CFG_KEY = 'gvl.kaigi.v1';   /* shared with the main app */
+const SAMPLES = [
+  'よろしくお願いします',
+  'その件については来週までに確認しておきます',
+  '納期の変更について相談させてください',
+  '在庫の状況を確認しました',
+  '会議の資料を共有いたします'
+];
+
+let idToken = null;
+
+const store = (function(){
+  const mem={}; let ok=false;
+  try{ localStorage.setItem('__p','1'); localStorage.removeItem('__p'); ok=true; }catch(e){}
+  return {
+    get(k){ try{ return ok?localStorage.getItem(k):(k in mem?mem[k]:null); }catch(e){ return null; } },
+    set(k,v){ try{ ok?localStorage.setItem(k,v):(mem[k]=v); }catch(e){ mem[k]=v; } }
+  };
+})();
+
+let cfg = { A:{name:'Apps Script',url:''}, B:{name:'Worker',url:''}, active:'A', speak:true, phones:true, rate:1.15 };
+try{ const raw=store.get(CFG_KEY); if(raw) cfg=Object.assign(cfg,JSON.parse(raw)); }catch(e){}
+function saveCfg(){ store.set(CFG_KEY, JSON.stringify(cfg)); }
+function activeUrl(){ return cfg[cfg.active].url; }
+
+const $ = id => document.getElementById(id);
+const slotA=$('slotA'), slotB=$('slotB'), nmA=$('nmA'), nmB=$('nmB'),
+      nameA=$('nameA'), urlA=$('urlA'), nameB=$('nameB'), urlB=$('urlB'),
+      hint=$('hint'), saveBtn=$('saveBtn'), benchBtn=$('benchBtn'),
+      results=$('results'), verdict=$('verdict'),
+      dLag=$('dLag'), dPause=$('dPause'), dRtt=$('dRtt'), dLines=$('dLines'),
+      caption=$('caption'), heard=$('heard'), micBtn=$('micBtn'), swapBtn=$('swapBtn'),
+      clearBtn=$('clearBtn'), statusEl=$('status'), lines=$('lines');
+
+const health={A:null,B:null}, rtts=[], pauses=[];
+let dir='ja-en', listening=false, rec=null, recRunning=false, userStopped=false;
+let lastFinal={text:'',at:0}, lastVoiceActivity=0, lineCount=0;
+
+function ms(v){ return v==null?'—':(v>=1000?(v/1000).toFixed(1)+'s':Math.round(v)+'ms'); }
+function median(a){ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; }
+function setStatus(m,e){ statusEl.textContent=m||''; statusEl.className='status'+(e?' err':''); }
+
+/* ---------- auth ---------- */
+function handleSignIn(r){
+  idToken = r.credential;
+  try{
+    const p = JSON.parse(atob(r.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    $('badge').textContent = p.email||'';
+  }catch(e){}
+  $('signin').style.display='none';
+  $('app').style.display='block';
+}
+window.onload = function(){
+  google.accounts.id.initialize({ client_id:GOOGLE_CLIENT_ID, callback:handleSignIn });
+  google.accounts.id.renderButton($('gsiButton'), { theme:'filled_blue', size:'large', text:'signin_with' });
+};
+
+/* ---------- backend (identical contract to the main app) ---------- */
+function callBackend(url, text, d){
+  const [src,tgt] = d==='en-ja' ? ['en','ja'] : ['ja','en'];
+  const t0 = performance.now();
+  return fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({ text, dir:d, source:src, target:tgt, idToken })
+  }).then(async res=>{
+    const rtt = performance.now()-t0;
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    let data;
+    try{ data=await res.json(); }catch(e){ throw new Error('Response was not JSON'); }
+    if(data.authFailed) throw new Error(data.error||'Sign in again');
+    if(data.error) throw new Error(data.error);
+    if(data.ok===false) throw new Error(data.error||'Translation failed');
+    const out=(data.translation||'').trim();
+    if(!out) throw new Error('Empty translation');
+    return { text:out, rtt, cached:!!data.cached };
+  });
+}
+
+/* ---------- endpoint editor ---------- */
+function renderSlots(){
+  [['A',slotA,nmA],['B',slotB,nmB]].forEach(([k,btn,label])=>{
+    btn.setAttribute('aria-pressed', String(cfg.active===k));
+    label.textContent = cfg[k].url ? (cfg[k].name||k) : (cfg[k].name||k)+' — not set';
+    btn.title = cfg[k].url || 'No URL';
+    if(health[k]==null) btn.removeAttribute('data-ok');
+    else btn.dataset.ok = String(health[k]);
+  });
+  micBtn.disabled = !activeUrl();
+}
+function fill(){ nameA.value=cfg.A.name; urlA.value=cfg.A.url; nameB.value=cfg.B.name; urlB.value=cfg.B.url; }
+slotA.addEventListener('click',()=>{ if(cfg.A.url){cfg.active='A';saveCfg();renderSlots();updateMicLabel();} });
+slotB.addEventListener('click',()=>{ if(cfg.B.url){cfg.active='B';saveCfg();renderSlots();updateMicLabel();} });
+
+function validate(u){
+  if(!u) return null;
+  if(!/^https:\/\//i.test(u)) return 'URLs must start with https:// / URLはhttps://で始めてください。';
+  if(/script\.google\.com/.test(u) && /\/dev\/?$/.test(u))
+    return 'Use the /exec URL, not /dev. / /devではなく/execを使用してください。';
+  if(/script\.google\.com/.test(u) && !/\/exec\/?$/.test(u))
+    return 'Apps Script URLs end in /exec.';
+  return null;
+}
+saveBtn.addEventListener('click',()=>{
+  const a=urlA.value.trim(), b=urlB.value.trim();
+  const err=validate(a)||validate(b);
+  if(err){ hint.textContent=err; return; }
+  cfg.A={name:nameA.value.trim()||'Endpoint A',url:a};
+  cfg.B={name:nameB.value.trim()||'Endpoint B',url:b};
+  if(!cfg[cfg.active].url) cfg.active = a?'A':'B';
+  health.A=health.B=null;
+  saveCfg(); renderSlots(); updateMicLabel(); hint.textContent='Saved / 保存しました';
+  setTimeout(()=>hint.textContent='',1600);
+});
+
+/* ---------- benchmark ---------- */
+async function benchOne(url){
+  const times=[]; let fails=0;
+  for(const phrase of SAMPLES){
+    try{ const r=await callBackend(url,phrase,'ja-en'); times.push(r.rtt); }
+    catch(e){ fails++; }
+  }
+  return { times, fails };
+}
+
+benchBtn.addEventListener('click', async ()=>{
+  const slots=['A','B'].filter(k=>cfg[k].url);
+  if(!slots.length){ hint.textContent='Set at least one URL first. / URLを1つ以上設定してください。'; return; }
+  benchBtn.disabled=true; saveBtn.disabled=true;
+  results.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--muted)">Running… / 計測中…</td></tr>';
+  verdict.textContent='';
+
+  const out=[];
+  for(const k of slots){
+    const r=await benchOne(cfg[k].url);
+    health[k] = r.times.length>0;
+    out.push({ k, name:cfg[k].name, ...r, med:median(r.times) });
+  }
+  renderSlots();
+
+  const best = out.filter(o=>o.med!=null).sort((a,b)=>a.med-b.med)[0];
+  results.innerHTML = out.map(o=>{
+    if(!o.times.length) return `<tr><td>${o.name}</td><td colspan="4" style="color:var(--ja)">all ${o.fails} failed</td></tr>`;
+    return `<tr class="${best&&o.k===best.k&&out.length>1?'win':''}">
+      <td>${o.name}</td>
+      <td class="num">${ms(Math.min(...o.times))}</td>
+      <td class="num">${ms(o.med)}</td>
+      <td class="num">${ms(Math.max(...o.times))}</td>
+      <td class="num">${o.fails||'—'}</td></tr>`;
+  }).join('');
+
+  if(out.length>1 && out.every(o=>o.med!=null)){
+    const [fast,slow]=[...out].sort((a,b)=>a.med-b.med);
+    const saved=slow.med-fast.med;
+    verdict.textContent = saved<150
+      ? `${fast.name} is only ${ms(saved)} faster. That's inside the noise — the delay you're feeling is coming from somewhere other than the backend, so switching won't help much. / 差は誤差の範囲です。`
+      : `${fast.name} saves about ${ms(saved)} per sentence. Worth using as the active endpoint. / 1文あたり約${ms(saved)}短縮できます。`;
+  } else if(best){
+    verdict.textContent = best.med>1000
+      ? `${best.name} is averaging ${ms(best.med)} per sentence. Over a second of that delay is the backend, so a faster one would be a real improvement. / 応答が1秒を超えています。`
+      : `${best.name} responds in ${ms(best.med)}. That's fast enough that the backend isn't your bottleneck. / 十分に高速です。`;
+  }
+
+  benchBtn.disabled=false; saveBtn.disabled=false;
+});
+
+/* ---------- caption mode ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if(!SR){ setStatus('Speech recognition needs Chrome or Edge. / Chrome か Edge が必要です。', true); micBtn.disabled=true; }
+
+function updateMicLabel(){
+  micBtn.textContent = listening
+    ? 'Stop / 停止'
+    : 'Start · ' + (dir==='ja-en' ? '日本語 → English' : 'English → 日本語');
+}
+
+function refreshDiag(){
+  const p=median(pauses.slice(-8)), r=median(rtts.slice(-8));
+  dPause.textContent=ms(p);
+  dRtt.textContent=ms(r);
+  dRtt.parentElement.dataset.warn = r==null?'':String(r>700);
+  dLines.textContent=lineCount;
+}
+
+function addLine(orig, srcCode){
+  const li=document.createElement('li');
+  li.dataset.src=srcCode;
+  const o=document.createElement('p'); o.className='o'; o.textContent=orig;
+  const t=document.createElement('p'); t.className='t ph'; t.textContent='translating… / 翻訳中…';
+  const m=document.createElement('p'); m.className='m';
+  li.append(o,t,m); lines.prepend(li);
+  lineCount++; refreshDiag();
+  return { t, m };
+}
+
+function handleFinal(text){
+  const now=Date.now();
+  if(text===lastFinal.text && now-lastFinal.at<1500) return;
+  if(lastVoiceActivity) pauses.push(now-lastVoiceActivity);
+  lastFinal={text,at:now};
+  heard.textContent=text;
+
+  const srcCode = dir==='ja-en' ? 'ja' : 'en';
+  const row=addLine(text, srcCode);
+
+  callBackend(activeUrl(), text, dir).then(r=>{
+    rtts.push(r.rtt);
+    row.t.textContent=r.text; row.t.classList.remove('ph');
+    row.m.textContent = cfg[cfg.active].name+' · '+ms(r.rtt)+(r.cached?' · cached':'');
+    caption.textContent=r.text; caption.classList.remove('ph');
+    dLag.textContent=ms(Date.now()-now);
+    dLag.parentElement.dataset.warn=String(Date.now()-now>2500);
+    refreshDiag();
+  }).catch(err=>{
+    row.t.textContent='failed / 失敗 — '+err.message;
+    row.t.classList.remove('ph');
+    refreshDiag();
+  });
+}
+
+function build(){
+  const r=new SR();
+  r.lang = dir==='ja-en' ? 'ja-JP' : 'en-US';
+  r.continuous=true; r.interimResults=true;
+  r.onstart=()=>{ recRunning=true; setStatus(dir==='ja-en'?'聞いています…':'Listening…'); };
+  r.onresult=ev=>{
+    let interim='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const t=ev.results[i][0].transcript;
+      if(ev.results[i].isFinal){ if(t.trim()) handleFinal(t.trim()); }
+      else { interim+=t; lastVoiceActivity=Date.now(); }
+    }
+    if(interim.trim()) heard.textContent=interim.trim();
+  };
+  r.onerror=ev=>{
+    if(ev.error==='no-speech'||ev.error==='aborted') return;
+    if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){
+      listening=false; userStopped=true; updateMicLabel();
+      setStatus('Microphone blocked — allow it from the padlock icon, then reload. / マイクがブロックされています。', true);
+    } else setStatus('Mic error: '+ev.error, true);
+  };
+  r.onend=()=>{
+    recRunning=false;
+    if(!userStopped && listening) setTimeout(()=>{ if(listening&&!recRunning) start(); }, 200);
+    else setStatus('');
+  };
+  return r;
+}
+function start(){ if(recRunning) return; try{ rec=build(); rec.start(); }catch(e){} }
+
+micBtn.addEventListener('click',()=>{
+  if(listening){
+    listening=false; userStopped=true;
+    if(rec){ try{ rec.abort(); }catch(e){} }
+    setStatus('');
+  }else{
+    if(!activeUrl()){ hint.textContent='Set an endpoint first. / 先にエンドポイントを設定してください。'; return; }
+    userStopped=false; listening=true; start();
+  }
+  updateMicLabel();
+});
+
+swapBtn.addEventListener('click',()=>{
+  const was=listening;
+  if(was){ listening=false; userStopped=true; if(rec){ try{rec.abort()}catch(e){} } }
+  dir = dir==='ja-en' ? 'en-ja' : 'ja-en';
+  heard.textContent='';
+  if(was){ userStopped=false; listening=true; start(); }
+  updateMicLabel();
+});
+
+clearBtn.addEventListener('click',()=>{
+  lines.innerHTML=''; lineCount=0;
+  rtts.length=0; pauses.length=0;
+  lastFinal={text:'',at:0};
+  caption.textContent='Captions only — no audio, so nothing queues up behind you. / 音声なしの字幕専用モードです。';
+  caption.classList.add('ph');
+  heard.textContent=''; dLag.textContent='—';
+  refreshDiag();
+});
+
+fill(); renderSlots(); updateMicLabel(); refreshDiag();
+</script>
+</body>
+</html>
