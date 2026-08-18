@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kaigi Bridge — EN ⇄ JA Interpreter</title>
+<title>Translation Bridge — English ⇄ Japanese</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -13,12 +13,10 @@
     --ink:#171F33;
     --en:#25507A;
     --ja:#9E2B20;
-    --en-soft:#E8EEF4;
-    --ja-soft:#F6E9E7;
     --line:#D8D4C9;
     --card:#FFFFFF;
     --muted:#6B6A63;
-    --good:#2E6B4F;
+    --good:#22c55e;
     --warn:#B08217;
   }
   *{box-sizing:border-box;margin:0;padding:0}
@@ -37,20 +35,19 @@
   }
   .brand{display:flex;align-items:baseline;gap:10px}
   .brand h1{font-size:1.15rem;font-weight:900;letter-spacing:.02em}
-  .brand .jp{font-size:.85rem;color:var(--muted);font-weight:500}
+  .brand .subtitle{font-size:.85rem;color:var(--muted);font-weight:500}
   .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .toggle{display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer;user-select:none}
   .toggle input{accent-color:var(--ink);width:16px;height:16px;cursor:pointer}
+  
   .pill{
     font-family:inherit;font-size:.8rem;font-weight:700;
     background:#ef4444 !important;border:2px solid #ef4444 !important;border-radius:999px;
     padding:5px 14px;cursor:pointer;color:#fff !important;transition:all .2s ease;
-    font-weight:700;
   }
   .pill:hover{background:#dc2626 !important;border-color:#dc2626 !important}
   .pill.on{background:#22c55e !important;border-color:#22c55e !important;color:#fff !important;font-weight:900;box-shadow:0 0 0 4px rgba(34,197,94,0.25) !important}
 
-  /* ---------- settings / diagnostics drawer ---------- */
   .drawer{
     border-bottom:2px solid var(--ink);background:var(--card);
     padding:14px 20px;display:none;
@@ -73,9 +70,7 @@
   .slots button[aria-pressed="true"] .dot{background:var(--warn)}
   .slots button[data-ok="true"] .dot{background:var(--good)}
   .slots button[data-ok="false"] .dot{background:var(--ja)}
-  .slots .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  .frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;max-width:680px;margin-bottom:10px}
   .fld{display:flex;flex-direction:column;gap:4px;max-width:680px;margin-bottom:10px}
   .fld label{font-size:.68rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
   .fld input{
@@ -83,7 +78,6 @@
     border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);
   }
   .fld input:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
-  .fld .nm-in{margin-bottom:6px}
   .probe{font-size:.75rem;color:var(--muted);font-weight:700}
   .probe[data-state="ok"]{color:var(--good)}
   .probe[data-state="bad"]{color:var(--ja)}
@@ -94,99 +88,83 @@
   }
   .btn:hover{background:var(--ink);color:#fff}
   .btn.primary{background:var(--ink);color:#fff}
-  .btn.primary:hover{background:#000}
 
-  .diag{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:1px;
-        background:var(--line);border:1.5px solid var(--line);border-radius:8px;overflow:hidden;
-        max-width:680px;margin-top:4px}
-  .diag div{background:var(--paper);padding:8px 10px}
-  .diag span{display:block;font-size:.62rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
-  .diag b{display:block;font-size:1.05rem;font-weight:900;margin-top:2px;font-variant-numeric:tabular-nums}
-  .diag div[data-warn="true"] b{color:var(--ja)}
-  .diag div[data-warn="false"] b{color:var(--good)}
-
-  main{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth}
-  .empty{
-    max-width:520px;margin:8vh auto 0;text-align:center;color:var(--muted);
-    font-size:.95rem;line-height:1.7;
-  }
-  .empty .big{font-size:1.5rem;font-weight:900;color:var(--ink);margin-bottom:10px}
-  .msg{
-    max-width:680px;margin:0 auto 14px;background:var(--card);
-    border:1px solid var(--line);border-radius:10px;overflow:hidden;
-    animation:pop .18s ease-out;
-  }
-  @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-  @media (prefers-reduced-motion:reduce){.msg{animation:none}}
-  .msg .tag{
-    font-size:.68rem;font-weight:700;letter-spacing:.08em;
-    padding:5px 12px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:8px;
-  }
-  .msg.en .tag{background:var(--en)}
-  .msg.ja .tag{background:var(--ja)}
-  .msg .orig{padding:10px 14px 4px;font-size:1rem;line-height:1.6}
-  .msg .trans{padding:8px 14px 4px;font-size:1.15rem;font-weight:700;line-height:1.6}
-  .msg.en .trans{color:var(--ja)}
-  .msg.ja .trans{color:var(--en)}
-  .msg .trans.pending{color:var(--muted);font-weight:400;font-style:italic}
-  .msg .meta{padding:0 14px 10px;font-size:.65rem;color:#A6A49C;font-variant-numeric:tabular-nums}
-  .speak-btn{
-    background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:4px;
-    font-size:.7rem;padding:2px 8px;cursor:pointer;font-family:inherit;white-space:nowrap;
-  }
-  .speak-btn:hover{background:rgba(255,255,255,.45)}
-  .skipnote{
-    max-width:680px;margin:0 auto 14px;text-align:center;font-size:.7rem;
-    color:var(--muted);font-weight:700;letter-spacing:.04em;
-  }
-  .interim{
-    max-width:680px;margin:0 auto 14px;padding:10px 14px;
-    border:1.5px dashed var(--line);border-radius:10px;color:var(--muted);
-    font-size:1rem;display:none;
-  }
-  .interim.show{display:block}
-  footer{border-top:2px solid var(--ink);background:var(--card);padding:14px 16px 18px}
-  .status{text-align:center;font-size:.78rem;color:var(--muted);min-height:1.2em;margin-bottom:10px}
+  main{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth;display:flex;flex-direction:column;gap:16px}
+  
+  .status{text-align:center;font-size:.78rem;color:var(--muted);min-height:1.2em}
   .status.err{color:var(--ja);font-weight:700}
-  .deck{display:flex;gap:14px;max-width:680px;margin:0 auto}
-  .talk{
-    flex:1;border:none;border-radius:14px;cursor:pointer;
-    padding:18px 10px;font-family:inherit;color:#fff;
-    display:flex;flex-direction:column;align-items:center;gap:4px;
-    transition:transform .08s ease, box-shadow .08s ease;
+
+  .control-panel{
+    max-width:680px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;
   }
-  .talk:active{transform:scale(.97)}
-  .talk:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-  .talk .mic{font-size:1.6rem;line-height:1}
-  .talk .lbl{font-size:1.05rem;font-weight:900;letter-spacing:.03em}
-  .talk .sub{font-size:.72rem;opacity:.85}
-  .talk.en{background:var(--en)}
-  .talk.ja{background:var(--ja)}
-  .talk.listening{box-shadow:0 0 0 4px var(--paper),0 0 0 7px currentColor;animation:pulse 1.2s infinite}
-  @keyframes pulse{50%{opacity:.85}}
-  @media (prefers-reduced-motion:reduce){.talk.listening{animation:none}}
-  .talk:disabled{opacity:.45;cursor:not-allowed}
-  .typed{max-width:680px;margin:12px auto 0;display:none;gap:8px}
-  .typed.show{display:flex}
-  .typed input{
-    flex:1;font-family:inherit;font-size:1rem;padding:10px 14px;
-    border:1.5px solid var(--line);border-radius:10px;background:var(--paper);
+
+  .start-btn{
+    font-family:inherit;font-size:1.2rem;font-weight:900;
+    background:var(--en);border:3px solid var(--en);border-radius:20px;
+    padding:20px 60px;cursor:pointer;color:#fff;transition:all .2s ease;
+    min-width:280px;
   }
-  .typed input:focus-visible{outline:2px solid var(--ink)}
-  .typed button{
-    font-family:inherit;font-weight:700;font-size:.85rem;border:none;border-radius:10px;
-    padding:0 16px;color:#fff;cursor:pointer;
+  .start-btn:hover{background:#1e3a5f;border-color:#1e3a5f;transform:scale(1.02)}
+  .start-btn.active{background:var(--good);border-color:var(--good);box-shadow:0 0 0 6px rgba(34,197,94,0.3)}
+  .start-btn:disabled{opacity:.45;cursor:not-allowed}
+
+  .display-panel{
+    max-width:680px;margin:0 auto;width:100%;background:var(--card);
+    border:2px solid var(--line);border-radius:12px;padding:20px;
+    min-height:120px;display:none;
   }
-  .typed .send-en{background:var(--en)}
-  .typed .send-ja{background:var(--ja)}
-  .kbd-link{
-    display:block;text-align:center;margin-top:10px;font-size:.75rem;color:var(--muted);
-    background:none;border:none;cursor:pointer;text-decoration:underline;font-family:inherit;
+  .display-panel.active{display:block}
+
+  .english-display{
+    font-size:1.4rem;font-weight:700;line-height:1.6;color:var(--en);
+    min-height:80px;margin-bottom:16px;padding-bottom:16px;border-bottom:2px solid var(--line);
   }
+  .english-display.empty{
+    color:var(--muted);font-weight:400;font-size:1rem;
+  }
+
+  .japanese-ref{
+    padding-top:12px;border-top:1px solid var(--line);
+  }
+  .japanese-toggle{
+    display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;
+    cursor:pointer;color:var(--muted);user-select:none;margin-bottom:8px;
+  }
+  .japanese-toggle:hover{color:var(--ink)}
+  .japanese-content{
+    display:none;font-size:1rem;color:var(--ja);line-height:1.6;
+    padding:8px 12px;background:var(--paper);border-radius:8px;
+  }
+  .japanese-content.open{display:block}
+
+  .transcript{
+    max-width:680px;margin:0 auto;width:100%;
+  }
+  .transcript h3{
+    font-size:.85rem;font-weight:900;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:12px;
+  }
+  .transcript-list{
+    list-style:none;display:flex;flex-direction:column;gap:8px;
+  }
+  .transcript-item{
+    background:var(--card);border-left:4px solid var(--line);
+    padding:12px 14px;border-radius:4px;font-size:.9rem;line-height:1.6;
+  }
+  .transcript-item.en{border-left-color:var(--en)}
+  .transcript-item.ja{border-left-color:var(--ja)}
+  .transcript-label{
+    font-size:.7rem;font-weight:900;letter-spacing:.06em;
+    text-transform:uppercase;margin-bottom:4px;color:var(--muted);
+  }
+  .transcript-text{
+    font-weight:500;
+  }
+
   @media (max-width:480px){
-    .brand .jp{display:none}
-    .msg .orig{font-size:.92rem}
-    .msg .trans{font-size:1.05rem}
+    main{padding:12px}
+    .start-btn{min-width:220px;padding:16px 40px;font-size:1rem}
+    .english-display{font-size:1.1rem}
   }
 </style>
 </head>
@@ -195,7 +173,7 @@
 <header>
   <div class="brand">
     <h1>Translation Bridge</h1>
-    <span class="jp">English ⇄ Japanese Translator</span>
+    <span class="subtitle">English ⇄ Japanese Translator</span>
   </div>
   <div class="controls">
     <span id="userBadge" style="font-size:.78rem;color:var(--muted);display:none"></span>
@@ -207,55 +185,37 @@
   </div>
 </header>
 
-<!-- ---------- settings + diagnostics ---------- -->
+<!-- Settings drawer -->
 <section class="drawer" id="drawer">
   <h2>Translation endpoint</h2>
-
   <div class="slots" role="group" aria-label="Choose endpoint">
-    <button id="slotA" aria-pressed="true"><span class="dot"></span><span class="nm" id="nmA">A</span></button>
-    <button id="slotB" aria-pressed="false"><span class="dot"></span><span class="nm" id="nmB">B</span></button>
+    <button id="slotA" aria-pressed="true"><span class="dot"></span><span id="nmA">A</span></button>
+    <button id="slotB" aria-pressed="false"><span class="dot"></span><span id="nmB">B</span></button>
   </div>
-
   <div class="fld">
     <label for="urlA">Endpoint A</label>
-    <input class="nm-in" id="nameA" type="text" placeholder="Apps Script" autocomplete="off">
-    <input id="urlA" type="url" inputmode="url" spellcheck="false" autocomplete="off"
+    <input id="nameA" type="text" placeholder="Apps Script" autocomplete="off">
+    <input id="urlA" type="url" spellcheck="false" autocomplete="off"
            placeholder="https://script.google.com/macros/s/…/exec">
   </div>
   <div class="fld">
     <label for="urlB">Endpoint B</label>
-    <input class="nm-in" id="nameB" type="text" placeholder="Worker" autocomplete="off">
-    <input id="urlB" type="url" inputmode="url" spellcheck="false" autocomplete="off"
+    <input id="nameB" type="text" placeholder="Worker" autocomplete="off">
+    <input id="urlB" type="url" spellcheck="false" autocomplete="off"
            placeholder="https://translate.your-name.workers.dev/">
   </div>
-
   <p class="hint" id="hint"></p>
-
-  <div class="frow">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <button class="btn primary" id="saveBtn">Save</button>
     <button class="btn" id="testBtn">Test</button>
     <button class="btn" id="resetBtn">Reset</button>
-    <label class="toggle" style="margin-left:4px">Speed
-      <input type="range" id="rateInput" min="0.8" max="1.8" step="0.05" value="1.15" style="width:90px;accent-color:var(--ink)">
-      <span id="rateOut" style="font-variant-numeric:tabular-nums;font-weight:700">1.15×</span>
-    </label>
     <span class="probe" id="probe">Untested</span>
-  </div>
-
-  <h2 style="margin-top:16px">Diagnostics</h2>
-  <div class="diag">
-    <div><span>Behind</span><b id="dLag">—</b></div>
-    <div><span>Pause</span><b id="dPause">—</b></div>
-    <div><span>Backend</span><b id="dRtt">—</b></div>
-    <div><span>Queued</span><b id="dQueue">0</b></div>
-    <div><span>Dropped</span><b id="dDrop">0</b></div>
   </div>
 </section>
 
 <div id="signinScreen" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:20px">
   <div>
     <div style="font-size:1.3rem;font-weight:900;margin-bottom:6px">Sign in with your company Google account</div>
-
   </div>
   <div id="gsiButton"></div>
   <div id="signinError" style="color:var(--ja);font-weight:700;font-size:.85rem;display:none"></div>
@@ -263,56 +223,39 @@
 
 <div id="appScreen" style="display:none;flex-direction:column;flex:1;min-height:0">
 
-<main id="log">
-  <div class="empty" id="emptyState">
-    <div class="big">Hold a conversation across two languages.</div>
-    Tap your language button to start listening. Keep talking — each sentence is
-    translated and read aloud as you go. Tap again to stop.
-  </div>
-  <div class="interim" id="interim"></div>
-</main>
-
-<footer>
+<main id="mainContent">
   <div class="status" id="status"></div>
-  <div class="deck">
-    <button class="talk en" id="talkEn">
-      <span class="mic">🎤</span>
-      <span class="lbl">I speak English</span>
-      <span class="sub">Translate to Japanese</span>
-    </button>
-    <button class="talk ja" id="talkJa">
-      <span class="mic">🎤</span>
-      <span class="lbl">They speak Japanese</span>
-      <span class="sub">Translate to English</span>
-    </button>
+
+  <!-- Start/Stop Control -->
+  <div class="control-panel">
+    <button class="start-btn" id="startBtn">Start Translation</button>
   </div>
-  <div class="typed" id="typedRow">
-    <input id="typedInput" placeholder="Type here..." aria-label="Type text to translate">
-    <button class="send-en" id="sendEn">EN→JA</button>
-    <button class="send-ja" id="sendJa">JA→EN</button>
+
+  <!-- English Display + Japanese Reference -->
+  <div class="display-panel" id="displayPanel">
+    <div class="english-display empty" id="englishDisplay">Listening...</div>
+    <div class="japanese-ref">
+      <div class="japanese-toggle" id="japaneseToggle">
+        <span>▼ Original Japanese</span>
+      </div>
+      <div class="japanese-content" id="japaneseContent"></div>
+    </div>
   </div>
-  <button class="kbd-link" id="typedToggle">Prefer typing?</button>
-</footer>
+
+  <!-- Conversation Transcript -->
+  <div class="transcript">
+    <h3>Conversation</h3>
+    <ol class="transcript-list" id="transcriptList"></ol>
+  </div>
+</main>
 
 </div><!-- /appScreen -->
 
 <script>
-/* ============================================================
-   CONFIG
-   The endpoint is editable in Settings and stored in this browser.
-   DEFAULT_API_URL only seeds the field on a first-ever load.
-   ============================================================ */
 const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec';
 const GOOGLE_CLIENT_ID = '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
 
-/* Beyond this many sentences waiting for audio, drop the stale ones and jump
-   to the newest. Queuing everything is what makes playback drift minutes
-   behind a live conversation; the cards keep the full record either way. */
-const MAX_AUDIO_BACKLOG = 2;
-
 let idToken = null;
-
-/* ---------- storage: degrades to memory when blocked ---------- */
 const store = (function(){
   const mem = {}; let ok = false;
   try { localStorage.setItem('__p','1'); localStorage.removeItem('__p'); ok = true; } catch(e){}
@@ -323,7 +266,6 @@ const store = (function(){
     del(k){ try { ok ? localStorage.removeItem(k) : (delete mem[k]); } catch(e){ delete mem[k]; } }
   };
 })();
-const CFG_KEY = 'gvl.kaigi.v1';
 
 let cfg = {
   A: { name:'Apps Script', url: DEFAULT_API_URL },
@@ -332,109 +274,39 @@ let cfg = {
   speak: true, phones: true, rate: 1.15
 };
 try {
-  const raw = store.get(CFG_KEY);
+  const raw = store.get('gvl.kaigi.v1');
   if (raw) cfg = Object.assign(cfg, JSON.parse(raw));
 } catch(e){}
-function saveCfg(){ store.set(CFG_KEY, JSON.stringify(cfg)); }
+function saveCfg(){ store.set('gvl.kaigi.v1', JSON.stringify(cfg)); }
 function activeUrl(){ return cfg[cfg.active].url; }
 
-/* ---------- element refs (all declared before any use) ---------- */
 const $ = id => document.getElementById(id);
-const log=$('log'), emptyState=$('emptyState'), interimEl=$('interim'), statusEl=$('status'),
-      autoSpeak=$('autoSpeak'), usePhones=$('usePhones'),
-      drawer=$('drawer'), settingsBtn=$('settingsBtn'), copyBtn=$('copyBtn'), clearBtn=$('clearBtn'),
+const autoSpeak=$('autoSpeak'), usePhones=$('usePhones'),
+      settingsBtn=$('settingsBtn'), copyBtn=$('copyBtn'), clearBtn=$('clearBtn'),
+      drawer=$('drawer'), nameA=$('nameA'), urlA=$('urlA'), nameB=$('nameB'), urlB=$('urlB'),
       slotA=$('slotA'), slotB=$('slotB'), nmA=$('nmA'), nmB=$('nmB'),
-      nameA=$('nameA'), urlA=$('urlA'), nameB=$('nameB'), urlB=$('urlB'),
       hint=$('hint'), saveBtn=$('saveBtn'), testBtn=$('testBtn'), resetBtn=$('resetBtn'),
-      rateInput=$('rateInput'), rateOut=$('rateOut'), probe=$('probe'),
-      dLag=$('dLag'), dPause=$('dPause'), dRtt=$('dRtt'), dQueue=$('dQueue'), dDrop=$('dDrop'),
-      typedRow=$('typedRow'), typedInput=$('typedInput'), typedToggle=$('typedToggle'),
-      sendEnBtn=$('sendEn'), sendJaBtn=$('sendJa'),
-      talkEnBtn=$('talkEn'), talkJaBtn=$('talkJa');
+      probe=$('probe'),
+      status=$('status'), startBtn=$('startBtn'), displayPanel=$('displayPanel'),
+      englishDisplay=$('englishDisplay'), japaneseContent=$('japaneseContent'),
+      japaneseToggle=$('japaneseToggle'), transcriptList=$('transcriptList');
 
-/* ---------- state ---------- */
-const history = [];
-const health = { A:null, B:null };
-const rtts = [], pauses = [];
-const readyBuffer = new Map();
-const audioQueue = [];
-let seq = 0, nextReady = 0, droppedCount = 0;
-let lastFinal = { text:'', at:0 };
-let speaking = false;
-let suspendedForAudio = false;
-let activeRec = null, activeBtn = null, activeLangPair = null;
+let translating = false;
+let rec = null;
+let lastFinal = { text: '', at: 0 };
+const conversation = [];
 
-function ms(v){ return v==null ? '—' : (v>=1000 ? (v/1000).toFixed(1)+'s' : Math.round(v)+'ms'); }
-function median(a){ if(!a.length) return null; const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; }
-function setStatus(msg,isErr){ statusEl.textContent = msg||''; statusEl.className = 'status'+(isErr?' err':''); }
+function setStatus(msg, isErr){ status.textContent = msg||''; status.className = 'status'+(isErr?' err':''); }
 
-/* ============================================================
-   ALERT CHIME
-   ============================================================ */
-function playAlertChime(){
-  try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const tone = (freq, start, dur)=>{
-      const osc = ctx.createOscillator(), gain = ctx.createGain();
-      osc.type='sine'; osc.frequency.value=freq;
-      gain.gain.setValueAtTime(0.15, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start+dur);
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.start(start); osc.stop(start+dur);
-    };
-    const now = ctx.currentTime;
-    tone(660, now, 0.15); tone(440, now+0.18, 0.25);
-  }catch(e){}
-}
-
-/* ============================================================
-   GOOGLE SIGN-IN
-   ============================================================ */
-function handleSignIn(response){
-  idToken = response.credential;
-  try{
-    const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-    $('userBadge').textContent = payload.email || '';
-    $('userBadge').style.display = 'inline';
-  }catch(e){}
-  $('signinScreen').style.display = 'none';
-  $('signinError').style.display = 'none';
-  $('appScreen').style.display = 'flex';
-}
-
-window.onload = function(){
-  if(GOOGLE_CLIENT_ID.indexOf('PASTE_YOUR')===0){
-    $('signinError').textContent = '⚠ Set GOOGLE_CLIENT_ID at the top of the script.';
-    $('signinError').style.display = 'block';
-    return;
-  }
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleSignIn });
-  google.accounts.id.renderButton($('gsiButton'), { theme:'filled_blue', size:'large', text:'signin_with' });
-};
-
-/* ============================================================
-   SETTINGS DRAWER
-   ============================================================ */
 function renderSlots(){
   [['A',slotA,nmA],['B',slotB,nmB]].forEach(([k,btn,label])=>{
-    const e = cfg[k];
     btn.setAttribute('aria-pressed', String(cfg.active===k));
-    label.textContent = e.url ? (e.name || k) : (e.name||k) + ' — not set';
-    btn.title = e.url || 'No URL set';
-    if(health[k]==null) btn.removeAttribute('data-ok');
-    else btn.dataset.ok = String(health[k].ok);
+    label.textContent = cfg[k].url ? (cfg[k].name || k) : (cfg[k].name||k)+' — not set';
   });
-  const h = health[cfg.active];
-  if(!activeUrl()){ probe.dataset.state=''; probe.textContent='No endpoint'; }
-  else if(h){ probe.dataset.state = h.ok?'ok':'bad';
-    probe.textContent = h.ok ? ('OK · '+ms(h.rtt)) : ('Failed · '+h.error); }
-  else { probe.dataset.state=''; probe.textContent='Untested'; }
 }
-
 function fillEditor(){
   nameA.value=cfg.A.name; urlA.value=cfg.A.url;
   nameB.value=cfg.B.name; urlB.value=cfg.B.url;
-  rateInput.value=cfg.rate; rateOut.textContent=Number(cfg.rate).toFixed(2)+'×';
   hint.textContent='';
 }
 
@@ -444,21 +316,20 @@ settingsBtn.addEventListener('click', ()=>{
   if(open){ fillEditor(); renderSlots(); }
 });
 
-function pickSlot(k){
-  if(!cfg[k].url){ hint.textContent='That slot has no URL yet.'; return; }
-  cfg.active=k; saveCfg(); renderSlots();
-}
-slotA.addEventListener('click', ()=>pickSlot('A'));
-slotB.addEventListener('click', ()=>pickSlot('B'));
+slotA.addEventListener('click', ()=>{
+  if(cfg.A.url){cfg.active='A';saveCfg();renderSlots();}
+});
+slotB.addEventListener('click', ()=>{
+  if(cfg.B.url){cfg.active='B';saveCfg();renderSlots();}
+});
 
-/* The two mistakes that fail as an unreadable CORS error */
 function validate(url){
   if(!url) return null;
-  if(!/^https:\/\//i.test(url)) return 'URLs must start with https:// — the microphone will not work otherwise.';
+  if(!/^https:\/\//i.test(url)) return 'URLs must start with https://';
   if(/script\.google\.com/.test(url) && /\/dev\/?$/.test(url))
-    return 'Use the Apps Script /exec URL, not /dev. /dev needs a logged-in session and fails from the browser.';
+    return 'Use the /exec URL, not /dev.';
   if(/script\.google\.com/.test(url) && !/\/exec\/?$/.test(url))
-    return 'Apps Script URLs should end in /exec.';
+    return 'Apps Script URLs end in /exec.';
   return null;
 }
 
@@ -469,61 +340,38 @@ saveBtn.addEventListener('click', ()=>{
   cfg.A = { name:nameA.value.trim()||'Endpoint A', url:a };
   cfg.B = { name:nameB.value.trim()||'Endpoint B', url:b };
   if(!cfg[cfg.active].url) cfg.active = a ? 'A' : (b ? 'B' : 'A');
-  health.A = health.B = null;
   saveCfg(); renderSlots(); hint.textContent='';
-  if(activeUrl()) runTest();
 });
 
 resetBtn.addEventListener('click', ()=>{
-  store.del(CFG_KEY);
+  store.del('gvl.kaigi.v1');
   cfg = { A:{name:'Apps Script',url:DEFAULT_API_URL}, B:{name:'Worker',url:''},
           active:'A', speak:true, phones:true, rate:1.15 };
-  health.A = health.B = null;
-  applyPrefs(); fillEditor(); renderSlots();
+  fillEditor(); renderSlots();
 });
-
-rateInput.addEventListener('input', ()=>{
-  rateOut.textContent = Number(rateInput.value).toFixed(2)+'×';
-});
-rateInput.addEventListener('change', ()=>{ cfg.rate=parseFloat(rateInput.value); saveCfg(); });
 
 async function runTest(){
-  const slot = cfg.active, url = cfg[slot].url;
+  const url = cfg[cfg.active].url;
   if(!url) return;
-  probe.dataset.state=''; probe.textContent='Testing…';
+  probe.textContent='Testing…';
   testBtn.disabled = true;
   try{
     const r = await callBackend(url, 'test', 'ja-en');
-    health[slot] = { ok:true, rtt:r.rtt };
+    probe.textContent = 'OK';
+    probe.dataset.state='ok';
   }catch(err){
-    health[slot] = { ok:false, error:err.message };
+    probe.textContent = 'Failed';
+    probe.dataset.state='bad';
   }
   testBtn.disabled = false;
-  renderSlots();
 }
 testBtn.addEventListener('click', runTest);
 
-function refreshDiag(){
-  const p = median(pauses.slice(-8)), r = median(rtts.slice(-8));
-  dPause.textContent = ms(p);
-  dRtt.textContent = ms(r);
-  dRtt.parentElement.dataset.warn = r==null ? '' : String(r>700);
-  dQueue.textContent = audioQueue.length;
-  dDrop.textContent = droppedCount;
-}
-
-/* ============================================================
-   BACKEND
-   Sends a superset payload so one frontend works against both the
-   existing Apps Script ({text,dir,idToken} -> {translation}) and a
-   Worker ({text,source,target} -> {ok,translation}).
-   ============================================================ */
 function callBackend(url, text, dir){
   const [src, tgt] = dir === 'en-ja' ? ['en','ja'] : ['ja','en'];
   const t0 = performance.now();
   return fetch(url, {
     method: 'POST',
-    // text/plain avoids a CORS preflight, which Apps Script won't answer.
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify({ text, dir, source:src, target:tgt, idToken })
   }).then(async res => {
@@ -541,372 +389,182 @@ function callBackend(url, text, dir){
   });
 }
 
-function forceSignIn(message){
-  idToken = null;
-  $('appScreen').style.display = 'none';
-  $('signinScreen').style.display = 'flex';
-  $('signinError').textContent = message || 'Please sign in again.';
-  $('signinError').style.display = 'block';
+function addTranscript(dir, orig, trans){
+  const li = document.createElement('li');
+  li.className = 'transcript-item ' + (dir==='en-ja' ? 'en' : 'ja');
+  const label = dir==='en-ja' ? 'English' : 'Japanese';
+  li.innerHTML = `<div class="transcript-label">${label}</div><div class="transcript-text">${orig}</div>`;
+  transcriptList.insertBefore(li, transcriptList.firstChild);
 }
 
-/* ============================================================
-   MESSAGE CARDS
-   ============================================================ */
-function addCard(dir, orig){
-  emptyState.style.display = 'none';
-  const div = document.createElement('div');
-  div.className = 'msg ' + (dir==='en-ja' ? 'en' : 'ja');
-  const tagLabel = dir==='en-ja' ? 'ENGLISH → JAPANESE' : 'JAPANESE → ENGLISH';
-  div.innerHTML =
-    '<div class="tag"><span>'+tagLabel+'</span><button class="speak-btn">🔊 Replay</button></div>'+
-    '<div class="orig"></div>'+
-    '<div class="trans pending">Translating…</div>'+
-    '<div class="meta"></div>';
-  div.querySelector('.orig').textContent = orig;
-  log.insertBefore(div, interimEl);
-  log.scrollTop = log.scrollHeight;
-  return div;
-}
-
-function noteSkipped(n){
-  const p = document.createElement('div');
-  p.className = 'skipnote';
-  p.textContent = '— audio skipped for '+n+' line'+(n>1?'s':'')+' to catch up —';
-  log.insertBefore(p, interimEl);
-}
-
-/* ============================================================
-   TRANSLATE
-   ============================================================ */
 function translate(dir, orig){
   const url = activeUrl();
-  const card = addCard(dir, orig);
-  const transEl = card.querySelector('.trans');
-  const metaEl = card.querySelector('.meta');
-  const targetLang = dir==='en-ja' ? 'ja-JP' : 'en-US';
-  const id = seq++, finalAt = Date.now(), slot = cfg.active;
-
   if(!url){
-    transEl.textContent = '⚠ No endpoint set — open Settings.';
-    transEl.classList.remove('pending');
-    readyBuffer.set(id, null); releaseInOrder();
+    englishDisplay.textContent = 'No endpoint set — open Settings.';
     return;
   }
 
+  if(dir === 'ja-en'){
+    englishDisplay.textContent = 'Translating…';
+  }
+
   callBackend(url, orig, dir).then(r => {
-    rtts.push(r.rtt);
-    transEl.textContent = r.text;
-    transEl.classList.remove('pending');
-    metaEl.textContent = cfg[slot].name + ' · ' + ms(r.rtt) + (r.cached ? ' · cached' : '');
-    history.push({ dir, orig, trans:r.text });
-    health[slot] = { ok:true, rtt:r.rtt }; renderSlots();
-    card.querySelector('.speak-btn').onclick = ()=>speakNow(r.text, targetLang);
-    readyBuffer.set(id, { text:r.text, lang:targetLang, finalAt });
-    releaseInOrder();
-  }).catch(err => {
-    if(err.authFailed){ card.remove(); forceSignIn(err.message);
-      readyBuffer.set(id, null); releaseInOrder(); return; }
-    transEl.textContent = 'Translation failed — ' + err.message;
-    transEl.classList.remove('pending');
-    health[slot] = { ok:false, error:err.message }; renderSlots();
-    const b = card.querySelector('.speak-btn');
-    b.textContent = '↻ Retry';
-    b.onclick = ()=>{ card.remove(); translate(dir, orig); };
-    readyBuffer.set(id, null); releaseInOrder();
-  });
-
-  log.scrollTop = log.scrollHeight;
-}
-
-/* Responses can land out of order; play them in the order spoken. */
-function releaseInOrder(){
-  while(readyBuffer.has(nextReady)){
-    const item = readyBuffer.get(nextReady);
-    readyBuffer.delete(nextReady); nextReady++;
-    if(item) audioQueue.push(item);
-  }
-  refreshDiag();
-  pumpAudio();
-}
-
-/* ============================================================
-   PLAYBACK — a real queue, so sentences no longer cut each other off
-   ============================================================ */
-function pickVoice(lang){
-  const vs = speechSynthesis.getVoices();
-  return vs.find(v => v.lang && v.lang.toLowerCase().startsWith(lang.slice(0,2).toLowerCase())) || null;
-}
-if('speechSynthesis' in window){
-  speechSynthesis.getVoices();
-  speechSynthesis.addEventListener('voiceschanged', ()=>speechSynthesis.getVoices());
-}
-
-function pumpAudio(){
-  if(!autoSpeak.checked || !('speechSynthesis' in window)){
-    audioQueue.length = 0; refreshDiag(); return;
-  }
-  if(speaking || !audioQueue.length) return;
-
-  if(audioQueue.length > MAX_AUDIO_BACKLOG){
-    const drop = audioQueue.length - 1;
-    audioQueue.splice(0, drop);
-    droppedCount += drop;
-    noteSkipped(drop);
-  }
-
-  const item = audioQueue.shift();
-  dLag.textContent = ms(Date.now() - item.finalAt);
-  dLag.parentElement.dataset.warn = String(Date.now() - item.finalAt > 2500);
-  refreshDiag();
-
-  // Without headphones the mic hears the playback and translates it back.
-  if(!usePhones.checked && activeRec){
-    suspendedForAudio = true;
-    try { activeRec.abort(); } catch(e){}
-  }
-
-  const u = new SpeechSynthesisUtterance(item.text);
-  u.lang = item.lang;
-  u.rate = parseFloat(rateInput.value) || 1.15;
-  const v = pickVoice(item.lang);
-  if(v) u.voice = v;
-
-  speaking = true;
-  const done = ()=>{
-    speaking = false;
-    if(suspendedForAudio){ suspendedForAudio = false; resumeListening(); }
-    pumpAudio();
-  };
-  u.onend = done; u.onerror = done;
-  speechSynthesis.speak(u);
-}
-
-/* Manual replay: this one is allowed to interrupt. */
-function speakNow(text, lang){
-  if(!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  speaking = false;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  u.rate = parseFloat(rateInput.value) || 1.15;
-  const v = pickVoice(lang);
-  if(v) u.voice = v;
-  speechSynthesis.speak(u);
-}
-
-autoSpeak.addEventListener('change', ()=>{
-  cfg.speak = autoSpeak.checked; saveCfg();
-  if(!autoSpeak.checked){ speechSynthesis.cancel(); audioQueue.length = 0; speaking = false; }
-  refreshDiag();
-});
-usePhones.addEventListener('change', ()=>{ cfg.phones = usePhones.checked; saveCfg(); });
-
-/* ============================================================
-   RECOGNITION
-   ============================================================ */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let userStopped = false;
-let watchdogTimer = null, sawAnyAudio = false;
-
-function clearWatchdog(){ if(watchdogTimer){ clearTimeout(watchdogTimer); watchdogTimer = null; } }
-function armWatchdog(){
-  clearWatchdog();
-  // 15s with no voice-like audio at all usually means the mic isn't reaching us.
-  watchdogTimer = setTimeout(()=>{
-    if(!sawAnyAudio){
-      setStatus('⚠ No audio detected — check your microphone (input device, OS permissions, volume).', true);
-      playAlertChime();
+    if(dir === 'ja-en'){
+      englishDisplay.textContent = r.text;
+      englishDisplay.classList.remove('empty');
+      japaneseContent.textContent = orig;
+    } else {
+      japaneseContent.textContent = r.text;
     }
-    sawAnyAudio = false;   // reset so the check can fire again later
-    armWatchdog();
-  }, 15000);
+    addTranscript(dir, orig, r.text);
+    conversation.push({ dir, orig, trans: r.text });
+
+    if(autoSpeak.checked && dir==='ja-en'){
+      const u = new SpeechSynthesisUtterance(r.text);
+      u.lang = 'en-US';
+      u.rate = 1.15;
+      speechSynthesis.speak(u);
+    }
+  }).catch(err => {
+    if(err.authFailed){
+      idToken = null;
+      $('appScreen').style.display = 'none';
+      $('signinScreen').style.display = 'flex';
+      return;
+    }
+    englishDisplay.textContent = 'Translation failed — ' + err.message;
+  });
 }
 
-function startListening(pair){
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function startTranslation(){
+  if(!activeUrl()){
+    drawer.classList.add('open');
+    settingsBtn.classList.add('on');
+    setStatus('Set a translation endpoint first.', true);
+    return;
+  }
+
+  translating = true;
+  startBtn.textContent = 'Stop Translation';
+  startBtn.classList.add('active');
+  displayPanel.classList.add('active');
+  englishDisplay.textContent = 'Listening...';
+  englishDisplay.classList.add('empty');
+  setStatus('Listening for Japanese...');
+
   if(!SR) return;
-  activeLangPair = pair;
-  const { lang, dir, btn } = pair;
-  const rec = new SR();
-  rec.lang = lang;
-  rec.interimResults = true;
+  
+  rec = new SR();
   rec.continuous = true;
+  rec.interimResults = true;
 
   rec.onstart = ()=>{
-    activeRec = rec; activeBtn = btn;
-    btn.classList.add('listening');
-    document.querySelectorAll('.talk').forEach(b=>{ if(b!==btn) b.disabled = true; });
-    setStatus('Listening… tap to stop');
-    interimEl.classList.add('show'); interimEl.textContent = '…';
-    log.scrollTop = log.scrollHeight;
-    sawAnyAudio = false;
-    armWatchdog();
+    setStatus('Listening for Japanese...');
   };
 
-  rec.onspeechstart = ()=>{ sawAnyAudio = true; };
-
   rec.onresult = (e)=>{
-    sawAnyAudio = true;
     let interim = '';
     for(let i=e.resultIndex; i<e.results.length; i++){
-      const chunk = e.results[i][0].transcript;
+      const transcript = e.results[i][0].transcript;
       if(e.results[i].isFinal){
-        const text = chunk.trim();
+        const text = transcript.trim();
         if(!text) continue;
-        const now = Date.now();
-        if(text === lastFinal.text && now - lastFinal.at < 1500) continue; // Chrome repeats finals
-        if(lastVoiceActivity) pauses.push(now - lastVoiceActivity);
-        lastFinal = { text, at:now };
-        translate(dir, text);
+        
+        // Simple language detection: check for Japanese characters
+        const isJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(text);
+        
+        if(isJapanese){
+          const now = Date.now();
+          if(text === lastFinal.text && now - lastFinal.at < 1500) continue;
+          lastFinal = { text, at: now };
+          translate('ja-en', text);
+        }
       } else {
-        interim += chunk;
-        lastVoiceActivity = Date.now();
+        interim += transcript;
       }
     }
-    interimEl.textContent = interim || '…';
-    refreshDiag();
   };
 
   rec.onerror = (e)=>{
-    if(e.error==='not-allowed' || e.error==='service-not-allowed'){
-      setStatus('Microphone blocked — use typed input below.', true);
-      showTyped(true);
-      userStopped = true;
-    } else if(e.error==='no-speech' || e.error==='aborted'){
-      /* routine */
-    } else {
+    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      setStatus('Microphone blocked.', true);
+      stopTranslation();
+    } else if(e.error !== 'no-speech' && e.error !== 'aborted'){
       setStatus('Mic error: '+e.error, true);
     }
   };
 
   rec.onend = ()=>{
-    activeRec = null;
-    clearWatchdog();
-    if(userStopped){ teardownListening(); return; }
-    if(suspendedForAudio) return;  // playback will resume us
-    setStatus('Reconnecting…');
-    setTimeout(()=>{ if(!userStopped && !activeRec) resumeListening(); }, 250);
+    if(translating){
+      setTimeout(()=>{ if(translating && !rec) startTranslation(); }, 250);
+    }
   };
 
   try { rec.start(); }
-  catch(err){ setStatus('Could not start microphone.', true); showTyped(true); }
+  catch(err){ setStatus('Could not start microphone.', true); stopTranslation(); }
 }
 
-let lastVoiceActivity = 0;
-
-function resumeListening(){
-  if(userStopped || !activeLangPair || activeRec) return;
-  try{ startListening(activeLangPair); }
-  catch(err){
-    teardownListening();
-    setStatus('⚠ Listening stopped — tap to resume.', true);
-    playAlertChime();
-  }
-}
-
-function teardownListening(){
-  if(activeBtn) activeBtn.classList.remove('listening');
-  document.querySelectorAll('.talk').forEach(b=>b.disabled=false);
-  interimEl.classList.remove('show');
-  activeBtn = null; activeLangPair = null;
-  clearWatchdog();
+function stopTranslation(){
+  translating = false;
+  startBtn.textContent = 'Start Translation';
+  startBtn.classList.remove('active');
   setStatus('');
+  if(rec){ try{ rec.stop(); }catch(e){} rec = null; }
 }
 
-function setupTalk(btn, lang, dir){
-  if(!SR) return;
-  btn.addEventListener('click', ()=>{
-    if(activeRec || activeLangPair){
-      userStopped = true;
-      if(activeRec){ try{ activeRec.stop(); }catch(e){} } else teardownListening();
-      return;
-    }
-    if(!activeUrl()){
-      drawer.classList.add('open'); settingsBtn.classList.add('on');
-      fillEditor(); renderSlots();
-      setStatus('Set a translation endpoint first.', true);
-      return;
-    }
-    userStopped = false;
-    startListening({ lang, dir, btn });
-  });
-}
-setupTalk(talkEnBtn, 'en-US', 'en-ja');
-setupTalk(talkJaBtn, 'ja-JP', 'ja-en');
-
-/* ============================================================
-   TYPED INPUT
-   ============================================================ */
-function showTyped(on){ typedRow.classList.toggle('show', on!==false); }
-typedToggle.addEventListener('click', ()=>{
-  typedRow.classList.toggle('show');
-  if(typedRow.classList.contains('show')) typedInput.focus();
-});
-function sendTyped(dir){
-  const t = typedInput.value.trim();
-  if(!t) return;
-  typedInput.value = '';
-  translate(dir, t);
-}
-sendEnBtn.addEventListener('click', ()=>sendTyped('en-ja'));
-sendJaBtn.addEventListener('click', ()=>sendTyped('ja-en'));
-typedInput.addEventListener('keydown', e=>{
-  if(e.key==='Enter'){
-    const hasJa = /[\u3040-\u30ff\u4e00-\u9faf]/.test(typedInput.value);
-    sendTyped(hasJa ? 'ja-en' : 'en-ja');
-  }
+startBtn.addEventListener('click', ()=>{
+  if(translating){ stopTranslation(); }
+  else { startTranslation(); }
 });
 
-/* Runs after showTyped and typedRow exist, so no dead-zone error. */
-if(!SR){
-  setStatus('Speech recognition not supported here — typed mode enabled. Chrome or Edge recommended. / 音声認識非対応のためキーボード入力モードです。', true);
-  talkEnBtn.disabled = true;
-  talkJaBtn.disabled = true;
-  showTyped(true);
-}
+japaneseToggle.addEventListener('click', ()=>{
+  japaneseContent.classList.toggle('open');
+  japaneseToggle.textContent = japaneseContent.classList.contains('open') ? '▼ Original Japanese' : '▶ Original Japanese';
+});
 
-/* ============================================================
-   HEADER ACTIONS
-   ============================================================ */
 copyBtn.addEventListener('click', async ()=>{
-  if(!history.length){ copyBtn.textContent = 'Nothing yet / 履歴なし';
-    setTimeout(()=>copyBtn.textContent='Copy / コピー', 1400); return; }
-  const text = history.map(h => h.orig + '\n' + h.trans).join('\n\n');
-  try { await navigator.clipboard.writeText(text); copyBtn.textContent = 'Copied / コピー完了'; }
-  catch(e){ copyBtn.textContent = 'Copy blocked / コピー不可'; }
-  setTimeout(()=>copyBtn.textContent='Copy / コピー', 1400);
+  if(!conversation.length){ copyBtn.textContent = 'Nothing to copy'; setTimeout(()=>copyBtn.textContent='Copy', 1400); return; }
+  const text = conversation.map(c => c.orig + '\n' + c.trans).join('\n\n');
+  try { await navigator.clipboard.writeText(text); copyBtn.textContent = 'Copied!'; }
+  catch(e){ copyBtn.textContent = 'Copy failed'; }
+  setTimeout(()=>copyBtn.textContent='Copy', 1400);
 });
 
 clearBtn.addEventListener('click', ()=>{
-  document.querySelectorAll('.msg, .skipnote').forEach(m=>m.remove());
-  history.length = 0;
-  readyBuffer.clear(); audioQueue.length = 0;
-  seq = 0; nextReady = 0; droppedCount = 0;
-  rtts.length = 0; pauses.length = 0;
-  lastFinal = { text:'', at:0 };
-  emptyState.style.display = 'block';
-  if('speechSynthesis' in window) speechSynthesis.cancel();
-  speaking = false;
-  dLag.textContent = '—';
-  refreshDiag();
+  stopTranslation();
+  conversation.length = 0;
+  transcriptList.innerHTML = '';
+  englishDisplay.textContent = 'Listening...';
+  englishDisplay.classList.add('empty');
+  japaneseContent.textContent = '';
+  japaneseContent.classList.remove('open');
+  japaneseToggle.textContent = '▼ Original Japanese';
   setStatus('');
 });
 
-/* ============================================================
-   BOOT
-   ============================================================ */
-function applyPrefs(){
+// Sign in
+function handleSignIn(response){
+  idToken = response.credential;
+  try{
+    const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    $('userBadge').textContent = payload.email || '';
+    $('userBadge').style.display = 'inline';
+  }catch(e){}
+  $('signinScreen').style.display = 'none';
+  $('appScreen').style.display = 'flex';
+}
+
+window.onload = function(){
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleSignIn });
+  google.accounts.id.renderButton($('gsiButton'), { theme:'filled_blue', size:'large', text:'signin_with' });
+  
   autoSpeak.checked = cfg.speak !== false;
   usePhones.checked = cfg.phones !== false;
-  rateInput.value = cfg.rate || 1.15;
-  rateOut.textContent = Number(rateInput.value).toFixed(2)+'×';
-}
-applyPrefs();
-fillEditor();
-renderSlots();
-refreshDiag();
-if(!store.available){
-  setStatus('Settings will not persist in this browser (private window or blocked storage). / この環境では設定が保存されません。', true);
-}
+  fillEditor();
+  renderSlots();
+};
 </script>
 </body>
 </html>
