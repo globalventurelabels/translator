@@ -160,9 +160,9 @@
   .talk .mic{font-size:1.6rem;line-height:1}
   .talk .lbl{font-size:1.05rem;font-weight:900;letter-spacing:.03em}
   .talk .sub{font-size:.72rem;opacity:.85}
- .talk.en{background:var(--en)}
-.talk.ja{background:var(--ja)}
-.talk.listening{background:#22c55e !important;box-shadow:0 0 0 6px rgba(34,197,94,0.3) !important;animation:pulse 1.2s infinite;border:3px solid #16a34a !important}
+  .talk.en{background:var(--en)}
+  .talk.ja{background:var(--ja)}
+  .talk.listening{box-shadow:0 0 0 4px var(--paper),0 0 0 7px currentColor;animation:pulse 1.2s infinite}
   @keyframes pulse{50%{opacity:.85}}
   @media (prefers-reduced-motion:reduce){.talk.listening{animation:none}}
   .talk:disabled{opacity:.45;cursor:not-allowed}
@@ -194,22 +194,22 @@
 
 <header>
   <div class="brand">
-    <h1>Kaigi Bridge</h1>
-    <span class="jp">会議ブリッジ — 二方向通訳 / Two-Way Interpreter</span>
+    <h1>Translation Bridge</h1>
+    <span class="jp">English ⇄ Japanese Translator</span>
   </div>
   <div class="controls">
     <span id="userBadge" style="font-size:.78rem;color:var(--muted);display:none"></span>
-    <label class="toggle"><input type="checkbox" id="autoSpeak" checked>Speak aloud / 音声読み上げ</label>
-    <label class="toggle"><input type="checkbox" id="usePhones" checked>Headphones / ヘッドホン</label>
-    <button class="pill" id="settingsBtn">Settings / 設定</button>
-    <button class="pill" id="copyBtn">Copy / コピー</button>
-    <button class="pill" id="clearBtn">Clear / クリア</button>
+    <label class="toggle"><input type="checkbox" id="autoSpeak" checked>Speak aloud</label>
+    <label class="toggle"><input type="checkbox" id="usePhones" checked>Headphones</label>
+    <button class="pill" id="settingsBtn">Settings</button>
+    <button class="pill" id="copyBtn">Copy</button>
+    <button class="pill" id="clearBtn">Clear</button>
   </div>
 </header>
 
 <!-- ---------- settings + diagnostics ---------- -->
 <section class="drawer" id="drawer">
-  <h2>Translation endpoint / 翻訳エンドポイント</h2>
+  <h2>Translation endpoint</h2>
 
   <div class="slots" role="group" aria-label="Choose endpoint">
     <button id="slotA" aria-pressed="true"><span class="dot"></span><span class="nm" id="nmA">A</span></button>
@@ -217,13 +217,13 @@
   </div>
 
   <div class="fld">
-    <label for="urlA">Endpoint A / エンドポイントA</label>
+    <label for="urlA">Endpoint A</label>
     <input class="nm-in" id="nameA" type="text" placeholder="Apps Script" autocomplete="off">
     <input id="urlA" type="url" inputmode="url" spellcheck="false" autocomplete="off"
            placeholder="https://script.google.com/macros/s/…/exec">
   </div>
   <div class="fld">
-    <label for="urlB">Endpoint B / エンドポイントB</label>
+    <label for="urlB">Endpoint B</label>
     <input class="nm-in" id="nameB" type="text" placeholder="Worker" autocomplete="off">
     <input id="urlB" type="url" inputmode="url" spellcheck="false" autocomplete="off"
            placeholder="https://translate.your-name.workers.dev/">
@@ -232,30 +232,30 @@
   <p class="hint" id="hint"></p>
 
   <div class="frow">
-    <button class="btn primary" id="saveBtn">Save / 保存</button>
-    <button class="btn" id="testBtn">Test / テスト</button>
-    <button class="btn" id="resetBtn">Reset / リセット</button>
-    <label class="toggle" style="margin-left:4px">Speed / 速度
+    <button class="btn primary" id="saveBtn">Save</button>
+    <button class="btn" id="testBtn">Test</button>
+    <button class="btn" id="resetBtn">Reset</button>
+    <label class="toggle" style="margin-left:4px">Speed
       <input type="range" id="rateInput" min="0.8" max="1.8" step="0.05" value="1.15" style="width:90px;accent-color:var(--ink)">
       <span id="rateOut" style="font-variant-numeric:tabular-nums;font-weight:700">1.15×</span>
     </label>
-    <span class="probe" id="probe">Untested / 未テスト</span>
+    <span class="probe" id="probe">Untested</span>
   </div>
 
-  <h2 style="margin-top:16px">Diagnostics / 診断</h2>
+  <h2 style="margin-top:16px">Diagnostics</h2>
   <div class="diag">
-    <div><span>Behind / 遅延</span><b id="dLag">—</b></div>
-    <div><span>Pause / 無音検出</span><b id="dPause">—</b></div>
-    <div><span>Backend / 応答</span><b id="dRtt">—</b></div>
-    <div><span>Queued / 待機</span><b id="dQueue">0</b></div>
-    <div><span>Dropped / 破棄</span><b id="dDrop">0</b></div>
+    <div><span>Behind</span><b id="dLag">—</b></div>
+    <div><span>Pause</span><b id="dPause">—</b></div>
+    <div><span>Backend</span><b id="dRtt">—</b></div>
+    <div><span>Queued</span><b id="dQueue">0</b></div>
+    <div><span>Dropped</span><b id="dDrop">0</b></div>
   </div>
 </section>
 
 <div id="signinScreen" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:20px">
   <div>
     <div style="font-size:1.3rem;font-weight:900;margin-bottom:6px">Sign in with your company Google account</div>
-    <div style="color:var(--muted);font-size:.9rem">会社のGoogleアカウントでサインインしてください</div>
+
   </div>
   <div id="gsiButton"></div>
   <div id="signinError" style="color:var(--ja);font-weight:700;font-size:.85rem;display:none"></div>
@@ -267,8 +267,7 @@
   <div class="empty" id="emptyState">
     <div class="big">Hold a conversation across two languages.</div>
     Tap your language button to start listening. Keep talking — each sentence is
-    translated and read aloud as you go. Tap again to stop.<br><br>
-    自分の言語のボタンをタップすると聞き取りが始まります。話し続けてください。文ごとに翻訳して読み上げます。もう一度タップで停止します。
+    translated and read aloud as you go. Tap again to stop.
   </div>
   <div class="interim" id="interim"></div>
 </main>
@@ -278,21 +277,21 @@
   <div class="deck">
     <button class="talk en" id="talkEn">
       <span class="mic">🎤</span>
-      <span class="lbl">Speak English</span>
-      <span class="sub">translated to 日本語</span>
+      <span class="lbl">I speak English</span>
+      <span class="sub">Translate to Japanese</span>
     </button>
     <button class="talk ja" id="talkJa">
       <span class="mic">🎤</span>
-      <span class="lbl">日本語で話す</span>
-      <span class="sub">英語に翻訳されます</span>
+      <span class="lbl">They speak Japanese</span>
+      <span class="sub">Translate to English</span>
     </button>
   </div>
   <div class="typed" id="typedRow">
-    <input id="typedInput" placeholder="Type here / ここに入力…" aria-label="Type text to translate">
+    <input id="typedInput" placeholder="Type here..." aria-label="Type text to translate">
     <button class="send-en" id="sendEn">EN→JA</button>
     <button class="send-ja" id="sendJa">JA→EN</button>
   </div>
-  <button class="kbd-link" id="typedToggle">Prefer typing? / キーボード入力に切り替え</button>
+  <button class="kbd-link" id="typedToggle">Prefer typing?</button>
 </footer>
 
 </div><!-- /appScreen -->
@@ -420,16 +419,16 @@ function renderSlots(){
   [['A',slotA,nmA],['B',slotB,nmB]].forEach(([k,btn,label])=>{
     const e = cfg[k];
     btn.setAttribute('aria-pressed', String(cfg.active===k));
-    label.textContent = e.url ? (e.name || k) : (e.name||k) + ' — not set / 未設定';
+    label.textContent = e.url ? (e.name || k) : (e.name||k) + ' — not set';
     btn.title = e.url || 'No URL set';
     if(health[k]==null) btn.removeAttribute('data-ok');
     else btn.dataset.ok = String(health[k].ok);
   });
   const h = health[cfg.active];
-  if(!activeUrl()){ probe.dataset.state=''; probe.textContent='No endpoint / エンドポイント未設定'; }
+  if(!activeUrl()){ probe.dataset.state=''; probe.textContent='No endpoint'; }
   else if(h){ probe.dataset.state = h.ok?'ok':'bad';
-    probe.textContent = h.ok ? ('OK · '+ms(h.rtt)) : ('Failed / 失敗 · '+h.error); }
-  else { probe.dataset.state=''; probe.textContent='Untested / 未テスト'; }
+    probe.textContent = h.ok ? ('OK · '+ms(h.rtt)) : ('Failed · '+h.error); }
+  else { probe.dataset.state=''; probe.textContent='Untested'; }
 }
 
 function fillEditor(){
@@ -446,7 +445,7 @@ settingsBtn.addEventListener('click', ()=>{
 });
 
 function pickSlot(k){
-  if(!cfg[k].url){ hint.textContent='That slot has no URL yet. / そのスロットにURLがありません。'; return; }
+  if(!cfg[k].url){ hint.textContent='That slot has no URL yet.'; return; }
   cfg.active=k; saveCfg(); renderSlots();
 }
 slotA.addEventListener('click', ()=>pickSlot('A'));
@@ -455,11 +454,11 @@ slotB.addEventListener('click', ()=>pickSlot('B'));
 /* The two mistakes that fail as an unreadable CORS error */
 function validate(url){
   if(!url) return null;
-  if(!/^https:\/\//i.test(url)) return 'URLs must start with https:// — the microphone will not work otherwise. / URLはhttps://で始まる必要があります。';
+  if(!/^https:\/\//i.test(url)) return 'URLs must start with https:// — the microphone will not work otherwise.';
   if(/script\.google\.com/.test(url) && /\/dev\/?$/.test(url))
-    return 'Use the Apps Script /exec URL, not /dev. /dev needs a logged-in session and fails from the browser. / /devではなく/execのURLを使用してください。';
+    return 'Use the Apps Script /exec URL, not /dev. /dev needs a logged-in session and fails from the browser.';
   if(/script\.google\.com/.test(url) && !/\/exec\/?$/.test(url))
-    return 'Apps Script URLs should end in /exec. / Apps ScriptのURLは/execで終わります。';
+    return 'Apps Script URLs should end in /exec.';
   return null;
 }
 
@@ -491,10 +490,10 @@ rateInput.addEventListener('change', ()=>{ cfg.rate=parseFloat(rateInput.value);
 async function runTest(){
   const slot = cfg.active, url = cfg[slot].url;
   if(!url) return;
-  probe.dataset.state=''; probe.textContent='Testing… / テスト中…';
+  probe.dataset.state=''; probe.textContent='Testing…';
   testBtn.disabled = true;
   try{
-    const r = await callBackend(url, 'テスト', 'ja-en');
+    const r = await callBackend(url, 'test', 'ja-en');
     health[slot] = { ok:true, rtt:r.rtt };
   }catch(err){
     health[slot] = { ok:false, error:err.message };
@@ -557,11 +556,11 @@ function addCard(dir, orig){
   emptyState.style.display = 'none';
   const div = document.createElement('div');
   div.className = 'msg ' + (dir==='en-ja' ? 'en' : 'ja');
-  const tagLabel = dir==='en-ja' ? 'ENGLISH → 日本語' : '日本語 → ENGLISH';
+  const tagLabel = dir==='en-ja' ? 'ENGLISH → JAPANESE' : 'JAPANESE → ENGLISH';
   div.innerHTML =
     '<div class="tag"><span>'+tagLabel+'</span><button class="speak-btn">🔊 Replay</button></div>'+
     '<div class="orig"></div>'+
-    '<div class="trans pending">Translating… / 翻訳中…</div>'+
+    '<div class="trans pending">Translating…</div>'+
     '<div class="meta"></div>';
   div.querySelector('.orig').textContent = orig;
   log.insertBefore(div, interimEl);
@@ -572,7 +571,7 @@ function addCard(dir, orig){
 function noteSkipped(n){
   const p = document.createElement('div');
   p.className = 'skipnote';
-  p.textContent = '— audio skipped for '+n+' line'+(n>1?'s':'')+' to catch up / '+n+'件の音声を省略して追いつきました —';
+  p.textContent = '— audio skipped for '+n+' line'+(n>1?'s':'')+' to catch up —';
   log.insertBefore(p, interimEl);
 }
 
@@ -588,7 +587,7 @@ function translate(dir, orig){
   const id = seq++, finalAt = Date.now(), slot = cfg.active;
 
   if(!url){
-    transEl.textContent = '⚠ No endpoint set — open Settings. / エンドポイントが未設定です。設定を開いてください。';
+    transEl.textContent = '⚠ No endpoint set — open Settings.';
     transEl.classList.remove('pending');
     readyBuffer.set(id, null); releaseInOrder();
     return;
@@ -607,7 +606,7 @@ function translate(dir, orig){
   }).catch(err => {
     if(err.authFailed){ card.remove(); forceSignIn(err.message);
       readyBuffer.set(id, null); releaseInOrder(); return; }
-    transEl.textContent = 'Translation failed / 翻訳に失敗しました — ' + err.message;
+    transEl.textContent = 'Translation failed — ' + err.message;
     transEl.classList.remove('pending');
     health[slot] = { ok:false, error:err.message }; renderSlots();
     const b = card.querySelector('.speak-btn');
@@ -715,7 +714,7 @@ function armWatchdog(){
   // 15s with no voice-like audio at all usually means the mic isn't reaching us.
   watchdogTimer = setTimeout(()=>{
     if(!sawAnyAudio){
-      setStatus('⚠ No audio detected — check your microphone (input device, OS permissions, volume). / マイクが検出されていません。', true);
+      setStatus('⚠ No audio detected — check your microphone (input device, OS permissions, volume).', true);
       playAlertChime();
     }
     sawAnyAudio = false;   // reset so the check can fire again later
@@ -736,7 +735,7 @@ function startListening(pair){
     activeRec = rec; activeBtn = btn;
     btn.classList.add('listening');
     document.querySelectorAll('.talk').forEach(b=>{ if(b!==btn) b.disabled = true; });
-    setStatus(lang==='ja-JP' ? '聞いています… タップで停止' : 'Listening… tap to stop');
+    setStatus('Listening… tap to stop');
     interimEl.classList.add('show'); interimEl.textContent = '…';
     log.scrollTop = log.scrollHeight;
     sawAnyAudio = false;
@@ -769,7 +768,7 @@ function startListening(pair){
 
   rec.onerror = (e)=>{
     if(e.error==='not-allowed' || e.error==='service-not-allowed'){
-      setStatus('Microphone blocked — use typed input below. / マイクが使用できません。キーボード入力をご利用ください。', true);
+      setStatus('Microphone blocked — use typed input below.', true);
       showTyped(true);
       userStopped = true;
     } else if(e.error==='no-speech' || e.error==='aborted'){
@@ -784,12 +783,12 @@ function startListening(pair){
     clearWatchdog();
     if(userStopped){ teardownListening(); return; }
     if(suspendedForAudio) return;  // playback will resume us
-    setStatus(lang==='ja-JP' ? '再接続中…' : 'Reconnecting…');
+    setStatus('Reconnecting…');
     setTimeout(()=>{ if(!userStopped && !activeRec) resumeListening(); }, 250);
   };
 
   try { rec.start(); }
-  catch(err){ setStatus('Could not start microphone. / マイクを起動できません。', true); showTyped(true); }
+  catch(err){ setStatus('Could not start microphone.', true); showTyped(true); }
 }
 
 let lastVoiceActivity = 0;
@@ -799,7 +798,7 @@ function resumeListening(){
   try{ startListening(activeLangPair); }
   catch(err){
     teardownListening();
-    setStatus('⚠ Listening stopped — tap to resume. / 聞き取りが停止しました。タップして再開してください。', true);
+    setStatus('⚠ Listening stopped — tap to resume.', true);
     playAlertChime();
   }
 }
@@ -824,7 +823,7 @@ function setupTalk(btn, lang, dir){
     if(!activeUrl()){
       drawer.classList.add('open'); settingsBtn.classList.add('on');
       fillEditor(); renderSlots();
-      setStatus('Set a translation endpoint first. / 先に翻訳エンドポイントを設定してください。', true);
+      setStatus('Set a translation endpoint first.', true);
       return;
     }
     userStopped = false;
