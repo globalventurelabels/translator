@@ -746,9 +746,9 @@ main{
 
   padding:20px;
 
-  min-height:120px;
-
   display:none;
+
+  overflow:hidden;
 
 }
 
@@ -758,31 +758,23 @@ main{
 
 }
 
-.direction-label{
-
-  font-size:.72rem;
-
-  font-weight:900;
-
-  letter-spacing:.08em;
-
-  text-transform:uppercase;
-
-  color:var(--muted);
-
-  margin-bottom:7px;
-
-}
-
 .translation-display{
 
   font-size:1.4rem;
 
   font-weight:700;
 
-  line-height:1.6;
+  line-height:1.55;
 
   min-height:70px;
+
+  max-height:220px;
+
+  overflow-y:auto;
+
+  overflow-wrap:anywhere;
+
+  word-break:normal;
 
   margin-bottom:14px;
 
