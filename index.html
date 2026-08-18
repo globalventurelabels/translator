@@ -187,6 +187,21 @@
 
 <!-- Settings drawer -->
 <section class="drawer" id="drawer">
+  <h2>Audio Setup (Important)</h2>
+  <div style="background:#fef3c7;border:1.5px solid #fcd34d;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:.85rem;line-height:1.6">
+    <strong>For conference calls:</strong> Enable Stereo Mix on your laptop so the app can hear both call audio and room speakers.
+    <div style="margin-top:10px">
+      <strong>How to enable Stereo Mix (Windows):</strong>
+      <ol style="margin:8px 0 0 20px">
+        <li>Right-click Volume icon (system tray) → Open Sound settings</li>
+        <li>Scroll down → Advanced → Volume mixer</li>
+        <li>Scroll down → Advanced → App volume and device preferences</li>
+        <li>Find "Translation Bridge" → Set Output to "Speakers" and Input to "Stereo Mix"</li>
+        <li>If Stereo Mix doesn't appear: Right-click speaker icon → Recording devices → Right-click empty space → Show disabled devices → Enable Stereo Mix</li>
+      </ol>
+    </div>
+  </div>
+
   <h2>Translation endpoint</h2>
   <div class="slots" role="group" aria-label="Choose endpoint">
     <button id="slotA" aria-pressed="true"><span class="dot"></span><span id="nmA">A</span></button>
