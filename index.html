@@ -1952,16 +1952,28 @@ let processingTranslation =
 
 
 let lastFinal = {
-
   text:'',
-
   at:0
-
 };
 
+/*
+ * FAST COMPUTER-AUDIO TRANSLATION
+ *
+ * Chrome shows interim Japanese very quickly, but may take
+ * several seconds to mark it "final".
+ *
+ * If the interim text stops changing for 800ms, translate it.
+ */
+const FAST_TRANSLATE_DELAY = 800;
 
-const conversation =
-  [];
+let fastTranslateTimer = null;
+let fastPendingText = '';
+let fastPendingDir = null;
+
+let lastTranslatedText = '';
+let lastTranslatedAt = 0;
+
+const conversation = [];
 
 
 /* =========================================================
