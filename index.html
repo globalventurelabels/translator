@@ -452,7 +452,36 @@ function translate(dir, orig){
   });
 }
 
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const romanizedMap = {
+  'konichiwa': 'こんにちは',
+  'konbanwa': 'こんばんは',
+  'arigatou': 'ありがとう',
+  'arigatougozaimasu': 'ありがとうございます',
+  'gozaimasu': 'ございます',
+  'kudasai': 'ください',
+  'sumimasen': 'すみません',
+  'hai': 'はい',
+  'iie': 'いいえ',
+  'sayonara': 'さようなら',
+  'sensei': '先生',
+  'ohayo': 'おはよう',
+  'matte': '待って',
+  'nakatta': 'なかった',
+  'desuka': 'ですか',
+  'wakarimashita': 'わかりました',
+  'onegaishimasu': 'お願いします',
+  'tasukete': '助けて'
+};
+
+function romanizedToJapanese(text) {
+  const lower = text.toLowerCase().trim();
+  return romanizedMap[lower] || null;
+}
+
+function isRomanizedJapanese(text) {
+  const lower = text.toLowerCase().trim();
+  return lower in romanizedMap;
+}
 
 enBtn.addEventListener('click', ()=>{
   if(translating && currentDir === 'en-ja'){ stopTranslation(); }
@@ -498,10 +527,17 @@ function startTranslation(dir){
 
   rec.onresult = (e)=>{
     for(let i=e.resultIndex; i<e.results.length; i++){
-      const transcript = e.results[i][0].transcript;
+      let transcript = e.results[i][0].transcript;
       if(e.results[i].isFinal){
-        const text = transcript.trim();
+        let text = transcript.trim();
         if(!text) continue;
+        
+        // If listening for Japanese and received romanized Japanese, convert it
+        if(currentDir === 'ja-en' && isRomanizedJapanese(text)){
+          const converted = romanizedToJapanese(text);
+          if(converted) text = converted;
+        }
+        
         const now = Date.now();
         if(text === lastFinal.text && now - lastFinal.at < 1500) continue;
         lastFinal = { text, at: now };
@@ -520,8 +556,9 @@ function startTranslation(dir){
   };
 
   rec.onend = ()=>{
+    rec = null;
     if(translating){
-      setTimeout(()=>{ if(translating && !rec) startTranslation(currentDir); }, 250);
+      setTimeout(()=>{ if(translating) startTranslation(currentDir); }, 250);
     }
   };
 
