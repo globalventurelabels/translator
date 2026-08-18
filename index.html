@@ -1,48 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Translation Bridge — English ⇄ Japanese</title>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<title>
+  Translation Bridge — English ⇄ Japanese
+</title>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link
+  rel="preconnect"
+  href="https://fonts.googleapis.com"
+>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap"
+  rel="stylesheet"
+>
+
+<script
+  src="https://accounts.google.com/gsi/client"
+  async
+  defer
+></script>
+
 
 <style>
 
 :root{
+
   --paper:#F5F4EF;
+
   --ink:#171F33;
+
   --en:#25507A;
+
   --ja:#9E2B20;
+
   --line:#D8D4C9;
+
   --card:#FFFFFF;
+
   --muted:#6B6A63;
+
   --good:#22c55e;
+
   --bad:#ef4444;
+
+  --warning:#f59e0b;
+
 }
 
+
 *{
+
   box-sizing:border-box;
+
   margin:0;
+
   padding:0;
+
 }
+
 
 html,
 body{
+
   height:100%;
+
 }
 
+
 body{
-  font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;
+
+  font-family:
+    "Zen Kaku Gothic New",
+    -apple-system,
+    "Hiragino Sans",
+    "Yu Gothic",
+    sans-serif;
+
   background:var(--paper);
+
   color:var(--ink);
+
   display:flex;
+
   flex-direction:column;
+
   height:100dvh;
+
 }
 
 
@@ -51,8 +104,11 @@ body{
 ========================================================= */
 
 header{
+
   display:flex;
+
   align-items:center;
+
   justify-content:space-between;
 
   padding:14px 20px;
@@ -60,63 +116,98 @@ header{
   border-bottom:2px solid var(--ink);
 
   gap:12px;
+
   flex-wrap:wrap;
+
 }
+
 
 .brand{
+
   display:flex;
+
   align-items:baseline;
+
   gap:10px;
+
 }
+
 
 .brand h1{
+
   font-size:1.15rem;
+
   font-weight:900;
+
   letter-spacing:.02em;
+
 }
+
 
 .brand .subtitle{
+
   font-size:.85rem;
+
   color:var(--muted);
+
   font-weight:500;
+
 }
+
 
 .controls{
+
   display:flex;
+
   align-items:center;
+
   gap:14px;
+
   flex-wrap:wrap;
+
 }
 
+
 .toggle{
+
   display:flex;
+
   align-items:center;
+
   gap:6px;
 
   font-size:.8rem;
 
   cursor:pointer;
+
   user-select:none;
+
 }
+
 
 .toggle input{
+
   accent-color:var(--ink);
+
   width:16px;
+
   height:16px;
+
   cursor:pointer;
+
 }
 
 
-/* =========================================================
-   HEADER PILLS
-========================================================= */
-
 .pill{
+
   font-family:inherit;
+
   font-size:.8rem;
+
   font-weight:700;
 
   background:var(--bad);
+
   border:2px solid var(--bad);
 
   border-radius:999px;
@@ -127,20 +218,24 @@ header{
 
   color:#fff;
 
-  transition:
-    background .2s ease,
-    border-color .2s ease,
-    transform .2s ease,
-    box-shadow .2s ease;
+  transition:all .2s ease;
+
 }
+
 
 .pill:hover{
+
   background:#dc2626;
+
   border-color:#dc2626;
+
 }
 
+
 .pill.on{
+
   background:var(--good);
+
   border-color:var(--good);
 
   color:#fff;
@@ -149,6 +244,7 @@ header{
 
   box-shadow:
     0 0 0 4px rgba(34,197,94,0.25);
+
 }
 
 
@@ -157,6 +253,7 @@ header{
 ========================================================= */
 
 .drawer{
+
   border-bottom:2px solid var(--ink);
 
   background:var(--card);
@@ -164,15 +261,23 @@ header{
   padding:14px 20px;
 
   display:none;
+
 }
+
 
 .drawer.open{
+
   display:block;
+
 }
 
+
 .drawer h2{
+
   font-size:.72rem;
+
   font-weight:900;
+
   letter-spacing:.1em;
 
   text-transform:uppercase;
@@ -180,14 +285,31 @@ header{
   color:var(--muted);
 
   margin-bottom:10px;
+
 }
 
 
-/* =========================================================
-   ENDPOINT SELECTOR
-========================================================= */
+.audio-help{
+
+  background:#fef3c7;
+
+  border:1.5px solid #fcd34d;
+
+  border-radius:8px;
+
+  padding:12px 14px;
+
+  margin-bottom:16px;
+
+  font-size:.85rem;
+
+  line-height:1.6;
+
+}
+
 
 .slots{
+
   display:flex;
 
   gap:0;
@@ -203,9 +325,12 @@ header{
   margin-bottom:12px;
 
   background:var(--paper);
+
 }
 
+
 .slots button{
+
   flex:1;
 
   background:none;
@@ -221,20 +346,32 @@ header{
   color:var(--muted);
 
   cursor:pointer;
+
 }
+
 
 .slots button + button{
+
   border-left:1.5px solid var(--line);
+
 }
+
 
 .slots button[aria-pressed="true"]{
+
   background:var(--ink);
+
   color:#fff;
+
   font-weight:700;
+
 }
 
+
 .slots .dot{
+
   width:8px;
+
   height:8px;
 
   border-radius:50%;
@@ -244,23 +381,28 @@ header{
   display:inline-block;
 
   margin-right:8px;
+
 }
+
 
 .slots button[data-ok="true"] .dot{
+
   background:var(--good);
+
 }
+
 
 .slots button[data-ok="false"] .dot{
+
   background:var(--ja);
+
 }
 
 
-/* =========================================================
-   FORM
-========================================================= */
-
 .fld{
+
   display:flex;
+
   flex-direction:column;
 
   gap:4px;
@@ -268,18 +410,25 @@ header{
   max-width:680px;
 
   margin-bottom:10px;
+
 }
 
+
 .fld label{
+
   font-size:.68rem;
+
   font-weight:700;
 
   letter-spacing:.06em;
 
   color:var(--muted);
+
 }
 
+
 .fld input{
+
   font-family:inherit;
 
   font-size:.85rem;
@@ -293,25 +442,37 @@ header{
   background:var(--paper);
 
   color:var(--ink);
+
 }
 
+
 .probe{
+
   font-size:.75rem;
 
   color:var(--muted);
 
   font-weight:700;
+
 }
+
 
 .probe[data-state="ok"]{
+
   color:var(--good);
+
 }
+
 
 .probe[data-state="bad"]{
+
   color:var(--ja);
+
 }
 
+
 .hint{
+
   font-size:.75rem;
 
   color:var(--ja);
@@ -323,14 +484,12 @@ header{
   max-width:680px;
 
   margin-bottom:10px;
+
 }
 
 
-/* =========================================================
-   GENERAL BUTTON
-========================================================= */
-
 .btn{
+
   font-family:inherit;
 
   font-size:.8rem;
@@ -348,16 +507,25 @@ header{
   background:none;
 
   color:var(--ink);
+
 }
+
 
 .btn:hover{
+
   background:var(--ink);
+
   color:#fff;
+
 }
 
+
 .btn.primary{
+
   background:var(--ink);
+
   color:#fff;
+
 }
 
 
@@ -366,6 +534,7 @@ header{
 ========================================================= */
 
 main{
+
   flex:1;
 
   overflow-y:auto;
@@ -379,31 +548,160 @@ main{
   flex-direction:column;
 
   gap:16px;
+
 }
 
+
 .status{
+
   text-align:center;
 
-  font-size:.78rem;
+  font-size:.82rem;
 
   color:var(--muted);
 
-  min-height:1.2em;
+  min-height:1.3em;
 
-  font-weight:500;
+  font-weight:700;
+
 }
 
+
 .status.err{
+
   color:var(--ja);
-  font-weight:700;
+
+  font-weight:900;
+
 }
 
 
 /* =========================================================
-   SPEAK BUTTONS
+   AUDIO SOURCE
+========================================================= */
+
+.audio-source-panel{
+
+  max-width:680px;
+
+  width:100%;
+
+  margin:0 auto;
+
+  background:var(--card);
+
+  border:2px solid var(--line);
+
+  border-radius:12px;
+
+  padding:14px;
+
+}
+
+
+.audio-source-title{
+
+  font-size:.72rem;
+
+  font-weight:900;
+
+  letter-spacing:.08em;
+
+  text-transform:uppercase;
+
+  color:var(--muted);
+
+  margin-bottom:9px;
+
+}
+
+
+.audio-source-options{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0,1fr));
+
+  gap:10px;
+
+}
+
+
+.source-btn{
+
+  font-family:inherit;
+
+  border:2px solid var(--line);
+
+  background:var(--paper);
+
+  border-radius:10px;
+
+  padding:12px 10px;
+
+  cursor:pointer;
+
+  font-weight:800;
+
+  color:var(--ink);
+
+  text-align:center;
+
+  transition:all .15s ease;
+
+}
+
+
+.source-btn:hover{
+
+  border-color:var(--ink);
+
+}
+
+
+.source-btn.active{
+
+  border-color:var(--good);
+
+  background:#ecfdf5;
+
+  box-shadow:
+    0 0 0 3px rgba(34,197,94,.12);
+
+}
+
+
+.source-description{
+
+  text-align:center;
+
+  font-size:.75rem;
+
+  color:var(--muted);
+
+  margin-top:10px;
+
+  min-height:1.2em;
+
+}
+
+
+.source-description.connected{
+
+  color:var(--good);
+
+  font-weight:900;
+
+}
+
+
+/* =========================================================
+   LANGUAGE BUTTONS
 ========================================================= */
 
 .control-panel{
+
   max-width:680px;
 
   margin:0 auto;
@@ -417,9 +715,12 @@ main{
   flex-wrap:wrap;
 
   justify-content:center;
+
 }
 
+
 .btn-speak{
+
   font-family:inherit;
 
   font-size:1rem;
@@ -438,51 +739,79 @@ main{
 
   transition:all .2s ease;
 
-  min-width:200px;
+  min-width:220px;
+
+  flex:1;
+
 }
+
 
 .btn-speak:hover{
-  transform:scale(1.02);
+
+  transform:scale(1.015);
+
 }
+
 
 .btn-speak.active{
+
   box-shadow:
     0 0 0 6px rgba(34,197,94,0.3);
+
 }
 
-.btn-speak:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
 
 .en-btn{
+
   background:var(--en);
+
   border-color:var(--en);
+
 }
+
 
 .en-btn:hover{
+
   background:#1e3a5f;
+
   border-color:#1e3a5f;
+
 }
+
 
 .en-btn.active{
+
   background:var(--good);
+
   border-color:var(--good);
+
 }
+
 
 .ja-btn{
+
   background:var(--ja);
+
   border-color:var(--ja);
+
 }
+
 
 .ja-btn:hover{
+
   background:#7a1f18;
+
   border-color:#7a1f18;
+
 }
 
+
 .ja-btn.active{
+
   background:var(--good);
+
   border-color:var(--good);
+
 }
 
 
@@ -491,6 +820,7 @@ main{
 ========================================================= */
 
 .display-panel{
+
   max-width:680px;
 
   margin:0 auto;
@@ -508,14 +838,21 @@ main{
   min-height:120px;
 
   display:none;
+
 }
+
 
 .display-panel.active{
+
   display:block;
+
 }
 
+
 .direction-label{
+
   font-size:.72rem;
+
   font-weight:900;
 
   letter-spacing:.08em;
@@ -524,46 +861,64 @@ main{
 
   color:var(--muted);
 
-  margin-bottom:8px;
+  margin-bottom:7px;
+
 }
 
-.english-display{
+
+.translation-display{
+
   font-size:1.4rem;
 
   font-weight:700;
 
   line-height:1.6;
 
-  color:var(--en);
+  min-height:70px;
 
-  min-height:80px;
+  margin-bottom:14px;
 
-  margin-bottom:16px;
-
-  padding-bottom:16px;
+  padding-bottom:14px;
 
   border-bottom:2px solid var(--line);
+
 }
 
-.english-display.japanese-output{
+
+.translation-display.en-output{
+
+  color:var(--en);
+
+}
+
+
+.translation-display.ja-output{
+
   color:var(--ja);
+
 }
 
-.english-display.empty{
+
+.translation-display.empty{
+
   color:var(--muted);
 
   font-weight:400;
 
   font-size:1rem;
+
 }
 
-.japanese-ref{
-  padding-top:12px;
 
-  border-top:1px solid var(--line);
+.original-ref{
+
+  padding-top:5px;
+
 }
 
-.japanese-toggle{
+
+.original-toggle{
+
   display:flex;
 
   align-items:center;
@@ -581,13 +936,19 @@ main{
   user-select:none;
 
   margin-bottom:8px;
+
 }
 
-.japanese-toggle:hover{
+
+.original-toggle:hover{
+
   color:var(--ink);
+
 }
 
-.japanese-content{
+
+.original-content{
+
   display:none;
 
   font-size:1rem;
@@ -601,10 +962,14 @@ main{
   background:var(--paper);
 
   border-radius:8px;
+
 }
 
-.japanese-content.open{
+
+.original-content.open{
+
   display:block;
+
 }
 
 
@@ -613,14 +978,18 @@ main{
 ========================================================= */
 
 .transcript{
+
   max-width:680px;
 
   margin:0 auto;
 
   width:100%;
+
 }
 
+
 .transcript h3{
+
   font-size:.85rem;
 
   font-weight:900;
@@ -632,9 +1001,12 @@ main{
   color:var(--muted);
 
   margin-bottom:12px;
+
 }
 
+
 .transcript-list{
+
   list-style:none;
 
   display:flex;
@@ -642,9 +1014,12 @@ main{
   flex-direction:column;
 
   gap:8px;
+
 }
 
+
 .transcript-item{
+
   background:var(--card);
 
   border-left:4px solid var(--line);
@@ -656,17 +1031,26 @@ main{
   font-size:.9rem;
 
   line-height:1.6;
+
 }
+
 
 .transcript-item.en{
+
   border-left-color:var(--en);
+
 }
+
 
 .transcript-item.ja{
+
   border-left-color:var(--ja);
+
 }
 
+
 .transcript-label{
+
   font-size:.7rem;
 
   font-weight:900;
@@ -675,36 +1059,79 @@ main{
 
   text-transform:uppercase;
 
-  margin-bottom:6px;
+  margin-bottom:5px;
 
   color:var(--muted);
+
 }
+
 
 .transcript-original{
+
   font-weight:500;
+
 }
 
+
 .transcript-arrow{
+
   color:var(--muted);
 
   font-size:.75rem;
 
-  margin:5px 0;
+  margin:4px 0;
+
 }
+
 
 .transcript-translation{
-  font-weight:800;
+
+  font-weight:900;
+
 }
 
-.transcript-item.en .transcript-translation{
+
+.transcript-item.en
+.transcript-translation{
+
   color:var(--ja);
+
 }
 
-.transcript-item.ja .transcript-translation{
+
+.transcript-item.ja
+.transcript-translation{
+
   color:var(--en);
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:600px){
+
+  .audio-source-options{
+
+    grid-template-columns:1fr;
+
+  }
+
+
+  .btn-speak{
+
+    width:100%;
+
+    min-width:0;
+
+  }
+
 }
 
 </style>
+
 </head>
 
 
@@ -798,7 +1225,7 @@ main{
 
 
 <!-- ========================================================
-     SETTINGS DRAWER
+     SETTINGS
 ========================================================= -->
 
 <section
@@ -807,73 +1234,30 @@ main{
 >
 
   <h2>
-    Audio Setup (Important)
+    Audio Setup
   </h2>
 
 
-  <div
-    style="
-      background:#fef3c7;
-      border:1.5px solid #fcd34d;
-      border-radius:8px;
-      padding:12px 14px;
-      margin-bottom:16px;
-      font-size:.85rem;
-      line-height:1.6
-    "
-  >
+  <div class="audio-help">
 
     <strong>
-      For conference calls:
+      Room Microphone:
     </strong>
 
-    Enable Stereo Mix on your laptop so the app can hear both
-    call audio and room speakers.
+    Use this when someone is physically speaking near the laptop.
 
+    <br><br>
 
-    <div style="margin-top:10px">
+    <strong>
+      Meeting / Computer Audio:
+    </strong>
 
-      <strong>
-        How to enable Stereo Mix (Windows):
-      </strong>
+    Use this for Zoom, Teams, YouTube, or other audio coming from the computer.
 
-
-      <ol style="margin:8px 0 0 20px">
-
-        <li>
-          Right-click Volume icon (system tray)
-          → Open Sound settings
-        </li>
-
-        <li>
-          Scroll down → Advanced → Volume mixer
-        </li>
-
-        <li>
-          Scroll down → Advanced
-          → App volume and device preferences
-        </li>
-
-        <li>
-          Find "Translation Bridge"
-          → Set Input to "Stereo Mix"
-        </li>
-
-        <li>
-          If Stereo Mix doesn't appear:
-          Right-click speaker
-          → Recording devices
-          → Right-click empty space
-          → Show disabled
-          → Enable Stereo Mix
-        </li>
-
-      </ol>
-
-    </div>
+    When Chrome asks what to share, choose the source containing the meeting
+    audio and enable audio sharing if Chrome shows the option.
 
   </div>
-
 
 
   <h2>
@@ -909,7 +1293,6 @@ main{
   </div>
 
 
-
   <div class="fld">
 
     <label>
@@ -927,11 +1310,10 @@ main{
       id="urlA"
       type="url"
       spellcheck="false"
-      placeholder="https://script.google.com/macros/s/…/exec"
+      placeholder="https://script.google.com/macros/s/.../exec"
     >
 
   </div>
-
 
 
   <div class="fld">
@@ -951,7 +1333,7 @@ main{
       id="urlB"
       type="url"
       spellcheck="false"
-      placeholder="https://translate.your-name.workers.dev/"
+      placeholder="https://translate.example.com/"
     >
 
   </div>
@@ -1009,7 +1391,7 @@ main{
 
 
 <!-- ========================================================
-     SIGN IN SCREEN
+     SIGN-IN
 ========================================================= -->
 
 <div
@@ -1035,7 +1417,9 @@ main{
         margin-bottom:6px
       "
     >
+
       Sign in with your company Google account
+
     </div>
 
   </div>
@@ -1059,7 +1443,7 @@ main{
 
 
 <!-- ========================================================
-     APPLICATION
+     APP
 ========================================================= -->
 
 <div
@@ -1081,6 +1465,49 @@ main{
   ></div>
 
 
+  <!-- AUDIO SOURCE -->
+
+  <div class="audio-source-panel">
+
+    <div class="audio-source-title">
+      Audio Source
+    </div>
+
+
+    <div class="audio-source-options">
+
+      <button
+        class="source-btn active"
+        id="micSourceBtn"
+      >
+        🎤 Room Microphone
+      </button>
+
+
+      <button
+        class="source-btn"
+        id="computerSourceBtn"
+      >
+        💻 Meeting / Computer Audio
+      </button>
+
+    </div>
+
+
+    <div
+      class="source-description"
+      id="sourceDescription"
+    >
+
+      Listening through the laptop microphone.
+
+    </div>
+
+  </div>
+
+
+
+  <!-- LANGUAGE -->
 
   <div class="control-panel">
 
@@ -1103,6 +1530,8 @@ main{
 
 
 
+  <!-- TRANSLATION -->
+
   <div
     class="display-panel"
     id="displayPanel"
@@ -1117,26 +1546,26 @@ main{
 
 
     <div
-      class="english-display empty"
-      id="englishDisplay"
+      class="translation-display empty"
+      id="translationDisplay"
     >
       Listening...
     </div>
 
 
-    <div class="japanese-ref">
+    <div class="original-ref">
 
       <div
-        class="japanese-toggle"
-        id="japaneseToggle"
+        class="original-toggle"
+        id="originalToggle"
       >
         ▶ Show original
       </div>
 
 
       <div
-        class="japanese-content"
-        id="japaneseContent"
+        class="original-content"
+        id="originalContent"
       ></div>
 
     </div>
@@ -1144,6 +1573,8 @@ main{
   </div>
 
 
+
+  <!-- TRANSCRIPT -->
 
   <div class="transcript">
 
@@ -1165,17 +1596,24 @@ main{
 </div>
 
 
+
 <script>
 
 /* =========================================================
-   CONFIG
+   CONFIGURATION
 ========================================================= */
 
 const DEFAULT_API_URL =
   'https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec';
 
+
 const GOOGLE_CLIENT_ID =
   '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
+
+
+/* =========================================================
+   AUTH
+========================================================= */
 
 let idToken = null;
 
@@ -1187,54 +1625,89 @@ let idToken = null;
 const store = (() => {
 
   const mem = {};
+
   let ok = false;
 
+
   try {
+
     localStorage.setItem('__p','1');
+
     localStorage.removeItem('__p');
+
     ok = true;
+
   }
   catch(e){}
+
 
   return {
 
     get(k){
+
       try{
+
         return ok
           ? localStorage.getItem(k)
           : mem[k];
+
       }
       catch(e){
+
         return mem[k];
+
       }
+
     },
+
 
     set(k,v){
+
       try{
+
         if(ok){
+
           localStorage.setItem(k,v);
+
         }
         else{
+
           mem[k] = v;
+
         }
+
       }
       catch(e){
+
         mem[k] = v;
+
       }
+
     },
 
+
     del(k){
+
       try{
+
         if(ok){
+
           localStorage.removeItem(k);
+
         }
         else{
+
           delete mem[k];
+
         }
+
       }
       catch(e){
+
         delete mem[k];
+
       }
+
     }
 
   };
@@ -1243,7 +1716,7 @@ const store = (() => {
 
 
 /* =========================================================
-   SETTINGS
+   SAVED CONFIG
 ========================================================= */
 
 let cfg = {
@@ -1272,16 +1745,19 @@ let cfg = {
 try{
 
   const raw =
-    store.get('gvl.kaigi.v1');
+    store.get('gvl.kaigi.v2');
+
 
   if(raw){
 
     const saved =
       JSON.parse(raw);
 
+
     cfg = {
 
       ...cfg,
+
       ...saved,
 
       A:{
@@ -1312,7 +1788,7 @@ catch(e){
 function saveCfg(){
 
   store.set(
-    'gvl.kaigi.v1',
+    'gvl.kaigi.v2',
     JSON.stringify(cfg)
   );
 
@@ -1332,6 +1808,7 @@ function activeUrl(){
 
 const $ = id =>
   document.getElementById(id);
+
 
 const autoSpeak =
   $('autoSpeak');
@@ -1393,24 +1870,36 @@ const enBtn =
 const jaBtn =
   $('jaBtn');
 
+const micSourceBtn =
+  $('micSourceBtn');
+
+const computerSourceBtn =
+  $('computerSourceBtn');
+
+const sourceDescription =
+  $('sourceDescription');
+
 const displayPanel =
   $('displayPanel');
 
-const englishDisplay =
-  $('englishDisplay');
+const directionLabel =
+  $('directionLabel');
 
-const japaneseContent =
-  $('japaneseContent');
+const translationDisplay =
+  $('translationDisplay');
 
-const japaneseToggle =
-  $('japaneseToggle');
+const originalToggle =
+  $('originalToggle');
+
+const originalContent =
+  $('originalContent');
 
 const transcriptList =
   $('transcriptList');
 
 
 /* =========================================================
-   SPEECH
+   SPEECH RECOGNITION API
 ========================================================= */
 
 const SR =
@@ -1422,417 +1911,57 @@ const SR =
    STATE
 ========================================================= */
 
-let translating = false;
+let translating =
+  false;
 
-let currentDir = null;
 
-let rec = null;
+let currentDir =
+  null;
 
-let recognitionSession = 0;
 
-let speakingTranslation = false;
+let rec =
+  null;
 
-let recognitionPausedForSpeech = false;
 
-let computerStream = null;
+let recognitionSession =
+  0;
 
-let computerAudioTrack = null;
+
+let intentionallyPaused =
+  false;
+
+
+let speakingTranslation =
+  false;
+
+
+let computerStream =
+  null;
+
+
+let computerAudioTrack =
+  null;
+
+
+let translationQueue =
+  [];
+
+
+let processingTranslation =
+  false;
+
 
 let lastFinal = {
+
   text:'',
+
   at:0
+
 };
 
-const conversation = [];
 
-
-/* =========================================================
-   AUDIO SOURCE UI
-========================================================= */
-
-function createAudioSourceSelector(){
-
-  const controlPanel =
-    document.querySelector('.control-panel');
-
-  if(
-    !controlPanel ||
-    $('audioSourceSelector')
-  ){
-    return;
-  }
-
-
-  const wrapper =
-    document.createElement('div');
-
-  wrapper.id =
-    'audioSourceSelector';
-
-
-  wrapper.style.cssText = `
-    width:100%;
-    max-width:680px;
-    margin:0 auto 8px auto;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    flex-wrap:wrap;
-  `;
-
-
-  const label =
-    document.createElement('label');
-
-  label.htmlFor =
-    'audioSource';
-
-  label.textContent =
-    'Audio Source:';
-
-  label.style.cssText = `
-    font-size:.82rem;
-    font-weight:900;
-  `;
-
-
-  const select =
-    document.createElement('select');
-
-  select.id =
-    'audioSource';
-
-  select.style.cssText = `
-    font-family:inherit;
-    font-size:.85rem;
-    font-weight:700;
-    padding:8px 12px;
-    border:2px solid var(--ink);
-    border-radius:8px;
-    background:#fff;
-    color:var(--ink);
-    cursor:pointer;
-  `;
-
-
-  select.innerHTML = `
-    <option value="mic">
-      🎤 Room Microphone
-    </option>
-
-    <option value="computer">
-      💻 Computer / Meeting Audio
-    </option>
-  `;
-
-
-  select.value =
-    cfg.audioSource || 'mic';
-
-
-  const sourceStatus =
-    document.createElement('span');
-
-  sourceStatus.id =
-    'audioSourceStatus';
-
-  sourceStatus.style.cssText = `
-    font-size:.75rem;
-    color:var(--muted);
-    font-weight:700;
-  `;
-
-
-  wrapper.appendChild(label);
-
-  wrapper.appendChild(select);
-
-  wrapper.appendChild(sourceStatus);
-
-
-  controlPanel.parentNode.insertBefore(
-    wrapper,
-    controlPanel
-  );
-
-
-  select.addEventListener(
-    'change',
-    () => {
-
-      cfg.audioSource =
-        select.value;
-
-      saveCfg();
-
-      stopTranslation();
-
-      stopComputerAudio();
-
-      updateAudioSourceStatus();
-
-    }
-  );
-
-
-  updateAudioSourceStatus();
-
-}
-
-
-/* =========================================================
-   AUDIO SOURCE STATUS
-========================================================= */
-
-function updateAudioSourceStatus(){
-
-  const el =
-    $('audioSourceStatus');
-
-  if(!el){
-    return;
-  }
-
-
-  if(
-    cfg.audioSource === 'computer'
-  ){
-
-    if(
-      computerAudioTrack &&
-      computerAudioTrack.readyState === 'live'
-    ){
-
-      el.textContent =
-        '✓ Computer audio connected';
-
-      el.style.color =
-        'var(--good)';
-
-    }
-    else{
-
-      el.textContent =
-        'Choose a tab when you start';
-
-      el.style.color =
-        'var(--muted)';
-
-    }
-
-  }
-  else{
-
-    el.textContent =
-      'Using microphone';
-
-    el.style.color =
-      'var(--muted)';
-
-  }
-
-}
-
-
-/* =========================================================
-   CAPTURE COMPUTER / TAB AUDIO
-========================================================= */
-
-async function getComputerAudio(){
-
-  /*
-    Reuse existing live share if available.
-  */
-
-  if(
-    computerAudioTrack &&
-    computerAudioTrack.readyState === 'live'
-  ){
-
-    return computerAudioTrack;
-
-  }
-
-
-  if(
-    !navigator.mediaDevices ||
-    !navigator.mediaDevices.getDisplayMedia
-  ){
-
-    throw new Error(
-      'Computer audio capture is not supported in this browser.'
-    );
-
-  }
-
-
-  setStatus(
-    'Choose the YouTube or meeting tab and enable "Share tab audio".'
-  );
-
-
-  let stream;
-
-
-  try{
-
-    stream =
-      await navigator.mediaDevices.getDisplayMedia({
-
-        video:true,
-
-        audio:true,
-
-        preferCurrentTab:false,
-
-        selfBrowserSurface:'exclude',
-
-        surfaceSwitching:'include',
-
-        systemAudio:'include'
-
-      });
-
-  }
-  catch(err){
-
-    if(
-      err.name === 'NotAllowedError'
-    ){
-
-      throw new Error(
-        'Screen/tab sharing was cancelled.'
-      );
-
-    }
-
-    throw err;
-
-  }
-
-
-  const audioTracks =
-    stream.getAudioTracks();
-
-
-  if(
-    !audioTracks.length
-  ){
-
-    stream
-      .getTracks()
-      .forEach(
-        track => track.stop()
-      );
-
-
-    throw new Error(
-      'No audio was shared. Choose the YouTube/meeting tab and make sure "Share tab audio" is checked.'
-    );
-
-  }
-
-
-  computerStream =
-    stream;
-
-  computerAudioTrack =
-    audioTracks[0];
-
-
-  /*
-    If user clicks Chrome's "Stop sharing",
-    stop translation automatically.
-  */
-
-  const videoTracks =
-    stream.getVideoTracks();
-
-
-  const onShareEnded =
-    () => {
-
-      if(
-        cfg.audioSource === 'computer'
-      ){
-
-        stopTranslation();
-
-        stopComputerAudio();
-
-        setStatus(
-          'Computer audio sharing stopped.',
-          true
-        );
-
-      }
-
-    };
-
-
-  computerAudioTrack.addEventListener(
-    'ended',
-    onShareEnded,
-    { once:true }
-  );
-
-
-  videoTracks.forEach(
-    track => {
-
-      track.addEventListener(
-        'ended',
-        onShareEnded,
-        { once:true }
-      );
-
-    }
-  );
-
-
-  updateAudioSourceStatus();
-
-
-  return computerAudioTrack;
-
-}
-
-
-/* =========================================================
-   STOP COMPUTER AUDIO
-========================================================= */
-
-function stopComputerAudio(){
-
-  if(computerStream){
-
-    computerStream
-      .getTracks()
-      .forEach(
-        track => {
-
-          try{
-            track.stop();
-          }
-          catch(e){}
-
-        }
-      );
-
-  }
-
-
-  computerStream =
-    null;
-
-  computerAudioTrack =
-    null;
-
-
-  updateAudioSourceStatus();
-
-}
+const conversation =
+  [];
 
 
 /* =========================================================
@@ -1840,22 +1969,148 @@ function stopComputerAudio(){
 ========================================================= */
 
 function setStatus(
-  msg,
-  isErr = false
+  message,
+  isError = false
 ){
 
   status.textContent =
-    msg || '';
+    message || '';
+
 
   status.className =
     'status' +
-    (isErr ? ' err' : '');
+    (
+      isError
+        ? ' err'
+        : ''
+    );
 
 }
 
 
 /* =========================================================
-   SETTINGS UI
+   SOURCE UI
+========================================================= */
+
+function renderAudioSource(){
+
+  const mic =
+    cfg.audioSource === 'mic';
+
+
+  micSourceBtn.classList.toggle(
+    'active',
+    mic
+  );
+
+
+  computerSourceBtn.classList.toggle(
+    'active',
+    !mic
+  );
+
+
+  if(mic){
+
+    sourceDescription.textContent =
+      'Listening through the laptop microphone.';
+
+    sourceDescription.classList.remove(
+      'connected'
+    );
+
+  }
+
+  else{
+
+    if(
+      computerAudioTrack &&
+      computerAudioTrack.readyState === 'live'
+    ){
+
+      sourceDescription.textContent =
+        '✓ Meeting / computer audio connected';
+
+      sourceDescription.classList.add(
+        'connected'
+      );
+
+    }
+
+    else{
+
+      sourceDescription.textContent =
+        'Chrome will ask which meeting, window, tab, or screen to hear when you start.';
+
+      sourceDescription.classList.remove(
+        'connected'
+      );
+
+    }
+
+  }
+
+}
+
+
+micSourceBtn.addEventListener(
+  'click',
+  () => {
+
+    if(
+      cfg.audioSource === 'mic'
+    ){
+      return;
+    }
+
+
+    stopTranslation();
+
+    stopComputerAudio();
+
+
+    cfg.audioSource =
+      'mic';
+
+
+    saveCfg();
+
+    renderAudioSource();
+
+  }
+);
+
+
+computerSourceBtn.addEventListener(
+  'click',
+  () => {
+
+    if(
+      cfg.audioSource === 'computer'
+    ){
+      return;
+    }
+
+
+    stopTranslation();
+
+    stopComputerAudio();
+
+
+    cfg.audioSource =
+      'computer';
+
+
+    saveCfg();
+
+    renderAudioSource();
+
+  }
+);
+
+
+/* =========================================================
+   ENDPOINT UI
 ========================================================= */
 
 function renderSlots(){
@@ -1869,7 +2124,9 @@ function renderSlots(){
 
       button.setAttribute(
         'aria-pressed',
-        String(cfg.active === key)
+        String(
+          cfg.active === key
+        )
       );
 
 
@@ -1915,10 +2172,12 @@ settingsBtn.addEventListener(
         'open'
       );
 
+
     settingsBtn.classList.toggle(
       'on',
       open
     );
+
 
     if(open){
 
@@ -2019,6 +2278,7 @@ saveBtn.addEventListener(
 
     renderSlots();
 
+
     hint.textContent =
       'Settings saved.';
 
@@ -2036,6 +2296,7 @@ testBtn.addEventListener(
 
     const url =
       activeUrl();
+
 
     if(!url){
 
@@ -2067,18 +2328,22 @@ testBtn.addEventListener(
         );
 
 
-      if(result.text){
+      probe.textContent =
+        result.text
+          ? 'OK'
+          : 'Failed';
 
-        probe.textContent =
-          'OK';
 
-        probe.dataset.state =
-          'ok';
-
-      }
+      probe.dataset.state =
+        result.text
+          ? 'ok'
+          : 'bad';
 
     }
     catch(err){
+
+      console.error(err);
+
 
       probe.textContent =
         'Failed';
@@ -2109,7 +2374,7 @@ resetBtn.addEventListener(
 
 
     store.del(
-      'gvl.kaigi.v1'
+      'gvl.kaigi.v2'
     );
 
 
@@ -2136,33 +2401,230 @@ resetBtn.addEventListener(
     };
 
 
-    fillEditor();
-
-    renderSlots();
-
-
     autoSpeak.checked =
       true;
+
 
     usePhones.checked =
       true;
 
 
-    const select =
-      $('audioSource');
+    fillEditor();
 
-    if(select){
+    renderSlots();
 
-      select.value =
-        'mic';
+    renderAudioSource();
+
+
+    probe.textContent =
+      'Untested';
+
+
+    probe.dataset.state =
+      '';
+
+
+    hint.textContent =
+      'Settings reset.';
+
+  }
+);
+
+
+/* =========================================================
+   COMPUTER / MEETING AUDIO
+========================================================= */
+
+async function getComputerAudio(){
+
+  if(
+    computerAudioTrack &&
+    computerAudioTrack.readyState === 'live'
+  ){
+
+    return computerAudioTrack;
+
+  }
+
+
+  if(
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getDisplayMedia
+  ){
+
+    throw new Error(
+      'Meeting / computer audio capture is not supported by this browser.'
+    );
+
+  }
+
+
+  setStatus(
+    'Choose the Zoom/Teams window, tab, or screen that contains the meeting audio.'
+  );
+
+
+  let stream;
+
+
+  try{
+
+    stream =
+      await navigator.mediaDevices.getDisplayMedia({
+
+        video:true,
+
+        audio:true,
+
+        systemAudio:'include',
+
+        surfaceSwitching:'include'
+
+      });
+
+  }
+  catch(err){
+
+    if(
+      err.name === 'NotAllowedError'
+    ){
+
+      throw new Error(
+        'Audio sharing was cancelled.'
+      );
 
     }
 
 
-    updateAudioSourceStatus();
+    throw err;
 
   }
-);
+
+
+  const audioTracks =
+    stream.getAudioTracks();
+
+
+  if(
+    !audioTracks.length
+  ){
+
+    stream
+      .getTracks()
+      .forEach(
+        track => track.stop()
+      );
+
+
+    throw new Error(
+      'No audio was shared. Choose a source with audio and enable Share audio/System audio if Chrome shows the option.'
+    );
+
+  }
+
+
+  computerStream =
+    stream;
+
+
+  computerAudioTrack =
+    audioTracks[0];
+
+
+  try{
+
+    computerAudioTrack.contentHint =
+      'speech-recognition';
+
+  }
+  catch(e){}
+
+
+  const handleShareEnded =
+    () => {
+
+      if(
+        cfg.audioSource === 'computer'
+      ){
+
+        stopTranslation();
+
+        stopComputerAudio();
+
+
+        setStatus(
+          'Meeting / computer audio sharing stopped.',
+          true
+        );
+
+      }
+
+    };
+
+
+  computerAudioTrack.addEventListener(
+    'ended',
+    handleShareEnded,
+    { once:true }
+  );
+
+
+  stream
+    .getVideoTracks()
+    .forEach(
+      track => {
+
+        track.addEventListener(
+          'ended',
+          handleShareEnded,
+          { once:true }
+        );
+
+      }
+    );
+
+
+  renderAudioSource();
+
+
+  return computerAudioTrack;
+
+}
+
+
+function stopComputerAudio(){
+
+  if(computerStream){
+
+    computerStream
+      .getTracks()
+      .forEach(
+        track => {
+
+          try{
+
+            track.stop();
+
+          }
+          catch(e){}
+
+        }
+      );
+
+  }
+
+
+  computerStream =
+    null;
+
+
+  computerAudioTrack =
+    null;
+
+
+  renderAudioSource();
+
+}
 
 
 /* =========================================================
@@ -2175,7 +2637,7 @@ async function callBackend(
   dir
 ){
 
-  const [src,tgt] =
+  const [source,target] =
     dir === 'en-ja'
       ? ['en','ja']
       : ['ja','en'];
@@ -2189,17 +2651,23 @@ async function callBackend(
         method:'POST',
 
         headers:{
+
           'Content-Type':
             'text/plain;charset=utf-8'
+
         },
 
         body:JSON.stringify({
 
-          text,
-          dir,
-          source:src,
-          target:tgt,
-          idToken
+          text:text,
+
+          dir:dir,
+
+          source:source,
+
+          target:target,
+
+          idToken:idToken
 
         })
 
@@ -2237,16 +2705,18 @@ async function callBackend(
 
   if(data.authFailed){
 
-    const error =
+    const err =
       new Error(
         data.error ||
         'Sign in again.'
       );
 
-    error.authFailed =
+
+    err.authFailed =
       true;
 
-    throw error;
+
+    throw err;
 
   }
 
@@ -2276,29 +2746,46 @@ async function callBackend(
 
 
   return {
+
     text:output
+
   };
 
 }
 
 
 /* =========================================================
-   ESCAPE HTML
+   SAFE HTML
 ========================================================= */
 
 function escapeHtml(value){
 
   return String(value)
 
-    .replace(/&/g,'&amp;')
+    .replace(
+      /&/g,
+      '&amp;'
+    )
 
-    .replace(/</g,'&lt;')
+    .replace(
+      /</g,
+      '&lt;'
+    )
 
-    .replace(/>/g,'&gt;')
+    .replace(
+      />/g,
+      '&gt;'
+    )
 
-    .replace(/"/g,'&quot;')
+    .replace(
+      /"/g,
+      '&quot;'
+    )
 
-    .replace(/'/g,'&#039;');
+    .replace(
+      /'/g,
+      '&#039;'
+    );
 
 }
 
@@ -2309,12 +2796,14 @@ function escapeHtml(value){
 
 function addTranscript(
   dir,
-  orig,
-  trans
+  original,
+  translation
 ){
 
   const li =
-    document.createElement('li');
+    document.createElement(
+      'li'
+    );
 
 
   li.className =
@@ -2338,30 +2827,16 @@ function addTranscript(
       ${label}
     </div>
 
-    <div class="transcript-text">
-      ${escapeHtml(orig)}
+    <div class="transcript-original">
+      ${escapeHtml(original)}
     </div>
 
-    <div style="
-      margin:5px 0;
-      color:var(--muted);
-      font-size:.75rem;
-    ">
+    <div class="transcript-arrow">
       ↓
     </div>
 
-    <div
-      class="transcript-text"
-      style="
-        font-weight:900;
-        color:${
-          dir === 'en-ja'
-            ? 'var(--ja)'
-            : 'var(--en)'
-        };
-      "
-    >
-      ${escapeHtml(trans)}
+    <div class="transcript-translation">
+      ${escapeHtml(translation)}
     </div>
 
   `;
@@ -2376,58 +2851,155 @@ function addTranscript(
 
 
 /* =========================================================
-   PAUSE SPEECH RECOGNITION
+   TRANSLATION QUEUE
 ========================================================= */
 
-function pauseRecognition(){
+function queueTranslation(
+  dir,
+  text
+){
 
-  recognitionPausedForSpeech =
-    true;
+  translationQueue.push({
+
+    dir:dir,
+
+    text:text
+
+  });
 
 
-  if(!rec){
+  processTranslationQueue();
+
+}
+
+
+async function processTranslationQueue(){
+
+  if(processingTranslation){
+
     return;
+
   }
+
+
+  processingTranslation =
+    true;
 
 
   try{
 
-    rec.onend =
-      null;
+    while(
+      translationQueue.length &&
+      translating
+    ){
 
-    rec.abort();
+      const item =
+        translationQueue.shift();
+
+
+      try{
+
+        await translatePhrase(
+          item.dir,
+          item.text
+        );
+
+      }
+      catch(err){
+
+        console.error(
+          'Queued translation error:',
+          err
+        );
+
+      }
+
+    }
 
   }
-  catch(e){}
+  finally{
 
+    processingTranslation =
+      false;
 
-  rec =
-    null;
+  }
 
 }
 
 
 /* =========================================================
-   RESUME SPEECH RECOGNITION
+   PAUSE MICROPHONE RECOGNITION
 ========================================================= */
 
-function resumeRecognition(){
+function pauseMicrophoneRecognition(){
 
-  recognitionPausedForSpeech =
+  if(
+    cfg.audioSource !== 'mic'
+  ){
+
+    return;
+
+  }
+
+
+  intentionallyPaused =
+    true;
+
+
+  if(rec){
+
+    try{
+
+      rec.onend =
+        null;
+
+
+      rec.abort();
+
+    }
+    catch(e){}
+
+
+    rec =
+      null;
+
+  }
+
+}
+
+
+/* =========================================================
+   RESUME MICROPHONE
+========================================================= */
+
+function resumeMicrophoneRecognition(){
+
+  if(
+    cfg.audioSource !== 'mic'
+  ){
+
+    return;
+
+  }
+
+
+  intentionallyPaused =
     false;
 
 
   if(
     !translating ||
-    !currentDir ||
-    speakingTranslation
+    !currentDir
   ){
+
     return;
+
   }
 
 
   const dir =
     currentDir;
+
 
   const session =
     recognitionSession;
@@ -2440,7 +3012,7 @@ function resumeRecognition(){
         translating &&
         currentDir === dir &&
         session === recognitionSession &&
-        !speakingTranslation
+        !rec
       ){
 
         startRecognitionEngine(
@@ -2451,7 +3023,7 @@ function resumeRecognition(){
       }
 
     },
-    500
+    450
   );
 
 }
@@ -2469,17 +3041,19 @@ function speakTranslation(
   return new Promise(
     resolve => {
 
-      /*
-        If speaking is OFF, immediately resume
-        recognition.
-      */
-
       if(
         !autoSpeak.checked ||
         !window.speechSynthesis
       ){
 
-        resumeRecognition();
+        if(
+          cfg.audioSource === 'mic'
+        ){
+
+          resumeMicrophoneRecognition();
+
+        }
+
 
         resolve();
 
@@ -2488,14 +3062,24 @@ function speakTranslation(
       }
 
 
-      speakingTranslation =
-        true;
+      /*
+       * ROOM MICROPHONE
+       *
+       * Pause the microphone so it cannot hear the
+       * computer speaking its translation.
+       */
+
+      if(
+        cfg.audioSource === 'mic'
+      ){
+
+        speakingTranslation =
+          true;
 
 
-      pauseRecognition();
+        pauseMicrophoneRecognition();
 
-
-      speechSynthesis.cancel();
+      }
 
 
       const utterance =
@@ -2515,6 +3099,7 @@ function speakTranslation(
           0.95;
 
       }
+
       else{
 
         utterance.lang =
@@ -2526,26 +3111,20 @@ function speakTranslation(
       }
 
 
-      utterance.onstart =
-        () => {
-
-          setStatus(
-            dir === 'en-ja'
-              ? 'Speaking Japanese translation...'
-              : 'Speaking English translation...'
-          );
-
-        };
-
-
       utterance.onend =
         () => {
 
-          speakingTranslation =
-            false;
+          if(
+            cfg.audioSource === 'mic'
+          ){
+
+            speakingTranslation =
+              false;
 
 
-          resumeRecognition();
+            resumeMicrophoneRecognition();
+
+          }
 
 
           resolve();
@@ -2556,11 +3135,17 @@ function speakTranslation(
       utterance.onerror =
         () => {
 
-          speakingTranslation =
-            false;
+          if(
+            cfg.audioSource === 'mic'
+          ){
+
+            speakingTranslation =
+              false;
 
 
-          resumeRecognition();
+            resumeMicrophoneRecognition();
+
+          }
 
 
           resolve();
@@ -2579,12 +3164,12 @@ function speakTranslation(
 
 
 /* =========================================================
-   TRANSLATE
+   TRANSLATE ONE PHRASE
 ========================================================= */
 
-async function translate(
+async function translatePhrase(
   dir,
-  orig
+  original
 ){
 
   const url =
@@ -2598,7 +3183,15 @@ async function translate(
       true
     );
 
-    resumeRecognition();
+
+    if(
+      cfg.audioSource === 'mic'
+    ){
+
+      resumeMicrophoneRecognition();
+
+    }
+
 
     return;
 
@@ -2610,17 +3203,32 @@ async function translate(
   );
 
 
-  englishDisplay.classList.remove(
-    'empty'
+  directionLabel.textContent =
+    dir === 'en-ja'
+      ? 'Japanese Translation'
+      : 'English Translation';
+
+
+  translationDisplay.classList.remove(
+    'empty',
+    'en-output',
+    'ja-output'
   );
 
 
-  englishDisplay.textContent =
+  translationDisplay.classList.add(
+    dir === 'en-ja'
+      ? 'ja-output'
+      : 'en-output'
+  );
+
+
+  translationDisplay.textContent =
     'Translating…';
 
 
-  japaneseContent.textContent =
-    orig;
+  originalContent.textContent =
+    original;
 
 
   try{
@@ -2628,39 +3236,59 @@ async function translate(
     const result =
       await callBackend(
         url,
-        orig,
+        original,
         dir
       );
 
 
-    englishDisplay.textContent =
+    translationDisplay.textContent =
       result.text;
 
 
-    japaneseContent.textContent =
-      orig;
+    originalContent.textContent =
+      original;
 
 
     addTranscript(
       dir,
-      orig,
+      original,
       result.text
     );
 
 
     conversation.push({
 
-      dir,
-      orig,
+      dir:dir,
+
+      orig:original,
+
       trans:result.text
 
     });
 
 
+    /*
+     * Computer audio keeps listening.
+     *
+     * Microphone may be paused during speech output.
+     */
+
     await speakTranslation(
       result.text,
       dir
     );
+
+
+    if(
+      translating &&
+      cfg.audioSource === 'computer'
+    ){
+
+      setListeningStatus(
+        dir
+      );
+
+    }
 
   }
   catch(err){
@@ -2677,6 +3305,11 @@ async function translate(
         null;
 
 
+      stopTranslation();
+
+      stopComputerAudio();
+
+
       $('appScreen').style.display =
         'none';
 
@@ -2685,14 +3318,21 @@ async function translate(
         'flex';
 
 
-      stopTranslation();
+      $('signinError').textContent =
+        err.message ||
+        'Your session expired. Please sign in again.';
+
+
+      $('signinError').style.display =
+        'block';
+
 
       return;
 
     }
 
 
-    englishDisplay.textContent =
+    translationDisplay.textContent =
       'Failed: ' +
       err.message;
 
@@ -2704,7 +3344,705 @@ async function translate(
     );
 
 
-    resumeRecognition();
+    if(
+      cfg.audioSource === 'mic'
+    ){
+
+      resumeMicrophoneRecognition();
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   LISTENING STATUS
+========================================================= */
+
+function setListeningStatus(dir){
+
+  if(
+    cfg.audioSource === 'computer'
+  ){
+
+    setStatus(
+      dir === 'en-ja'
+        ? '💻 Continuously listening to English meeting audio...'
+        : '💻 Continuously listening to Japanese meeting audio...'
+    );
+
+  }
+
+  else{
+
+    setStatus(
+      dir === 'en-ja'
+        ? '🎤 Listening for English...'
+        : '🎤 Listening for Japanese...'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   START MODE
+========================================================= */
+
+async function startTranslation(dir){
+
+  if(!activeUrl()){
+
+    drawer.classList.add(
+      'open'
+    );
+
+
+    settingsBtn.classList.add(
+      'on'
+    );
+
+
+    setStatus(
+      'Set endpoint first.',
+      true
+    );
+
+
+    return;
+
+  }
+
+
+  if(!SR){
+
+    setStatus(
+      'Speech recognition is not supported in this browser. Use current Chrome or Edge.',
+      true
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * If switching direction while already running,
+   * stop the old recognizer first.
+   */
+
+  stopRecognitionOnly();
+
+
+  if(
+    window.speechSynthesis
+  ){
+
+    speechSynthesis.cancel();
+
+  }
+
+
+  translating =
+    false;
+
+
+  translationQueue.length =
+    0;
+
+
+  processingTranslation =
+    false;
+
+
+  intentionallyPaused =
+    false;
+
+
+  speakingTranslation =
+    false;
+
+
+  /*
+   * COMPUTER AUDIO:
+   * Ask user for the meeting audio source before starting.
+   */
+
+  if(
+    cfg.audioSource === 'computer'
+  ){
+
+    try{
+
+      await getComputerAudio();
+
+    }
+    catch(err){
+
+      setStatus(
+        err.message,
+        true
+      );
+
+
+      return;
+
+    }
+
+  }
+
+
+  recognitionSession++;
+
+
+  translating =
+    true;
+
+
+  currentDir =
+    dir;
+
+
+  const session =
+    recognitionSession;
+
+
+  displayPanel.classList.add(
+    'active'
+  );
+
+
+  translationDisplay.textContent =
+    'Listening...';
+
+
+  translationDisplay.className =
+    'translation-display empty';
+
+
+  originalContent.textContent =
+    '';
+
+
+  originalContent.classList.remove(
+    'open'
+  );
+
+
+  originalToggle.textContent =
+    '▶ Show original';
+
+
+  if(
+    dir === 'en-ja'
+  ){
+
+    enBtn.classList.add(
+      'active'
+    );
+
+
+    jaBtn.classList.remove(
+      'active'
+    );
+
+
+    directionLabel.textContent =
+      'English → Japanese';
+
+  }
+
+  else{
+
+    jaBtn.classList.add(
+      'active'
+    );
+
+
+    enBtn.classList.remove(
+      'active'
+    );
+
+
+    directionLabel.textContent =
+      'Japanese → English';
+
+  }
+
+
+  setListeningStatus(
+    dir
+  );
+
+
+  startRecognitionEngine(
+    dir,
+    session
+  );
+
+}
+
+
+/* =========================================================
+   SPEECH RECOGNITION ENGINE
+========================================================= */
+
+function startRecognitionEngine(
+  dir,
+  session
+){
+
+  if(
+    !translating ||
+    currentDir !== dir ||
+    session !== recognitionSession
+  ){
+
+    return;
+
+  }
+
+
+  if(rec){
+
+    return;
+
+  }
+
+
+  if(
+    cfg.audioSource === 'mic' &&
+    intentionallyPaused
+  ){
+
+    return;
+
+  }
+
+
+  const recognition =
+    new SR();
+
+
+  rec =
+    recognition;
+
+
+  recognition.continuous =
+    true;
+
+
+  recognition.interimResults =
+    true;
+
+
+  recognition.maxAlternatives =
+    1;
+
+
+  recognition.lang =
+    dir === 'en-ja'
+      ? 'en-US'
+      : 'ja-JP';
+
+
+  recognition.onstart =
+    () => {
+
+      setListeningStatus(
+        dir
+      );
+
+    };
+
+
+  recognition.onresult =
+    event => {
+
+      if(
+        !translating ||
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      for(
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ){
+
+        const speechResult =
+          event.results[i];
+
+
+        const text =
+          speechResult[0]
+            .transcript
+            .trim();
+
+
+        if(!text){
+
+          continue;
+
+        }
+
+
+        /*
+         * INTERIM RESULT
+         *
+         * This lets you immediately confirm that Chrome
+         * is actually hearing the Japanese/English audio.
+         */
+
+        if(
+          !speechResult.isFinal
+        ){
+
+          setStatus(
+            'Hearing: ' +
+            text
+          );
+
+
+          continue;
+
+        }
+
+
+        /*
+         * FINAL RESULT
+         */
+
+        const now =
+          Date.now();
+
+
+        if(
+          text === lastFinal.text &&
+          now - lastFinal.at < 1800
+        ){
+
+          continue;
+
+        }
+
+
+        lastFinal = {
+
+          text:text,
+
+          at:now
+
+        };
+
+
+        /*
+         * ROOM MICROPHONE
+         *
+         * Stop listening before translation/speech output.
+         */
+
+        if(
+          cfg.audioSource === 'mic'
+        ){
+
+          pauseMicrophoneRecognition();
+
+        }
+
+
+        /*
+         * COMPUTER / MEETING AUDIO
+         *
+         * DO NOT stop recognition.
+         *
+         * This is what gives us continuous meeting audio.
+         */
+
+        queueTranslation(
+          dir,
+          text
+        );
+
+
+        /*
+         * In microphone mode we intentionally stop after
+         * the first final phrase because the recognizer is
+         * being paused.
+         */
+
+        if(
+          cfg.audioSource === 'mic'
+        ){
+
+          break;
+
+        }
+
+      }
+
+    };
+
+
+  recognition.onerror =
+    event => {
+
+      if(
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      console.warn(
+        'Speech recognition error:',
+        event.error
+      );
+
+
+      if(
+        event.error === 'not-allowed' ||
+        event.error === 'service-not-allowed'
+      ){
+
+        setStatus(
+          'Speech recognition permission was blocked.',
+          true
+        );
+
+
+        stopTranslation();
+
+
+        return;
+
+      }
+
+
+      if(
+        event.error === 'audio-capture'
+      ){
+
+        setStatus(
+          'The selected audio source is no longer available.',
+          true
+        );
+
+
+        stopTranslation();
+
+
+        return;
+
+      }
+
+
+      /*
+       * no-speech and aborted are normal/nonfatal.
+       */
+
+      if(
+        event.error !== 'no-speech' &&
+        event.error !== 'aborted'
+      ){
+
+        console.warn(
+          'Nonfatal speech error:',
+          event.error
+        );
+
+      }
+
+    };
+
+
+  recognition.onend =
+    () => {
+
+      if(
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      if(
+        rec === recognition
+      ){
+
+        rec =
+          null;
+
+      }
+
+
+      if(
+        !translating ||
+        currentDir !== dir
+      ){
+
+        return;
+
+      }
+
+
+      /*
+       * Microphone was intentionally paused while
+       * translation was spoken. Do not restart here.
+       * speakTranslation() will resume it.
+       */
+
+      if(
+        cfg.audioSource === 'mic' &&
+        intentionallyPaused
+      ){
+
+        return;
+
+      }
+
+
+      /*
+       * Chrome may end continuous recognition by itself.
+       *
+       * Restart it automatically.
+       */
+
+      setTimeout(
+        () => {
+
+          if(
+            translating &&
+            currentDir === dir &&
+            session === recognitionSession &&
+            !rec
+          ){
+
+            startRecognitionEngine(
+              dir,
+              session
+            );
+
+          }
+
+        },
+        200
+      );
+
+    };
+
+
+  try{
+
+    if(
+      cfg.audioSource === 'computer'
+    ){
+
+      if(
+        !computerAudioTrack ||
+        computerAudioTrack.readyState !== 'live'
+      ){
+
+        throw new Error(
+          'Meeting audio track is no longer available.'
+        );
+
+      }
+
+
+      recognition.start(
+        computerAudioTrack
+      );
+
+    }
+
+    else{
+
+      recognition.start();
+
+    }
+
+  }
+  catch(err){
+
+    console.error(
+      'Recognition start failed:',
+      err
+    );
+
+
+    if(
+      rec === recognition
+    ){
+
+      rec =
+        null;
+
+    }
+
+
+    /*
+     * If the audio track overload isn't supported,
+     * tell the user instead of pretending we are listening.
+     */
+
+    if(
+      cfg.audioSource === 'computer' &&
+      (
+        err instanceof TypeError ||
+        /argument|MediaStreamTrack|start/i.test(
+          String(err.message || '')
+        )
+      )
+    ){
+
+      setStatus(
+        'This browser could not feed the meeting audio into speech recognition. Update Chrome to the latest version.',
+        true
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+     * Otherwise retry automatically.
+     */
+
+    if(
+      translating &&
+      currentDir === dir &&
+      session === recognitionSession
+    ){
+
+      setTimeout(
+        () => {
+
+          startRecognitionEngine(
+            dir,
+            session
+          );
+
+        },
+        700
+      );
+
+    }
 
   }
 
@@ -2764,72 +4102,10 @@ jaBtn.addEventListener(
 
 
 /* =========================================================
-   START TRANSLATION MODE
+   STOP RECOGNIZER ONLY
 ========================================================= */
 
-async function startTranslation(dir){
-
-  if(!activeUrl()){
-
-    drawer.classList.add(
-      'open'
-    );
-
-    settingsBtn.classList.add(
-      'on'
-    );
-
-    setStatus(
-      'Set endpoint first.',
-      true
-    );
-
-    return;
-
-  }
-
-
-  /*
-    If computer mode is selected,
-    ask user to share tab/system audio.
-  */
-
-  if(
-    cfg.audioSource === 'computer'
-  ){
-
-    try{
-
-      await getComputerAudio();
-
-    }
-    catch(err){
-
-      setStatus(
-        err.message,
-        true
-      );
-
-      return;
-
-    }
-
-  }
-
-
-  if(window.speechSynthesis){
-
-    speechSynthesis.cancel();
-
-  }
-
-
-  speakingTranslation =
-    false;
-
-  recognitionPausedForSpeech =
-    false;
-
+function stopRecognitionOnly(){
 
   if(rec){
 
@@ -2838,504 +4114,23 @@ async function startTranslation(dir){
       rec.onend =
         null;
 
+
       rec.abort();
 
     }
     catch(e){}
+
 
     rec =
       null;
 
   }
 
-
-  recognitionSession++;
-
-
-  translating =
-    true;
-
-  currentDir =
-    dir;
-
-
-  const session =
-    recognitionSession;
-
-
-  displayPanel.classList.add(
-    'active'
-  );
-
-
-  englishDisplay.textContent =
-    'Listening...';
-
-
-  englishDisplay.classList.add(
-    'empty'
-  );
-
-
-  japaneseContent.textContent =
-    '';
-
-
-  if(
-    dir === 'en-ja'
-  ){
-
-    enBtn.classList.add(
-      'active'
-    );
-
-    jaBtn.classList.remove(
-      'active'
-    );
-
-
-    if(
-      cfg.audioSource === 'computer'
-    ){
-
-      setStatus(
-        'Listening to computer audio for English...'
-      );
-
-    }
-    else{
-
-      setStatus(
-        'Listening for English...'
-      );
-
-    }
-
-  }
-  else{
-
-    jaBtn.classList.add(
-      'active'
-    );
-
-    enBtn.classList.remove(
-      'active'
-    );
-
-
-    if(
-      cfg.audioSource === 'computer'
-    ){
-
-      setStatus(
-        'Listening to computer audio for Japanese...'
-      );
-
-    }
-    else{
-
-      setStatus(
-        'Listening for Japanese...'
-      );
-
-    }
-
-  }
-
-
-  if(!SR){
-
-    setStatus(
-      'Speech recognition is not supported in this browser.',
-      true
-    );
-
-    stopTranslation();
-
-    return;
-
-  }
-
-
-  startRecognitionEngine(
-    dir,
-    session
-  );
-
 }
 
 
 /* =========================================================
-   START SPEECH RECOGNIZER
-========================================================= */
-
-function startRecognitionEngine(
-  dir,
-  session
-){
-
-  if(
-    !translating ||
-    currentDir !== dir ||
-    session !== recognitionSession ||
-    speakingTranslation ||
-    recognitionPausedForSpeech
-  ){
-
-    return;
-
-  }
-
-
-  if(rec){
-
-    return;
-
-  }
-
-
-  const recognition =
-    new SR();
-
-
-  rec =
-    recognition;
-
-
-  recognition.continuous =
-    true;
-
-
-  recognition.interimResults =
-    true;
-
-
-  recognition.maxAlternatives =
-    1;
-
-
-  recognition.lang =
-    dir === 'en-ja'
-      ? 'en-US'
-      : 'ja-JP';
-
-
-  recognition.onstart =
-    () => {
-
-      if(
-        cfg.audioSource === 'computer'
-      ){
-
-        setStatus(
-          dir === 'en-ja'
-            ? '💻 Listening to computer audio for English...'
-            : '💻 Listening to computer audio for Japanese...'
-        );
-
-      }
-      else{
-
-        setStatus(
-          dir === 'en-ja'
-            ? '🎤 Listening for English...'
-            : '🎤 Listening for Japanese...'
-        );
-
-      }
-
-    };
-
-
-  recognition.onresult =
-    event => {
-
-      if(
-        !translating ||
-        session !== recognitionSession ||
-        speakingTranslation
-      ){
-
-        return;
-
-      }
-
-
-      for(
-        let i = event.resultIndex;
-        i < event.results.length;
-        i++
-      ){
-
-        if(
-          !event.results[i].isFinal
-        ){
-
-          continue;
-
-        }
-
-
-        const text =
-          event.results[i][0]
-            .transcript
-            .trim();
-
-
-        if(!text){
-          continue;
-        }
-
-
-        const now =
-          Date.now();
-
-
-        if(
-          text === lastFinal.text &&
-          now - lastFinal.at < 1500
-        ){
-
-          continue;
-
-        }
-
-
-        lastFinal = {
-          text,
-          at:now
-        };
-
-
-        /*
-          Stop recognition while translating.
-        */
-
-        pauseRecognition();
-
-
-        translate(
-          dir,
-          text
-        );
-
-
-        break;
-
-      }
-
-    };
-
-
-  recognition.onerror =
-    event => {
-
-      if(
-        session !== recognitionSession
-      ){
-
-        return;
-
-      }
-
-
-      console.warn(
-        'Speech recognition error:',
-        event.error
-      );
-
-
-      if(
-        event.error === 'not-allowed' ||
-        event.error === 'service-not-allowed'
-      ){
-
-        setStatus(
-          'Speech recognition permission was blocked.',
-          true
-        );
-
-        stopTranslation();
-
-      }
-
-      else if(
-        event.error === 'audio-capture'
-      ){
-
-        setStatus(
-          'No usable audio was detected.',
-          true
-        );
-
-        stopTranslation();
-
-      }
-
-      else if(
-        event.error !== 'no-speech' &&
-        event.error !== 'aborted'
-      ){
-
-        setStatus(
-          'Speech error: ' +
-          event.error,
-          true
-        );
-
-      }
-
-    };
-
-
-  recognition.onend =
-    () => {
-
-      if(
-        session !== recognitionSession
-      ){
-
-        return;
-
-      }
-
-
-      if(
-        rec === recognition
-      ){
-
-        rec =
-          null;
-
-      }
-
-
-      if(
-        speakingTranslation ||
-        recognitionPausedForSpeech
-      ){
-
-        return;
-
-      }
-
-
-      if(
-        translating &&
-        currentDir === dir
-      ){
-
-        setTimeout(
-          () => {
-
-            startRecognitionEngine(
-              dir,
-              session
-            );
-
-          },
-          300
-        );
-
-      }
-
-    };
-
-
-  try{
-
-    /*
-      COMPUTER AUDIO MODE
-
-      Chrome 135+ allows SpeechRecognition.start()
-      to receive a MediaStreamTrack.
-    */
-
-    if(
-      cfg.audioSource === 'computer'
-    ){
-
-      if(
-        !computerAudioTrack ||
-        computerAudioTrack.readyState !== 'live'
-      ){
-
-        throw new Error(
-          'Computer audio track is no longer available.'
-        );
-
-      }
-
-
-      recognition.start(
-        computerAudioTrack
-      );
-
-    }
-
-    /*
-      MICROPHONE MODE
-    */
-
-    else{
-
-      recognition.start();
-
-    }
-
-  }
-  catch(err){
-
-    console.error(
-      'Could not start recognition:',
-      err
-    );
-
-
-    if(
-      rec === recognition
-    ){
-
-      rec =
-        null;
-
-    }
-
-
-    /*
-      If the browser does not support passing an
-      audio track into SpeechRecognition.start(),
-      give a useful error instead of silently failing.
-    */
-
-    if(
-      cfg.audioSource === 'computer'
-    ){
-
-      setStatus(
-        'Computer-audio speech recognition failed: ' +
-        err.message,
-        true
-      );
-
-    }
-    else{
-
-      setStatus(
-        'Microphone recognition failed: ' +
-        err.message,
-        true
-      );
-
-    }
-
-  }
-
-}
-
-
-/* =========================================================
-   STOP TRANSLATION MODE
+   STOP TRANSLATION
 ========================================================= */
 
 function stopTranslation(){
@@ -3343,46 +4138,46 @@ function stopTranslation(){
   translating =
     false;
 
+
   currentDir =
     null;
 
+
   recognitionSession++;
+
+
+  intentionallyPaused =
+    false;
+
 
   speakingTranslation =
     false;
 
-  recognitionPausedForSpeech =
+
+  translationQueue.length =
+    0;
+
+
+  processingTranslation =
     false;
+
+
+  stopRecognitionOnly();
 
 
   enBtn.classList.remove(
     'active'
   );
 
+
   jaBtn.classList.remove(
     'active'
   );
 
 
-  if(rec){
-
-    try{
-
-      rec.onend =
-        null;
-
-      rec.abort();
-
-    }
-    catch(e){}
-
-    rec =
-      null;
-
-  }
-
-
-  if(window.speechSynthesis){
+  if(
+    window.speechSynthesis
+  ){
 
     speechSynthesis.cancel();
 
@@ -3395,20 +4190,20 @@ function stopTranslation(){
 
 
 /* =========================================================
-   ORIGINAL TEXT TOGGLE
+   ORIGINAL TOGGLE
 ========================================================= */
 
-japaneseToggle.addEventListener(
+originalToggle.addEventListener(
   'click',
   () => {
 
-    japaneseContent.classList.toggle(
+    originalContent.classList.toggle(
       'open'
     );
 
 
-    japaneseToggle.textContent =
-      japaneseContent.classList.contains(
+    originalToggle.textContent =
+      originalContent.classList.contains(
         'open'
       )
         ? '▼ Hide original'
@@ -3433,6 +4228,7 @@ copyBtn.addEventListener(
       copyBtn.textContent =
         'Nothing';
 
+
       setTimeout(
         () => {
 
@@ -3442,6 +4238,7 @@ copyBtn.addEventListener(
         },
         1400
       );
+
 
       return;
 
@@ -3457,6 +4254,7 @@ copyBtn.addEventListener(
               item.dir === 'en-ja'
                 ? 'English → Japanese'
                 : 'Japanese → English';
+
 
             return (
               label +
@@ -3478,6 +4276,7 @@ copyBtn.addEventListener(
       await navigator.clipboard.writeText(
         text
       );
+
 
       copyBtn.textContent =
         'Copied!';
@@ -3526,22 +4325,29 @@ clearBtn.addEventListener(
       '';
 
 
-    englishDisplay.textContent =
+    translationDisplay.textContent =
       'Listening...';
 
 
-    englishDisplay.classList.add(
-      'empty'
-    );
+    translationDisplay.className =
+      'translation-display empty';
 
 
-    japaneseContent.textContent =
+    originalContent.textContent =
       '';
 
 
-    japaneseContent.classList.remove(
+    originalContent.classList.remove(
       'open'
     );
+
+
+    originalToggle.textContent =
+      '▶ Show original';
+
+
+    directionLabel.textContent =
+      'Translation';
 
 
     displayPanel.classList.remove(
@@ -3578,6 +4384,7 @@ autoSpeak.addEventListener(
     cfg.speak =
       autoSpeak.checked;
 
+
     saveCfg();
 
   }
@@ -3591,6 +4398,7 @@ usePhones.addEventListener(
     cfg.phones =
       usePhones.checked;
 
+
     saveCfg();
 
   }
@@ -3598,7 +4406,7 @@ usePhones.addEventListener(
 
 
 /* =========================================================
-   GOOGLE SIGN IN
+   GOOGLE SIGN-IN
 ========================================================= */
 
 function handleSignIn(response){
@@ -3611,8 +4419,10 @@ function handleSignIn(response){
     $('signinError').textContent =
       'Google sign-in did not return a credential.';
 
+
     $('signinError').style.display =
       'block';
+
 
     return;
 
@@ -3674,7 +4484,7 @@ function handleSignIn(response){
   catch(e){
 
     console.warn(
-      'Could not decode credential.',
+      'Could not decode Google credential.',
       e
     );
 
@@ -3696,41 +4506,14 @@ function handleSignIn(response){
 
 
 /* =========================================================
-   STARTUP
+   GOOGLE INIT
 ========================================================= */
 
-window.onload =
-  function(){
+function initializeGoogle(){
 
-    autoSpeak.checked =
-      cfg.speak !== false;
-
-
-    usePhones.checked =
-      cfg.phones !== false;
-
-
-    fillEditor();
-
-    renderSlots();
-
-    createAudioSourceSelector();
-
-
-    if(
-      !window.google?.accounts?.id
-    ){
-
-      $('signinError').textContent =
-        'Google Sign-In could not load.';
-
-      $('signinError').style.display =
-        'block';
-
-      return;
-
-    }
-
+  if(
+    window.google?.accounts?.id
+  ){
 
     google.accounts.id.initialize({
 
@@ -3759,7 +4542,118 @@ window.onload =
 
     );
 
-  };
+
+    return;
+
+  }
+
+
+  /*
+   * Google script is async.
+   * Give it a few seconds before showing an error.
+   */
+
+  let attempts =
+    0;
+
+
+  const timer =
+    setInterval(
+      () => {
+
+        attempts++;
+
+
+        if(
+          window.google?.accounts?.id
+        ){
+
+          clearInterval(
+            timer
+          );
+
+
+          google.accounts.id.initialize({
+
+            client_id:
+              GOOGLE_CLIENT_ID,
+
+            callback:
+              handleSignIn
+
+          });
+
+
+          google.accounts.id.renderButton(
+
+            $('gsiButton'),
+
+            {
+
+              theme:'filled_blue',
+
+              size:'large',
+
+              text:'signin_with'
+
+            }
+
+          );
+
+        }
+
+
+        else if(
+          attempts >= 20
+        ){
+
+          clearInterval(
+            timer
+          );
+
+
+          $('signinError').textContent =
+            'Google Sign-In could not load. Refresh the page or check that accounts.google.com is not blocked.';
+
+
+          $('signinError').style.display =
+            'block';
+
+        }
+
+      },
+      250
+    );
+
+}
+
+
+/* =========================================================
+   STARTUP
+========================================================= */
+
+window.addEventListener(
+  'load',
+  () => {
+
+    autoSpeak.checked =
+      cfg.speak !== false;
+
+
+    usePhones.checked =
+      cfg.phones !== false;
+
+
+    fillEditor();
+
+    renderSlots();
+
+    renderAudioSource();
+
+    initializeGoogle();
+
+  }
+);
 
 
 /* =========================================================
@@ -3770,6 +4664,8 @@ window.addEventListener(
   'beforeunload',
   () => {
 
+    stopTranslation();
+
     stopComputerAudio();
 
   }
@@ -3777,6 +4673,6 @@ window.addEventListener(
 
 </script>
 
-
 </body>
+
 </html>
