@@ -3603,6 +3603,119 @@ async function startTranslation(dir){
    SPEECH RECOGNITION ENGINE
 ========================================================= */
 
+
+/* =========================================================
+   FAST COMPUTER-AUDIO TRANSLATION
+========================================================= */
+
+function normalizeRecognizedText(text){
+
+  return String(text || '')
+    .trim()
+    .replace(/\s+/g,' ')
+    .replace(/[。！？!?]+$/g,'');
+
+}
+
+
+function recentlyTranslated(text){
+
+  const current =
+    normalizeRecognizedText(text);
+
+  const previous =
+    normalizeRecognizedText(lastTranslatedText);
+
+  if(!current){
+    return true;
+  }
+
+  if(
+    current === previous &&
+    Date.now() - lastTranslatedAt < 4000
+  ){
+    return true;
+  }
+
+  return false;
+
+}
+
+
+function sendFastTranslation(dir, text){
+
+  text =
+    String(text || '').trim();
+
+  if(
+    !text ||
+    recentlyTranslated(text)
+  ){
+    return;
+  }
+
+  lastTranslatedText =
+    text;
+
+  lastTranslatedAt =
+    Date.now();
+
+  /*
+   * IMPORTANT:
+   *
+   * In computer/meeting mode DO NOT stop recognition.
+   * Keep listening while Apps Script translates.
+   */
+  queueTranslation(
+    dir,
+    text
+  );
+
+}
+
+
+function scheduleFastTranslation(dir, text){
+
+  fastPendingDir =
+    dir;
+
+  fastPendingText =
+    String(text || '').trim();
+
+  if(fastTranslateTimer){
+
+    clearTimeout(
+      fastTranslateTimer
+    );
+
+  }
+
+  fastTranslateTimer =
+    setTimeout(
+      () => {
+
+        fastTranslateTimer =
+          null;
+
+        if(
+          !translating ||
+          cfg.audioSource !== 'computer'
+        ){
+          return;
+        }
+
+        sendFastTranslation(
+          fastPendingDir,
+          fastPendingText
+        );
+
+      },
+      FAST_TRANSLATE_DELAY
+    );
+
+}
+
+  
 function startRecognitionEngine(
   dir,
   session
