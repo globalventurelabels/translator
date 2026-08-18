@@ -43,11 +43,11 @@
   .toggle input{accent-color:var(--ink);width:16px;height:16px;cursor:pointer}
   .pill{
     font-family:inherit;font-size:.8rem;font-weight:700;
-    background:none;border:1.5px solid var(--ink);border-radius:999px;
-    padding:5px 14px;cursor:pointer;color:var(--ink);
+    background:var(--muted);border:1.5px solid var(--muted);border-radius:999px;
+    padding:5px 14px;cursor:pointer;color:#fff;transition:all .15s ease;
   }
-  .pill:hover{background:var(--ink);color:var(--paper)}
-  .pill.on{background:var(--ink);color:var(--paper)}
+  .pill:hover{background:#666;border-color:#666}
+  .pill.on{background:var(--good);border-color:var(--good);color:#fff;font-weight:900;box-shadow:0 0 0 2px rgba(46,107,79,0.15)}
 
   /* ---------- settings / diagnostics drawer ---------- */
   .drawer{
