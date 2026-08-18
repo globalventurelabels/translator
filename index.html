@@ -36,46 +36,28 @@
 :root{
 
   --paper:#F5F4EF;
-
   --ink:#171F33;
-
   --en:#25507A;
-
   --ja:#9E2B20;
-
   --line:#D8D4C9;
-
   --card:#FFFFFF;
-
   --muted:#6B6A63;
-
   --good:#22c55e;
-
   --bad:#ef4444;
-
   --warning:#f59e0b;
 
 }
 
-
 *{
-
   box-sizing:border-box;
-
   margin:0;
-
   padding:0;
-
 }
-
 
 html,
 body{
-
   height:100%;
-
 }
-
 
 body{
 
@@ -87,11 +69,9 @@ body{
     sans-serif;
 
   background:var(--paper);
-
   color:var(--ink);
 
   display:flex;
-
   flex-direction:column;
 
   height:100dvh;
@@ -106,9 +86,7 @@ body{
 header{
 
   display:flex;
-
   align-items:center;
-
   justify-content:space-between;
 
   padding:14px 20px;
@@ -116,98 +94,75 @@ header{
   border-bottom:2px solid var(--ink);
 
   gap:12px;
-
   flex-wrap:wrap;
 
 }
-
 
 .brand{
 
   display:flex;
-
   align-items:baseline;
-
   gap:10px;
 
 }
 
-
 .brand h1{
 
   font-size:1.15rem;
-
   font-weight:900;
-
   letter-spacing:.02em;
 
 }
 
-
 .brand .subtitle{
 
   font-size:.85rem;
-
   color:var(--muted);
-
   font-weight:500;
 
 }
 
-
 .controls{
 
   display:flex;
-
   align-items:center;
-
   gap:14px;
-
   flex-wrap:wrap;
 
 }
 
-
 .toggle{
 
   display:flex;
-
   align-items:center;
-
   gap:6px;
 
   font-size:.8rem;
 
   cursor:pointer;
-
   user-select:none;
 
 }
-
 
 .toggle input{
 
   accent-color:var(--ink);
 
   width:16px;
-
   height:16px;
 
   cursor:pointer;
 
 }
 
-
 .pill{
 
   font-family:inherit;
 
   font-size:.8rem;
-
   font-weight:700;
 
   background:var(--bad);
-
   border:2px solid var(--bad);
 
   border-radius:999px;
@@ -222,20 +177,16 @@ header{
 
 }
 
-
 .pill:hover{
 
   background:#dc2626;
-
   border-color:#dc2626;
 
 }
 
-
 .pill.on{
 
   background:var(--good);
-
   border-color:var(--good);
 
   color:#fff;
@@ -264,18 +215,15 @@ header{
 
 }
 
-
 .drawer.open{
 
   display:block;
 
 }
 
-
 .drawer h2{
 
   font-size:.72rem;
-
   font-weight:900;
 
   letter-spacing:.1em;
@@ -287,7 +235,6 @@ header{
   margin-bottom:10px;
 
 }
-
 
 .audio-help{
 
@@ -306,7 +253,6 @@ header{
   line-height:1.6;
 
 }
-
 
 .slots{
 
@@ -328,7 +274,6 @@ header{
 
 }
 
-
 .slots button{
 
   flex:1;
@@ -349,13 +294,11 @@ header{
 
 }
 
-
 .slots button + button{
 
   border-left:1.5px solid var(--line);
 
 }
-
 
 .slots button[aria-pressed="true"]{
 
@@ -367,11 +310,9 @@ header{
 
 }
 
-
 .slots .dot{
 
   width:8px;
-
   height:8px;
 
   border-radius:50%;
@@ -384,20 +325,17 @@ header{
 
 }
 
-
 .slots button[data-ok="true"] .dot{
 
   background:var(--good);
 
 }
 
-
 .slots button[data-ok="false"] .dot{
 
   background:var(--ja);
 
 }
-
 
 .fld{
 
@@ -413,7 +351,6 @@ header{
 
 }
 
-
 .fld label{
 
   font-size:.68rem;
@@ -425,7 +362,6 @@ header{
   color:var(--muted);
 
 }
-
 
 .fld input{
 
@@ -445,7 +381,6 @@ header{
 
 }
 
-
 .probe{
 
   font-size:.75rem;
@@ -456,20 +391,17 @@ header{
 
 }
 
-
 .probe[data-state="ok"]{
 
   color:var(--good);
 
 }
 
-
 .probe[data-state="bad"]{
 
   color:var(--ja);
 
 }
-
 
 .hint{
 
@@ -486,7 +418,6 @@ header{
   margin-bottom:10px;
 
 }
-
 
 .btn{
 
@@ -510,7 +441,6 @@ header{
 
 }
 
-
 .btn:hover{
 
   background:var(--ink);
@@ -518,7 +448,6 @@ header{
   color:#fff;
 
 }
-
 
 .btn.primary{
 
@@ -551,7 +480,6 @@ main{
 
 }
 
-
 .status{
 
   text-align:center;
@@ -565,7 +493,6 @@ main{
   font-weight:700;
 
 }
-
 
 .status.err{
 
@@ -598,7 +525,6 @@ main{
 
 }
 
-
 .audio-source-title{
 
   font-size:.72rem;
@@ -615,7 +541,6 @@ main{
 
 }
 
-
 .audio-source-options{
 
   display:grid;
@@ -626,7 +551,6 @@ main{
   gap:10px;
 
 }
-
 
 .source-btn{
 
@@ -652,13 +576,11 @@ main{
 
 }
 
-
 .source-btn:hover{
 
   border-color:var(--ink);
 
 }
-
 
 .source-btn.active{
 
@@ -670,7 +592,6 @@ main{
     0 0 0 3px rgba(34,197,94,.12);
 
 }
-
 
 .source-description{
 
@@ -685,7 +606,6 @@ main{
   min-height:1.2em;
 
 }
-
 
 .source-description.connected{
 
@@ -718,7 +638,6 @@ main{
 
 }
 
-
 .btn-speak{
 
   font-family:inherit;
@@ -745,13 +664,11 @@ main{
 
 }
 
-
 .btn-speak:hover{
 
   transform:scale(1.015);
 
 }
-
 
 .btn-speak.active{
 
@@ -759,7 +676,6 @@ main{
     0 0 0 6px rgba(34,197,94,0.3);
 
 }
-
 
 .en-btn{
 
@@ -769,7 +685,6 @@ main{
 
 }
 
-
 .en-btn:hover{
 
   background:#1e3a5f;
@@ -777,7 +692,6 @@ main{
   border-color:#1e3a5f;
 
 }
-
 
 .en-btn.active{
 
@@ -787,7 +701,6 @@ main{
 
 }
 
-
 .ja-btn{
 
   background:var(--ja);
@@ -796,7 +709,6 @@ main{
 
 }
 
-
 .ja-btn:hover{
 
   background:#7a1f18;
@@ -804,7 +716,6 @@ main{
   border-color:#7a1f18;
 
 }
-
 
 .ja-btn.active{
 
@@ -841,13 +752,11 @@ main{
 
 }
 
-
 .display-panel.active{
 
   display:block;
 
 }
-
 
 .direction-label{
 
@@ -864,7 +773,6 @@ main{
   margin-bottom:7px;
 
 }
-
 
 .translation-display{
 
@@ -884,20 +792,17 @@ main{
 
 }
 
-
 .translation-display.en-output{
 
   color:var(--en);
 
 }
 
-
 .translation-display.ja-output{
 
   color:var(--ja);
 
 }
-
 
 .translation-display.empty{
 
@@ -909,13 +814,11 @@ main{
 
 }
 
-
 .original-ref{
 
   padding-top:5px;
 
 }
-
 
 .original-toggle{
 
@@ -939,13 +842,11 @@ main{
 
 }
 
-
 .original-toggle:hover{
 
   color:var(--ink);
 
 }
-
 
 .original-content{
 
@@ -964,7 +865,6 @@ main{
   border-radius:8px;
 
 }
-
 
 .original-content.open{
 
@@ -987,7 +887,6 @@ main{
 
 }
 
-
 .transcript h3{
 
   font-size:.85rem;
@@ -1004,7 +903,6 @@ main{
 
 }
 
-
 .transcript-list{
 
   list-style:none;
@@ -1016,7 +914,6 @@ main{
   gap:8px;
 
 }
-
 
 .transcript-item{
 
@@ -1034,20 +931,17 @@ main{
 
 }
 
-
 .transcript-item.en{
 
   border-left-color:var(--en);
 
 }
 
-
 .transcript-item.ja{
 
   border-left-color:var(--ja);
 
 }
-
 
 .transcript-label{
 
@@ -1065,13 +959,11 @@ main{
 
 }
 
-
 .transcript-original{
 
   font-weight:500;
 
 }
-
 
 .transcript-arrow{
 
@@ -1083,13 +975,11 @@ main{
 
 }
 
-
 .transcript-translation{
 
   font-weight:900;
 
 }
-
 
 .transcript-item.en
 .transcript-translation{
@@ -1097,7 +987,6 @@ main{
   color:var(--ja);
 
 }
-
 
 .transcript-item.ja
 .transcript-translation{
@@ -1119,7 +1008,6 @@ main{
 
   }
 
-
   .btn-speak{
 
     width:100%;
@@ -1137,10 +1025,6 @@ main{
 
 <body>
 
-
-<!-- ========================================================
-     HEADER
-========================================================= -->
 
 <header>
 
@@ -1223,10 +1107,6 @@ main{
 </header>
 
 
-
-<!-- ========================================================
-     SETTINGS
-========================================================= -->
 
 <section
   class="drawer"
@@ -1390,10 +1270,6 @@ main{
 
 
 
-<!-- ========================================================
-     SIGN-IN
-========================================================= -->
-
 <div
   id="signinScreen"
   style="
@@ -1442,10 +1318,6 @@ main{
 
 
 
-<!-- ========================================================
-     APP
-========================================================= -->
-
 <div
   id="appScreen"
   style="
@@ -1464,8 +1336,6 @@ main{
     id="status"
   ></div>
 
-
-  <!-- AUDIO SOURCE -->
 
   <div class="audio-source-panel">
 
@@ -1507,8 +1377,6 @@ main{
 
 
 
-  <!-- LANGUAGE -->
-
   <div class="control-panel">
 
     <button
@@ -1529,8 +1397,6 @@ main{
   </div>
 
 
-
-  <!-- TRANSLATION -->
 
   <div
     class="display-panel"
@@ -1574,8 +1440,6 @@ main{
 
 
 
-  <!-- TRANSCRIPT -->
-
   <div class="transcript">
 
     <h3>
@@ -1609,6 +1473,23 @@ const DEFAULT_API_URL =
 
 const GOOGLE_CLIENT_ID =
   '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
+
+
+/* =========================================================
+   FAST TRANSLATION SETTING
+========================================================= */
+
+/*
+ * Meeting/computer audio only.
+ *
+ * Chrome often shows Japanese interim text quickly
+ * but waits several seconds before declaring it final.
+ *
+ * If the recognized text stays unchanged for 900ms,
+ * send it for translation immediately.
+ */
+const FAST_TRANSLATE_DELAY =
+  900;
 
 
 /* =========================================================
@@ -1952,28 +1833,40 @@ let processingTranslation =
 
 
 let lastFinal = {
+
   text:'',
+
   at:0
+
 };
 
+
 /*
- * FAST COMPUTER-AUDIO TRANSLATION
- *
- * Chrome shows interim Japanese very quickly, but may take
- * several seconds to mark it "final".
- *
- * If the interim text stops changing for 800ms, translate it.
+ * FAST COMPUTER-AUDIO TRANSLATION STATE
  */
-const FAST_TRANSLATE_DELAY = 800;
 
-let fastTranslateTimer = null;
-let fastPendingText = '';
-let fastPendingDir = null;
+let fastTranslateTimer =
+  null;
 
-let lastTranslatedText = '';
-let lastTranslatedAt = 0;
 
-const conversation = [];
+let fastPendingText =
+  '';
+
+
+let fastPendingDir =
+  null;
+
+
+let lastFastTranslatedText =
+  '';
+
+
+let lastFastTranslatedAt =
+  0;
+
+
+const conversation =
+  [];
 
 
 /* =========================================================
@@ -2940,6 +2833,145 @@ async function processTranslationQueue(){
 
 
 /* =========================================================
+   FAST COMPUTER AUDIO TRANSLATION
+========================================================= */
+
+function normalizeRecognizedText(text){
+
+  return String(text || '')
+    .trim()
+    .replace(/\s+/g,' ')
+    .replace(/[。！？!?]+$/g,'');
+
+}
+
+
+function recentlyFastTranslated(text){
+
+  const current =
+    normalizeRecognizedText(
+      text
+    );
+
+
+  const previous =
+    normalizeRecognizedText(
+      lastFastTranslatedText
+    );
+
+
+  if(!current){
+
+    return true;
+
+  }
+
+
+  if(
+    current === previous &&
+    Date.now() - lastFastTranslatedAt < 4000
+  ){
+
+    return true;
+
+  }
+
+
+  return false;
+
+}
+
+
+function sendFastTranslation(
+  dir,
+  text
+){
+
+  text =
+    String(text || '')
+      .trim();
+
+
+  if(
+    !text ||
+    recentlyFastTranslated(text)
+  ){
+
+    return;
+
+  }
+
+
+  lastFastTranslatedText =
+    text;
+
+
+  lastFastTranslatedAt =
+    Date.now();
+
+
+  queueTranslation(
+    dir,
+    text
+  );
+
+}
+
+
+function scheduleFastTranslation(
+  dir,
+  text
+){
+
+  fastPendingDir =
+    dir;
+
+
+  fastPendingText =
+    String(text || '')
+      .trim();
+
+
+  if(fastTranslateTimer){
+
+    clearTimeout(
+      fastTranslateTimer
+    );
+
+  }
+
+
+  fastTranslateTimer =
+    setTimeout(
+      () => {
+
+        fastTranslateTimer =
+          null;
+
+
+        if(
+          !translating ||
+          cfg.audioSource !== 'computer'
+        ){
+
+          return;
+
+        }
+
+
+        sendFastTranslation(
+          fastPendingDir,
+          fastPendingText
+        );
+
+      },
+      FAST_TRANSLATE_DELAY
+    );
+
+}
+
+
+/* =========================================================
    PAUSE MICROPHONE RECOGNITION
 ========================================================= */
 
@@ -3073,13 +3105,6 @@ function speakTranslation(
 
       }
 
-
-      /*
-       * ROOM MICROPHONE
-       *
-       * Pause the microphone so it cannot hear the
-       * computer speaking its translation.
-       */
 
       if(
         cfg.audioSource === 'mic'
@@ -3279,12 +3304,6 @@ async function translatePhrase(
     });
 
 
-    /*
-     * Computer audio keeps listening.
-     *
-     * Microphone may be paused during speech output.
-     */
-
     await speakTranslation(
       result.text,
       dir
@@ -3442,11 +3461,6 @@ async function startTranslation(dir){
   }
 
 
-  /*
-   * If switching direction while already running,
-   * stop the old recognizer first.
-   */
-
   stopRecognitionOnly();
 
 
@@ -3479,10 +3493,33 @@ async function startTranslation(dir){
     false;
 
 
-  /*
-   * COMPUTER AUDIO:
-   * Ask user for the meeting audio source before starting.
-   */
+  if(fastTranslateTimer){
+
+    clearTimeout(
+      fastTranslateTimer
+    );
+
+    fastTranslateTimer =
+      null;
+
+  }
+
+
+  fastPendingText =
+    '';
+
+
+  fastPendingDir =
+    null;
+
+
+  lastFastTranslatedText =
+    '';
+
+
+  lastFastTranslatedAt =
+    0;
+
 
   if(
     cfg.audioSource === 'computer'
@@ -3603,119 +3640,6 @@ async function startTranslation(dir){
    SPEECH RECOGNITION ENGINE
 ========================================================= */
 
-
-/* =========================================================
-   FAST COMPUTER-AUDIO TRANSLATION
-========================================================= */
-
-function normalizeRecognizedText(text){
-
-  return String(text || '')
-    .trim()
-    .replace(/\s+/g,' ')
-    .replace(/[。！？!?]+$/g,'');
-
-}
-
-
-function recentlyTranslated(text){
-
-  const current =
-    normalizeRecognizedText(text);
-
-  const previous =
-    normalizeRecognizedText(lastTranslatedText);
-
-  if(!current){
-    return true;
-  }
-
-  if(
-    current === previous &&
-    Date.now() - lastTranslatedAt < 4000
-  ){
-    return true;
-  }
-
-  return false;
-
-}
-
-
-function sendFastTranslation(dir, text){
-
-  text =
-    String(text || '').trim();
-
-  if(
-    !text ||
-    recentlyTranslated(text)
-  ){
-    return;
-  }
-
-  lastTranslatedText =
-    text;
-
-  lastTranslatedAt =
-    Date.now();
-
-  /*
-   * IMPORTANT:
-   *
-   * In computer/meeting mode DO NOT stop recognition.
-   * Keep listening while Apps Script translates.
-   */
-  queueTranslation(
-    dir,
-    text
-  );
-
-}
-
-
-function scheduleFastTranslation(dir, text){
-
-  fastPendingDir =
-    dir;
-
-  fastPendingText =
-    String(text || '').trim();
-
-  if(fastTranslateTimer){
-
-    clearTimeout(
-      fastTranslateTimer
-    );
-
-  }
-
-  fastTranslateTimer =
-    setTimeout(
-      () => {
-
-        fastTranslateTimer =
-          null;
-
-        if(
-          !translating ||
-          cfg.audioSource !== 'computer'
-        ){
-          return;
-        }
-
-        sendFastTranslation(
-          fastPendingDir,
-          fastPendingText
-        );
-
-      },
-      FAST_TRANSLATE_DELAY
-    );
-
-}
-
-  
 function startRecognitionEngine(
   dir,
   session
@@ -3809,9 +3733,9 @@ function startRecognitionEngine(
 
 
         const text =
-          speechResult[0]
-            .transcript
-            .trim();
+          String(
+            speechResult[0].transcript || ''
+          ).trim();
 
 
         if(!text){
@@ -3821,21 +3745,44 @@ function startRecognitionEngine(
         }
 
 
-        /*
-         * INTERIM RESULT
-         *
-         * This lets you immediately confirm that Chrome
-         * is actually hearing the Japanese/English audio.
-         */
+        /* =================================================
+           INTERIM SPEECH
+        ================================================= */
 
         if(
           !speechResult.isFinal
         ){
 
+          /*
+           * Show immediately what Chrome is hearing.
+           */
           setStatus(
             'Hearing: ' +
             text
           );
+
+
+          /*
+           * SPEED CHANGE:
+           *
+           * Meeting/computer audio only.
+           *
+           * Do not wait several seconds for Chrome to
+           * declare this text final.
+           *
+           * If the Japanese/English interim text stops
+           * changing for 900ms, send it for translation.
+           */
+          if(
+            cfg.audioSource === 'computer'
+          ){
+
+            scheduleFastTranslation(
+              dir,
+              text
+            );
+
+          }
 
 
           continue;
@@ -3843,9 +3790,60 @@ function startRecognitionEngine(
         }
 
 
+        /* =================================================
+           FINAL SPEECH
+        ================================================= */
+
         /*
-         * FINAL RESULT
+         * If Chrome finally provides a final result,
+         * cancel the pending timer.
          */
+        if(fastTranslateTimer){
+
+          clearTimeout(
+            fastTranslateTimer
+          );
+
+          fastTranslateTimer =
+            null;
+
+        }
+
+
+        /*
+         * COMPUTER / MEETING AUDIO
+         *
+         * Keep recognition running.
+         */
+        if(
+          cfg.audioSource === 'computer'
+        ){
+
+          /*
+           * If Fast Mode already translated this exact text
+           * very recently, don't immediately translate the
+           * same final result again.
+           */
+          if(
+            !recentlyFastTranslated(text)
+          ){
+
+            sendFastTranslation(
+              dir,
+              text
+            );
+
+          }
+
+
+          continue;
+
+        }
+
+
+        /* =================================================
+           ROOM MICROPHONE
+        ================================================= */
 
         const now =
           Date.now();
@@ -3870,28 +3868,8 @@ function startRecognitionEngine(
         };
 
 
-        /*
-         * ROOM MICROPHONE
-         *
-         * Stop listening before translation/speech output.
-         */
+        pauseMicrophoneRecognition();
 
-        if(
-          cfg.audioSource === 'mic'
-        ){
-
-          pauseMicrophoneRecognition();
-
-        }
-
-
-        /*
-         * COMPUTER / MEETING AUDIO
-         *
-         * DO NOT stop recognition.
-         *
-         * This is what gives us continuous meeting audio.
-         */
 
         queueTranslation(
           dir,
@@ -3899,19 +3877,7 @@ function startRecognitionEngine(
         );
 
 
-        /*
-         * In microphone mode we intentionally stop after
-         * the first final phrase because the recognizer is
-         * being paused.
-         */
-
-        if(
-          cfg.audioSource === 'mic'
-        ){
-
-          break;
-
-        }
+        break;
 
       }
 
@@ -3973,10 +3939,6 @@ function startRecognitionEngine(
       }
 
 
-      /*
-       * no-speech and aborted are normal/nonfatal.
-       */
-
       if(
         event.error !== 'no-speech' &&
         event.error !== 'aborted'
@@ -4024,12 +3986,6 @@ function startRecognitionEngine(
       }
 
 
-      /*
-       * Microphone was intentionally paused while
-       * translation was spoken. Do not restart here.
-       * speakTranslation() will resume it.
-       */
-
       if(
         cfg.audioSource === 'mic' &&
         intentionallyPaused
@@ -4039,12 +3995,6 @@ function startRecognitionEngine(
 
       }
 
-
-      /*
-       * Chrome may end continuous recognition by itself.
-       *
-       * Restart it automatically.
-       */
 
       setTimeout(
         () => {
@@ -4119,11 +4069,6 @@ function startRecognitionEngine(
     }
 
 
-    /*
-     * If the audio track overload isn't supported,
-     * tell the user instead of pretending we are listening.
-     */
-
     if(
       cfg.audioSource === 'computer' &&
       (
@@ -4144,10 +4089,6 @@ function startRecognitionEngine(
 
     }
 
-
-    /*
-     * Otherwise retry automatically.
-     */
 
     if(
       translating &&
@@ -4285,6 +4226,35 @@ function stopTranslation(){
 
   processingTranslation =
     false;
+
+
+  if(fastTranslateTimer){
+
+    clearTimeout(
+      fastTranslateTimer
+    );
+
+
+    fastTranslateTimer =
+      null;
+
+  }
+
+
+  fastPendingText =
+    '';
+
+
+  fastPendingDir =
+    null;
+
+
+  lastFastTranslatedText =
+    '';
+
+
+  lastFastTranslatedAt =
+    0;
 
 
   stopRecognitionOnly();
@@ -4672,11 +4642,6 @@ function initializeGoogle(){
 
   }
 
-
-  /*
-   * Google script is async.
-   * Give it a few seconds before showing an error.
-   */
 
   let attempts =
     0;
