@@ -1165,28 +1165,19 @@ main{
 </div>
 
 
-
 <script>
 
 /* =========================================================
-   CONFIGURATION
+   CONFIG
 ========================================================= */
 
 const DEFAULT_API_URL =
   'https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec';
 
-
 const GOOGLE_CLIENT_ID =
   '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
 
-
-
-/* =========================================================
-   AUTH
-========================================================= */
-
 let idToken = null;
-
 
 
 /* =========================================================
@@ -1196,89 +1187,54 @@ let idToken = null;
 const store = (() => {
 
   const mem = {};
-
   let ok = false;
 
-
   try {
-
     localStorage.setItem('__p','1');
-
     localStorage.removeItem('__p');
-
     ok = true;
-
   }
   catch(e){}
-
 
   return {
 
     get(k){
-
-      try {
-
+      try{
         return ok
           ? localStorage.getItem(k)
           : mem[k];
-
       }
       catch(e){
-
         return mem[k];
-
       }
-
     },
-
 
     set(k,v){
-
-      try {
-
+      try{
         if(ok){
-
           localStorage.setItem(k,v);
-
         }
         else{
-
           mem[k] = v;
-
         }
-
       }
       catch(e){
-
         mem[k] = v;
-
       }
-
     },
 
-
     del(k){
-
-      try {
-
+      try{
         if(ok){
-
           localStorage.removeItem(k);
-
         }
         else{
-
           delete mem[k];
-
         }
-
       }
       catch(e){
-
         delete mem[k];
-
       }
-
     }
 
   };
@@ -1286,9 +1242,8 @@ const store = (() => {
 })();
 
 
-
 /* =========================================================
-   APP CONFIG
+   SETTINGS
 ========================================================= */
 
 let cfg = {
@@ -1307,27 +1262,26 @@ let cfg = {
 
   speak:true,
 
-  phones:true
+  phones:true,
+
+  audioSource:'mic'
 
 };
 
 
-try {
+try{
 
   const raw =
     store.get('gvl.kaigi.v1');
-
 
   if(raw){
 
     const saved =
       JSON.parse(raw);
 
-
     cfg = {
 
       ...cfg,
-
       ...saved,
 
       A:{
@@ -1355,7 +1309,6 @@ catch(e){
 }
 
 
-
 function saveCfg(){
 
   store.set(
@@ -1366,7 +1319,6 @@ function saveCfg(){
 }
 
 
-
 function activeUrl(){
 
   return cfg[cfg.active]?.url || '';
@@ -1374,180 +1326,96 @@ function activeUrl(){
 }
 
 
-
 /* =========================================================
-   ELEMENT REFERENCES
+   DOM
 ========================================================= */
 
 const $ = id =>
   document.getElementById(id);
 
-
 const autoSpeak =
   $('autoSpeak');
-
 
 const usePhones =
   $('usePhones');
 
-
 const settingsBtn =
   $('settingsBtn');
-
 
 const copyBtn =
   $('copyBtn');
 
-
 const clearBtn =
   $('clearBtn');
-
 
 const drawer =
   $('drawer');
 
-
 const nameA =
   $('nameA');
-
 
 const urlA =
   $('urlA');
 
-
 const nameB =
   $('nameB');
-
 
 const urlB =
   $('urlB');
 
-
 const slotA =
   $('slotA');
-
 
 const slotB =
   $('slotB');
 
-
 const hint =
   $('hint');
-
 
 const saveBtn =
   $('saveBtn');
 
-
 const testBtn =
   $('testBtn');
-
 
 const resetBtn =
   $('resetBtn');
 
-
 const probe =
   $('probe');
-
 
 const status =
   $('status');
 
-
 const enBtn =
   $('enBtn');
-
 
 const jaBtn =
   $('jaBtn');
 
-
 const displayPanel =
   $('displayPanel');
-
 
 const englishDisplay =
   $('englishDisplay');
 
-
 const japaneseContent =
   $('japaneseContent');
 
-
 const japaneseToggle =
   $('japaneseToggle');
-
 
 const transcriptList =
   $('transcriptList');
 
 
-const directionLabel =
-  $('directionLabel');
-
-
-
 /* =========================================================
-   SPEECH RECOGNITION
+   SPEECH
 ========================================================= */
 
 const SR =
   window.SpeechRecognition ||
   window.webkitSpeechRecognition;
-
-
-
-/* =========================================================
-   ROMANIZED JAPANESE FALLBACK
-========================================================= */
-
-const romanizedMap = {
-
-  'konichiwa':'こんにちは',
-
-  'konnichiwa':'こんにちは',
-
-  'konbanwa':'こんばんは',
-
-  'arigatou':'ありがとう',
-
-  'arigatou gozaimasu':'ありがとうございます',
-
-  'arigatougozaimasu':'ありがとうございます',
-
-  'gozaimasu':'ございます',
-
-  'kudasai':'ください',
-
-  'sumimasen':'すみません',
-
-  'hai':'はい',
-
-  'iie':'いいえ',
-
-  'sayonara':'さようなら',
-
-  'sensei':'先生',
-
-  'ohayo':'おはよう',
-
-  'ohayou':'おはよう',
-
-  'matte':'待って',
-
-  'nakatta':'なかった',
-
-  'desuka':'ですか',
-
-  'wakarimashita':'わかりました',
-
-  'onegaishimasu':'お願いします',
-
-  'tasukete':'助けて'
-
-};
-
 
 
 /* =========================================================
@@ -1562,17 +1430,409 @@ let rec = null;
 
 let recognitionSession = 0;
 
+let speakingTranslation = false;
+
+let recognitionPausedForSpeech = false;
+
+let computerStream = null;
+
+let computerAudioTrack = null;
+
 let lastFinal = {
-
   text:'',
-
   at:0
-
 };
-
 
 const conversation = [];
 
+
+/* =========================================================
+   AUDIO SOURCE UI
+========================================================= */
+
+function createAudioSourceSelector(){
+
+  const controlPanel =
+    document.querySelector('.control-panel');
+
+  if(
+    !controlPanel ||
+    $('audioSourceSelector')
+  ){
+    return;
+  }
+
+
+  const wrapper =
+    document.createElement('div');
+
+  wrapper.id =
+    'audioSourceSelector';
+
+
+  wrapper.style.cssText = `
+    width:100%;
+    max-width:680px;
+    margin:0 auto 8px auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+  `;
+
+
+  const label =
+    document.createElement('label');
+
+  label.htmlFor =
+    'audioSource';
+
+  label.textContent =
+    'Audio Source:';
+
+  label.style.cssText = `
+    font-size:.82rem;
+    font-weight:900;
+  `;
+
+
+  const select =
+    document.createElement('select');
+
+  select.id =
+    'audioSource';
+
+  select.style.cssText = `
+    font-family:inherit;
+    font-size:.85rem;
+    font-weight:700;
+    padding:8px 12px;
+    border:2px solid var(--ink);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+  `;
+
+
+  select.innerHTML = `
+    <option value="mic">
+      🎤 Room Microphone
+    </option>
+
+    <option value="computer">
+      💻 Computer / Meeting Audio
+    </option>
+  `;
+
+
+  select.value =
+    cfg.audioSource || 'mic';
+
+
+  const sourceStatus =
+    document.createElement('span');
+
+  sourceStatus.id =
+    'audioSourceStatus';
+
+  sourceStatus.style.cssText = `
+    font-size:.75rem;
+    color:var(--muted);
+    font-weight:700;
+  `;
+
+
+  wrapper.appendChild(label);
+
+  wrapper.appendChild(select);
+
+  wrapper.appendChild(sourceStatus);
+
+
+  controlPanel.parentNode.insertBefore(
+    wrapper,
+    controlPanel
+  );
+
+
+  select.addEventListener(
+    'change',
+    () => {
+
+      cfg.audioSource =
+        select.value;
+
+      saveCfg();
+
+      stopTranslation();
+
+      stopComputerAudio();
+
+      updateAudioSourceStatus();
+
+    }
+  );
+
+
+  updateAudioSourceStatus();
+
+}
+
+
+/* =========================================================
+   AUDIO SOURCE STATUS
+========================================================= */
+
+function updateAudioSourceStatus(){
+
+  const el =
+    $('audioSourceStatus');
+
+  if(!el){
+    return;
+  }
+
+
+  if(
+    cfg.audioSource === 'computer'
+  ){
+
+    if(
+      computerAudioTrack &&
+      computerAudioTrack.readyState === 'live'
+    ){
+
+      el.textContent =
+        '✓ Computer audio connected';
+
+      el.style.color =
+        'var(--good)';
+
+    }
+    else{
+
+      el.textContent =
+        'Choose a tab when you start';
+
+      el.style.color =
+        'var(--muted)';
+
+    }
+
+  }
+  else{
+
+    el.textContent =
+      'Using microphone';
+
+    el.style.color =
+      'var(--muted)';
+
+  }
+
+}
+
+
+/* =========================================================
+   CAPTURE COMPUTER / TAB AUDIO
+========================================================= */
+
+async function getComputerAudio(){
+
+  /*
+    Reuse existing live share if available.
+  */
+
+  if(
+    computerAudioTrack &&
+    computerAudioTrack.readyState === 'live'
+  ){
+
+    return computerAudioTrack;
+
+  }
+
+
+  if(
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getDisplayMedia
+  ){
+
+    throw new Error(
+      'Computer audio capture is not supported in this browser.'
+    );
+
+  }
+
+
+  setStatus(
+    'Choose the YouTube or meeting tab and enable "Share tab audio".'
+  );
+
+
+  let stream;
+
+
+  try{
+
+    stream =
+      await navigator.mediaDevices.getDisplayMedia({
+
+        video:true,
+
+        audio:true,
+
+        preferCurrentTab:false,
+
+        selfBrowserSurface:'exclude',
+
+        surfaceSwitching:'include',
+
+        systemAudio:'include'
+
+      });
+
+  }
+  catch(err){
+
+    if(
+      err.name === 'NotAllowedError'
+    ){
+
+      throw new Error(
+        'Screen/tab sharing was cancelled.'
+      );
+
+    }
+
+    throw err;
+
+  }
+
+
+  const audioTracks =
+    stream.getAudioTracks();
+
+
+  if(
+    !audioTracks.length
+  ){
+
+    stream
+      .getTracks()
+      .forEach(
+        track => track.stop()
+      );
+
+
+    throw new Error(
+      'No audio was shared. Choose the YouTube/meeting tab and make sure "Share tab audio" is checked.'
+    );
+
+  }
+
+
+  computerStream =
+    stream;
+
+  computerAudioTrack =
+    audioTracks[0];
+
+
+  /*
+    If user clicks Chrome's "Stop sharing",
+    stop translation automatically.
+  */
+
+  const videoTracks =
+    stream.getVideoTracks();
+
+
+  const onShareEnded =
+    () => {
+
+      if(
+        cfg.audioSource === 'computer'
+      ){
+
+        stopTranslation();
+
+        stopComputerAudio();
+
+        setStatus(
+          'Computer audio sharing stopped.',
+          true
+        );
+
+      }
+
+    };
+
+
+  computerAudioTrack.addEventListener(
+    'ended',
+    onShareEnded,
+    { once:true }
+  );
+
+
+  videoTracks.forEach(
+    track => {
+
+      track.addEventListener(
+        'ended',
+        onShareEnded,
+        { once:true }
+      );
+
+    }
+  );
+
+
+  updateAudioSourceStatus();
+
+
+  return computerAudioTrack;
+
+}
+
+
+/* =========================================================
+   STOP COMPUTER AUDIO
+========================================================= */
+
+function stopComputerAudio(){
+
+  if(computerStream){
+
+    computerStream
+      .getTracks()
+      .forEach(
+        track => {
+
+          try{
+            track.stop();
+          }
+          catch(e){}
+
+        }
+      );
+
+  }
+
+
+  computerStream =
+    null;
+
+  computerAudioTrack =
+    null;
+
+
+  updateAudioSourceStatus();
+
+}
 
 
 /* =========================================================
@@ -1587,13 +1847,11 @@ function setStatus(
   status.textContent =
     msg || '';
 
-
   status.className =
     'status' +
     (isErr ? ' err' : '');
 
 }
-
 
 
 /* =========================================================
@@ -1603,30 +1861,29 @@ function setStatus(
 function renderSlots(){
 
   [
-
     ['A',slotA],
-
     ['B',slotB]
+  ]
+  .forEach(
+    ([key,button]) => {
 
-  ].forEach(([key,button]) => {
-
-    button.setAttribute(
-      'aria-pressed',
-      String(cfg.active === key)
-    );
-
-
-    button.dataset.ok =
-      String(
-        Boolean(
-          cfg[key]?.url
-        )
+      button.setAttribute(
+        'aria-pressed',
+        String(cfg.active === key)
       );
 
-  });
+
+      button.dataset.ok =
+        String(
+          Boolean(
+            cfg[key]?.url
+          )
+        );
+
+    }
+  );
 
 }
-
 
 
 function fillEditor(){
@@ -1634,23 +1891,19 @@ function fillEditor(){
   nameA.value =
     cfg.A.name || '';
 
-
   urlA.value =
     cfg.A.url || '';
-
 
   nameB.value =
     cfg.B.name || '';
 
-
   urlB.value =
     cfg.B.url || '';
 
-
-  hint.textContent = '';
+  hint.textContent =
+    '';
 
 }
-
 
 
 settingsBtn.addEventListener(
@@ -1658,14 +1911,14 @@ settingsBtn.addEventListener(
   () => {
 
     const open =
-      drawer.classList.toggle('open');
-
+      drawer.classList.toggle(
+        'open'
+      );
 
     settingsBtn.classList.toggle(
       'on',
       open
     );
-
 
     if(open){
 
@@ -1679,29 +1932,23 @@ settingsBtn.addEventListener(
 );
 
 
-
 slotA.addEventListener(
   'click',
   () => {
 
     if(cfg.A.url){
 
-      cfg.active = 'A';
+      cfg.active =
+        'A';
 
       saveCfg();
 
       renderSlots();
 
-      setStatus(
-        'Using ' +
-        (cfg.A.name || 'Endpoint A')
-      );
-
     }
 
   }
 );
-
 
 
 slotB.addEventListener(
@@ -1710,22 +1957,17 @@ slotB.addEventListener(
 
     if(cfg.B.url){
 
-      cfg.active = 'B';
+      cfg.active =
+        'B';
 
       saveCfg();
 
       renderSlots();
 
-      setStatus(
-        'Using ' +
-        (cfg.B.name || 'Endpoint B')
-      );
-
     }
 
   }
 );
-
 
 
 saveBtn.addEventListener(
@@ -1734,7 +1976,6 @@ saveBtn.addEventListener(
 
     const a =
       urlA.value.trim();
-
 
     const b =
       urlB.value.trim();
@@ -1762,7 +2003,9 @@ saveBtn.addEventListener(
     };
 
 
-    if(!cfg[cfg.active]?.url){
+    if(
+      !cfg[cfg.active]?.url
+    ){
 
       cfg.active =
         a
@@ -1776,13 +2019,11 @@ saveBtn.addEventListener(
 
     renderSlots();
 
-
     hint.textContent =
       'Settings saved.';
 
   }
 );
-
 
 
 /* =========================================================
@@ -1795,7 +2036,6 @@ testBtn.addEventListener(
 
     const url =
       activeUrl();
-
 
     if(!url){
 
@@ -1813,12 +2053,11 @@ testBtn.addEventListener(
     probe.textContent =
       'Testing…';
 
-
     probe.dataset.state =
       '';
 
 
-    try {
+    try{
 
       const result =
         await callBackend(
@@ -1841,12 +2080,6 @@ testBtn.addEventListener(
     }
     catch(err){
 
-      console.error(
-        'Endpoint test failed:',
-        err
-      );
-
-
       probe.textContent =
         'Failed';
 
@@ -1862,7 +2095,6 @@ testBtn.addEventListener(
 );
 
 
-
 /* =========================================================
    RESET
 ========================================================= */
@@ -1870,6 +2102,11 @@ testBtn.addEventListener(
 resetBtn.addEventListener(
   'click',
   () => {
+
+    stopTranslation();
+
+    stopComputerAudio();
+
 
     store.del(
       'gvl.kaigi.v1'
@@ -1892,7 +2129,9 @@ resetBtn.addEventListener(
 
       speak:true,
 
-      phones:true
+      phones:true,
+
+      audioSource:'mic'
 
     };
 
@@ -1905,29 +2144,29 @@ resetBtn.addEventListener(
     autoSpeak.checked =
       true;
 
-
     usePhones.checked =
       true;
 
 
-    probe.textContent =
-      'Untested';
+    const select =
+      $('audioSource');
+
+    if(select){
+
+      select.value =
+        'mic';
+
+    }
 
 
-    probe.dataset.state =
-      '';
-
-
-    hint.textContent =
-      'Settings reset.';
+    updateAudioSourceStatus();
 
   }
 );
 
 
-
 /* =========================================================
-   BACKEND TRANSLATION CALL
+   BACKEND
 ========================================================= */
 
 async function callBackend(
@@ -1938,9 +2177,7 @@ async function callBackend(
 
   const [src,tgt] =
     dir === 'en-ja'
-
       ? ['en','ja']
-
       : ['ja','en'];
 
 
@@ -1952,22 +2189,16 @@ async function callBackend(
         method:'POST',
 
         headers:{
-
           'Content-Type':
             'text/plain;charset=utf-8'
-
         },
 
         body:JSON.stringify({
 
           text,
-
           dir,
-
           source:src,
-
           target:tgt,
-
           idToken
 
         })
@@ -1989,7 +2220,7 @@ async function callBackend(
   let data;
 
 
-  try {
+  try{
 
     data =
       await response.json();
@@ -2012,10 +2243,8 @@ async function callBackend(
         'Sign in again.'
       );
 
-
     error.authFailed =
       true;
-
 
     throw error;
 
@@ -2047,50 +2276,31 @@ async function callBackend(
 
 
   return {
-
     text:output
-
   };
 
 }
 
 
-
 /* =========================================================
-   SAFE HTML
+   ESCAPE HTML
 ========================================================= */
 
 function escapeHtml(value){
 
   return String(value)
 
-    .replace(
-      /&/g,
-      '&amp;'
-    )
+    .replace(/&/g,'&amp;')
 
-    .replace(
-      /</g,
-      '&lt;'
-    )
+    .replace(/</g,'&lt;')
 
-    .replace(
-      />/g,
-      '&gt;'
-    )
+    .replace(/>/g,'&gt;')
 
-    .replace(
-      /"/g,
-      '&quot;'
-    )
+    .replace(/"/g,'&quot;')
 
-    .replace(
-      /'/g,
-      '&#039;'
-    );
+    .replace(/'/g,'&#039;');
 
 }
-
 
 
 /* =========================================================
@@ -2118,9 +2328,7 @@ function addTranscript(
 
   const label =
     dir === 'en-ja'
-
       ? 'English → Japanese'
-
       : 'Japanese → English';
 
 
@@ -2130,15 +2338,29 @@ function addTranscript(
       ${label}
     </div>
 
-    <div class="transcript-original">
+    <div class="transcript-text">
       ${escapeHtml(orig)}
     </div>
 
-    <div class="transcript-arrow">
+    <div style="
+      margin:5px 0;
+      color:var(--muted);
+      font-size:.75rem;
+    ">
       ↓
     </div>
 
-    <div class="transcript-translation">
+    <div
+      class="transcript-text"
+      style="
+        font-weight:900;
+        color:${
+          dir === 'en-ja'
+            ? 'var(--ja)'
+            : 'var(--en)'
+        };
+      "
+    >
       ${escapeHtml(trans)}
     </div>
 
@@ -2153,6 +2375,87 @@ function addTranscript(
 }
 
 
+/* =========================================================
+   PAUSE SPEECH RECOGNITION
+========================================================= */
+
+function pauseRecognition(){
+
+  recognitionPausedForSpeech =
+    true;
+
+
+  if(!rec){
+    return;
+  }
+
+
+  try{
+
+    rec.onend =
+      null;
+
+    rec.abort();
+
+  }
+  catch(e){}
+
+
+  rec =
+    null;
+
+}
+
+
+/* =========================================================
+   RESUME SPEECH RECOGNITION
+========================================================= */
+
+function resumeRecognition(){
+
+  recognitionPausedForSpeech =
+    false;
+
+
+  if(
+    !translating ||
+    !currentDir ||
+    speakingTranslation
+  ){
+    return;
+  }
+
+
+  const dir =
+    currentDir;
+
+  const session =
+    recognitionSession;
+
+
+  setTimeout(
+    () => {
+
+      if(
+        translating &&
+        currentDir === dir &&
+        session === recognitionSession &&
+        !speakingTranslation
+      ){
+
+        startRecognitionEngine(
+          dir,
+          session
+        );
+
+      }
+
+    },
+    500
+  );
+
+}
+
 
 /* =========================================================
    SPEAK TRANSLATION
@@ -2163,51 +2466,116 @@ function speakTranslation(
   dir
 ){
 
-  if(
-    !autoSpeak.checked ||
-    !window.speechSynthesis
-  ){
+  return new Promise(
+    resolve => {
 
-    return;
+      /*
+        If speaking is OFF, immediately resume
+        recognition.
+      */
 
-  }
+      if(
+        !autoSpeak.checked ||
+        !window.speechSynthesis
+      ){
 
+        resumeRecognition();
 
-  speechSynthesis.cancel();
+        resolve();
 
+        return;
 
-  const utterance =
-    new SpeechSynthesisUtterance(
-      text
-    );
-
-
-  if(dir === 'en-ja'){
-
-    utterance.lang =
-      'ja-JP';
-
-    utterance.rate =
-      0.95;
-
-  }
-  else{
-
-    utterance.lang =
-      'en-US';
-
-    utterance.rate =
-      1.05;
-
-  }
+      }
 
 
-  speechSynthesis.speak(
-    utterance
+      speakingTranslation =
+        true;
+
+
+      pauseRecognition();
+
+
+      speechSynthesis.cancel();
+
+
+      const utterance =
+        new SpeechSynthesisUtterance(
+          text
+        );
+
+
+      if(
+        dir === 'en-ja'
+      ){
+
+        utterance.lang =
+          'ja-JP';
+
+        utterance.rate =
+          0.95;
+
+      }
+      else{
+
+        utterance.lang =
+          'en-US';
+
+        utterance.rate =
+          1.05;
+
+      }
+
+
+      utterance.onstart =
+        () => {
+
+          setStatus(
+            dir === 'en-ja'
+              ? 'Speaking Japanese translation...'
+              : 'Speaking English translation...'
+          );
+
+        };
+
+
+      utterance.onend =
+        () => {
+
+          speakingTranslation =
+            false;
+
+
+          resumeRecognition();
+
+
+          resolve();
+
+        };
+
+
+      utterance.onerror =
+        () => {
+
+          speakingTranslation =
+            false;
+
+
+          resumeRecognition();
+
+
+          resolve();
+
+        };
+
+
+      speechSynthesis.speak(
+        utterance
+      );
+
+    }
   );
 
 }
-
 
 
 /* =========================================================
@@ -2225,13 +2593,12 @@ async function translate(
 
   if(!url){
 
-    englishDisplay.textContent =
-      'No endpoint set — open Settings.';
-
     setStatus(
       'No translation endpoint configured.',
       true
     );
+
+    resumeRecognition();
 
     return;
 
@@ -2248,20 +2615,6 @@ async function translate(
   );
 
 
-  englishDisplay.classList.toggle(
-    'japanese-output',
-    dir === 'en-ja'
-  );
-
-
-  directionLabel.textContent =
-    dir === 'en-ja'
-
-      ? 'Japanese Translation'
-
-      : 'English Translation';
-
-
   englishDisplay.textContent =
     'Translating…';
 
@@ -2270,16 +2623,7 @@ async function translate(
     orig;
 
 
-  japaneseToggle.textContent =
-    '▶ Show original';
-
-
-  japaneseContent.classList.remove(
-    'open'
-  );
-
-
-  try {
+  try{
 
     const result =
       await callBackend(
@@ -2307,24 +2651,13 @@ async function translate(
     conversation.push({
 
       dir,
-
       orig,
-
       trans:result.text
 
     });
 
 
-    setStatus(
-      dir === 'en-ja'
-
-        ? 'English translated to Japanese.'
-
-        : 'Japanese translated to English.'
-    );
-
-
-    speakTranslation(
+    await speakTranslation(
       result.text,
       dir
     );
@@ -2340,7 +2673,8 @@ async function translate(
 
     if(err.authFailed){
 
-      idToken = null;
+      idToken =
+        null;
 
 
       $('appScreen').style.display =
@@ -2351,17 +2685,7 @@ async function translate(
         'flex';
 
 
-      $('signinError').textContent =
-        err.message ||
-        'Your session expired. Please sign in again.';
-
-
-      $('signinError').style.display =
-        'block';
-
-
       stopTranslation();
-
 
       return;
 
@@ -2379,19 +2703,21 @@ async function translate(
       true
     );
 
+
+    resumeRecognition();
+
   }
 
 }
 
 
-
 /* =========================================================
-   BUTTON HANDLERS
+   LANGUAGE BUTTONS
 ========================================================= */
 
 enBtn.addEventListener(
   'click',
-  () => {
+  async () => {
 
     if(
       translating &&
@@ -2400,23 +2726,22 @@ enBtn.addEventListener(
 
       stopTranslation();
 
-    }
-    else{
-
-      startTranslation(
-        'en-ja'
-      );
+      return;
 
     }
+
+
+    await startTranslation(
+      'en-ja'
+    );
 
   }
 );
 
 
-
 jaBtn.addEventListener(
   'click',
-  () => {
+  async () => {
 
     if(
       translating &&
@@ -2425,25 +2750,24 @@ jaBtn.addEventListener(
 
       stopTranslation();
 
-    }
-    else{
-
-      startTranslation(
-        'ja-en'
-      );
+      return;
 
     }
+
+
+    await startTranslation(
+      'ja-en'
+    );
 
   }
 );
 
 
-
 /* =========================================================
-   START SPEECH RECOGNITION
+   START TRANSLATION MODE
 ========================================================= */
 
-function startTranslation(dir){
+async function startTranslation(dir){
 
   if(!activeUrl()){
 
@@ -2451,38 +2775,76 @@ function startTranslation(dir){
       'open'
     );
 
-
     settingsBtn.classList.add(
       'on'
     );
-
 
     setStatus(
       'Set endpoint first.',
       true
     );
 
-
     return;
 
   }
 
 
-  /* Stop any previous recognition instance */
+  /*
+    If computer mode is selected,
+    ask user to share tab/system audio.
+  */
+
+  if(
+    cfg.audioSource === 'computer'
+  ){
+
+    try{
+
+      await getComputerAudio();
+
+    }
+    catch(err){
+
+      setStatus(
+        err.message,
+        true
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  if(window.speechSynthesis){
+
+    speechSynthesis.cancel();
+
+  }
+
+
+  speakingTranslation =
+    false;
+
+  recognitionPausedForSpeech =
+    false;
+
 
   if(rec){
 
     try{
 
-      rec.onend = null;
+      rec.onend =
+        null;
 
-      rec.stop();
+      rec.abort();
 
     }
     catch(e){}
 
-
-    rec = null;
+    rec =
+      null;
 
   }
 
@@ -2490,22 +2852,19 @@ function startTranslation(dir){
   recognitionSession++;
 
 
+  translating =
+    true;
+
+  currentDir =
+    dir;
+
+
   const session =
     recognitionSession;
 
 
-  translating = true;
-
-  currentDir = dir;
-
-
   displayPanel.classList.add(
     'active'
-  );
-
-
-  englishDisplay.classList.remove(
-    'japanese-output'
   );
 
 
@@ -2522,35 +2881,35 @@ function startTranslation(dir){
     '';
 
 
-  japaneseContent.classList.remove(
-    'open'
-  );
-
-
-  japaneseToggle.textContent =
-    '▶ Show original';
-
-
-
-  if(dir === 'en-ja'){
+  if(
+    dir === 'en-ja'
+  ){
 
     enBtn.classList.add(
       'active'
     );
-
 
     jaBtn.classList.remove(
       'active'
     );
 
 
-    directionLabel.textContent =
-      'English → Japanese';
+    if(
+      cfg.audioSource === 'computer'
+    ){
 
+      setStatus(
+        'Listening to computer audio for English...'
+      );
 
-    setStatus(
-      'Listening for English...'
-    );
+    }
+    else{
+
+      setStatus(
+        'Listening for English...'
+      );
+
+    }
 
   }
   else{
@@ -2559,54 +2918,80 @@ function startTranslation(dir){
       'active'
     );
 
-
     enBtn.classList.remove(
       'active'
     );
 
 
-    directionLabel.textContent =
-      'Japanese → English';
+    if(
+      cfg.audioSource === 'computer'
+    ){
 
+      setStatus(
+        'Listening to computer audio for Japanese...'
+      );
 
-    setStatus(
-      'Listening for Japanese...'
-    );
+    }
+    else{
+
+      setStatus(
+        'Listening for Japanese...'
+      );
+
+    }
 
   }
-
 
 
   if(!SR){
 
     setStatus(
-      'Speech recognition is not supported in this browser. Use Chrome or Edge.',
+      'Speech recognition is not supported in this browser.',
       true
     );
 
-
-    translating =
-      false;
-
-
-    currentDir =
-      null;
-
-
-    enBtn.classList.remove(
-      'active'
-    );
-
-
-    jaBtn.classList.remove(
-      'active'
-    );
-
+    stopTranslation();
 
     return;
 
   }
 
+
+  startRecognitionEngine(
+    dir,
+    session
+  );
+
+}
+
+
+/* =========================================================
+   START SPEECH RECOGNIZER
+========================================================= */
+
+function startRecognitionEngine(
+  dir,
+  session
+){
+
+  if(
+    !translating ||
+    currentDir !== dir ||
+    session !== recognitionSession ||
+    speakingTranslation ||
+    recognitionPausedForSpeech
+  ){
+
+    return;
+
+  }
+
+
+  if(rec){
+
+    return;
+
+  }
 
 
   const recognition =
@@ -2631,11 +3016,35 @@ function startTranslation(dir){
 
   recognition.lang =
     dir === 'en-ja'
-
       ? 'en-US'
-
       : 'ja-JP';
 
+
+  recognition.onstart =
+    () => {
+
+      if(
+        cfg.audioSource === 'computer'
+      ){
+
+        setStatus(
+          dir === 'en-ja'
+            ? '💻 Listening to computer audio for English...'
+            : '💻 Listening to computer audio for Japanese...'
+        );
+
+      }
+      else{
+
+        setStatus(
+          dir === 'en-ja'
+            ? '🎤 Listening for English...'
+            : '🎤 Listening for Japanese...'
+        );
+
+      }
+
+    };
 
 
   recognition.onresult =
@@ -2643,7 +3052,8 @@ function startTranslation(dir){
 
       if(
         !translating ||
-        session !== recognitionSession
+        session !== recognitionSession ||
+        speakingTranslation
       ){
 
         return;
@@ -2657,15 +3067,8 @@ function startTranslation(dir){
         i++
       ){
 
-        let text =
-          event.results[i][0]
-            .transcript
-            .trim();
-
-
         if(
-          !event.results[i].isFinal ||
-          !text
+          !event.results[i].isFinal
         ){
 
           continue;
@@ -2673,27 +3076,14 @@ function startTranslation(dir){
         }
 
 
-        if(
-          currentDir === 'ja-en'
-        ){
-
-          const lower =
-            text
-              .toLowerCase()
-              .trim();
+        const text =
+          event.results[i][0]
+            .transcript
+            .trim();
 
 
-          const converted =
-            romanizedMap[lower];
-
-
-          if(converted){
-
-            text =
-              converted;
-
-          }
-
+        if(!text){
+          continue;
         }
 
 
@@ -2712,23 +3102,29 @@ function startTranslation(dir){
 
 
         lastFinal = {
-
           text,
-
           at:now
-
         };
 
 
+        /*
+          Stop recognition while translating.
+        */
+
+        pauseRecognition();
+
+
         translate(
-          currentDir,
+          dir,
           text
         );
+
+
+        break;
 
       }
 
     };
-
 
 
   recognition.onerror =
@@ -2755,10 +3151,9 @@ function startTranslation(dir){
       ){
 
         setStatus(
-          'Microphone blocked. Allow microphone access in your browser.',
+          'Speech recognition permission was blocked.',
           true
         );
-
 
         stopTranslation();
 
@@ -2769,10 +3164,9 @@ function startTranslation(dir){
       ){
 
         setStatus(
-          'No microphone was detected.',
+          'No usable audio was detected.',
           true
         );
-
 
         stopTranslation();
 
@@ -2784,7 +3178,7 @@ function startTranslation(dir){
       ){
 
         setStatus(
-          'Mic error: ' +
+          'Speech error: ' +
           event.error,
           true
         );
@@ -2792,7 +3186,6 @@ function startTranslation(dir){
       }
 
     };
-
 
 
   recognition.onend =
@@ -2807,9 +3200,22 @@ function startTranslation(dir){
       }
 
 
-      if(rec === recognition){
+      if(
+        rec === recognition
+      ){
 
-        rec = null;
+        rec =
+          null;
+
+      }
+
+
+      if(
+        speakingTranslation ||
+        recognitionPausedForSpeech
+      ){
+
+        return;
 
       }
 
@@ -2822,271 +3228,7 @@ function startTranslation(dir){
         setTimeout(
           () => {
 
-            if(
-              translating &&
-              currentDir === dir &&
-              session === recognitionSession
-            ){
-
-              restartRecognition(
-                dir,
-                session
-              );
-
-            }
-
-          },
-          300
-        );
-
-      }
-
-    };
-
-
-
-  try{
-
-    recognition.start();
-
-  }
-  catch(err){
-
-    console.error(
-      'Microphone start error:',
-      err
-    );
-
-
-    setStatus(
-      'Microphone error: ' +
-      err.message,
-      true
-    );
-
-
-    stopTranslation();
-
-  }
-
-}
-
-
-
-/* =========================================================
-   RESTART SPEECH RECOGNITION
-========================================================= */
-
-function restartRecognition(
-  dir,
-  session
-){
-
-  if(
-    !translating ||
-    currentDir !== dir ||
-    session !== recognitionSession
-  ){
-
-    return;
-
-  }
-
-
-  const recognition =
-    new SR();
-
-
-  rec =
-    recognition;
-
-
-  recognition.continuous =
-    true;
-
-
-  recognition.interimResults =
-    true;
-
-
-  recognition.maxAlternatives =
-    1;
-
-
-  recognition.lang =
-    dir === 'en-ja'
-
-      ? 'en-US'
-
-      : 'ja-JP';
-
-
-
-  recognition.onresult =
-    event => {
-
-      if(
-        !translating ||
-        session !== recognitionSession
-      ){
-
-        return;
-
-      }
-
-
-      for(
-        let i = event.resultIndex;
-        i < event.results.length;
-        i++
-      ){
-
-        let text =
-          event.results[i][0]
-            .transcript
-            .trim();
-
-
-        if(
-          !event.results[i].isFinal ||
-          !text
-        ){
-
-          continue;
-
-        }
-
-
-        if(
-          currentDir === 'ja-en'
-        ){
-
-          const lower =
-            text
-              .toLowerCase()
-              .trim();
-
-
-          const converted =
-            romanizedMap[lower];
-
-
-          if(converted){
-
-            text =
-              converted;
-
-          }
-
-        }
-
-
-        const now =
-          Date.now();
-
-
-        if(
-          text === lastFinal.text &&
-          now - lastFinal.at < 1500
-        ){
-
-          continue;
-
-        }
-
-
-        lastFinal = {
-
-          text,
-
-          at:now
-
-        };
-
-
-        translate(
-          currentDir,
-          text
-        );
-
-      }
-
-    };
-
-
-
-  recognition.onerror =
-    event => {
-
-      if(
-        session !== recognitionSession
-      ){
-
-        return;
-
-      }
-
-
-      if(
-        event.error === 'not-allowed' ||
-        event.error === 'service-not-allowed'
-      ){
-
-        setStatus(
-          'Microphone blocked.',
-          true
-        );
-
-
-        stopTranslation();
-
-      }
-
-      else if(
-        event.error !== 'no-speech' &&
-        event.error !== 'aborted'
-      ){
-
-        setStatus(
-          'Mic error: ' +
-          event.error,
-          true
-        );
-
-      }
-
-    };
-
-
-
-  recognition.onend =
-    () => {
-
-      if(
-        session !== recognitionSession
-      ){
-
-        return;
-
-      }
-
-
-      if(rec === recognition){
-
-        rec = null;
-
-      }
-
-
-      if(
-        translating &&
-        currentDir === dir
-      ){
-
-        setTimeout(
-          () => {
-
-            restartRecognition(
+            startRecognitionEngine(
               dir,
               session
             );
@@ -3100,27 +3242,100 @@ function restartRecognition(
     };
 
 
-
   try{
 
-    recognition.start();
+    /*
+      COMPUTER AUDIO MODE
+
+      Chrome 135+ allows SpeechRecognition.start()
+      to receive a MediaStreamTrack.
+    */
+
+    if(
+      cfg.audioSource === 'computer'
+    ){
+
+      if(
+        !computerAudioTrack ||
+        computerAudioTrack.readyState !== 'live'
+      ){
+
+        throw new Error(
+          'Computer audio track is no longer available.'
+        );
+
+      }
+
+
+      recognition.start(
+        computerAudioTrack
+      );
+
+    }
+
+    /*
+      MICROPHONE MODE
+    */
+
+    else{
+
+      recognition.start();
+
+    }
 
   }
   catch(err){
 
-    console.warn(
-      'Recognition restart failed:',
+    console.error(
+      'Could not start recognition:',
       err
     );
+
+
+    if(
+      rec === recognition
+    ){
+
+      rec =
+        null;
+
+    }
+
+
+    /*
+      If the browser does not support passing an
+      audio track into SpeechRecognition.start(),
+      give a useful error instead of silently failing.
+    */
+
+    if(
+      cfg.audioSource === 'computer'
+    ){
+
+      setStatus(
+        'Computer-audio speech recognition failed: ' +
+        err.message,
+        true
+      );
+
+    }
+    else{
+
+      setStatus(
+        'Microphone recognition failed: ' +
+        err.message,
+        true
+      );
+
+    }
 
   }
 
 }
 
 
-
 /* =========================================================
-   STOP TRANSLATION
+   STOP TRANSLATION MODE
 ========================================================= */
 
 function stopTranslation(){
@@ -3128,25 +3343,25 @@ function stopTranslation(){
   translating =
     false;
 
-
   currentDir =
     null;
 
-
   recognitionSession++;
+
+  speakingTranslation =
+    false;
+
+  recognitionPausedForSpeech =
+    false;
 
 
   enBtn.classList.remove(
     'active'
   );
 
-
   jaBtn.classList.remove(
     'active'
   );
-
-
-  setStatus('');
 
 
   if(rec){
@@ -3156,20 +3371,27 @@ function stopTranslation(){
       rec.onend =
         null;
 
-
-      rec.stop();
+      rec.abort();
 
     }
     catch(e){}
-
 
     rec =
       null;
 
   }
 
-}
 
+  if(window.speechSynthesis){
+
+    speechSynthesis.cancel();
+
+  }
+
+
+  setStatus('');
+
+}
 
 
 /* =========================================================
@@ -3189,14 +3411,11 @@ japaneseToggle.addEventListener(
       japaneseContent.classList.contains(
         'open'
       )
-
         ? '▼ Hide original'
-
         : '▶ Show original';
 
   }
 );
-
 
 
 /* =========================================================
@@ -3207,11 +3426,12 @@ copyBtn.addEventListener(
   'click',
   async () => {
 
-    if(!conversation.length){
+    if(
+      !conversation.length
+    ){
 
       copyBtn.textContent =
         'Nothing';
-
 
       setTimeout(
         () => {
@@ -3222,7 +3442,6 @@ copyBtn.addEventListener(
         },
         1400
       );
-
 
       return;
 
@@ -3236,11 +3455,8 @@ copyBtn.addEventListener(
 
             const label =
               item.dir === 'en-ja'
-
                 ? 'English → Japanese'
-
                 : 'Japanese → English';
-
 
             return (
               label +
@@ -3263,18 +3479,11 @@ copyBtn.addEventListener(
         text
       );
 
-
       copyBtn.textContent =
         'Copied!';
 
     }
     catch(e){
-
-      console.error(
-        'Clipboard error:',
-        e
-      );
-
 
       copyBtn.textContent =
         'Failed';
@@ -3296,7 +3505,6 @@ copyBtn.addEventListener(
 );
 
 
-
 /* =========================================================
    CLEAR
 ========================================================= */
@@ -3307,8 +3515,7 @@ clearBtn.addEventListener(
 
     stopTranslation();
 
-
-    speechSynthesis?.cancel();
+    stopComputerAudio();
 
 
     conversation.length =
@@ -3328,11 +3535,6 @@ clearBtn.addEventListener(
     );
 
 
-    englishDisplay.classList.remove(
-      'japanese-output'
-    );
-
-
     japaneseContent.textContent =
       '';
 
@@ -3342,20 +3544,9 @@ clearBtn.addEventListener(
     );
 
 
-    japaneseToggle.textContent =
-      '▶ Show original';
-
-
-    directionLabel.textContent =
-      'Translation';
-
-
     displayPanel.classList.remove(
       'active'
     );
-
-
-    setStatus('');
 
 
     clearBtn.textContent =
@@ -3376,9 +3567,8 @@ clearBtn.addEventListener(
 );
 
 
-
 /* =========================================================
-   SAVE CHECKBOX SETTINGS
+   CHECKBOX SETTINGS
 ========================================================= */
 
 autoSpeak.addEventListener(
@@ -3388,12 +3578,10 @@ autoSpeak.addEventListener(
     cfg.speak =
       autoSpeak.checked;
 
-
     saveCfg();
 
   }
 );
-
 
 
 usePhones.addEventListener(
@@ -3403,21 +3591,17 @@ usePhones.addEventListener(
     cfg.phones =
       usePhones.checked;
 
-
     saveCfg();
 
   }
 );
 
 
-
 /* =========================================================
    GOOGLE SIGN IN
 ========================================================= */
 
-function handleSignIn(
-  response
-){
+function handleSignIn(response){
 
   if(
     !response ||
@@ -3427,10 +3611,8 @@ function handleSignIn(
     $('signinError').textContent =
       'Google sign-in did not return a credential.';
 
-
     $('signinError').style.display =
       'block';
-
 
     return;
 
@@ -3446,19 +3628,15 @@ function handleSignIn(
     const tokenPart =
       response.credential
         .split('.')[1]
-        .replace(
-          /-/g,
-          '+'
-        )
-        .replace(
-          /_/g,
-          '/'
-        );
+        .replace(/-/g,'+')
+        .replace(/_/g,'/');
 
 
     const padded =
       tokenPart.padEnd(
-        Math.ceil(tokenPart.length / 4) * 4,
+        Math.ceil(
+          tokenPart.length / 4
+        ) * 4,
         '='
       );
 
@@ -3471,8 +3649,13 @@ function handleSignIn(
             .map(
               c =>
                 '%' +
-                ('00' + c.charCodeAt(0).toString(16))
-                  .slice(-2)
+                (
+                  '00' +
+                  c
+                    .charCodeAt(0)
+                    .toString(16)
+                )
+                .slice(-2)
             )
             .join('')
         )
@@ -3480,7 +3663,8 @@ function handleSignIn(
 
 
     $('userBadge').textContent =
-      payload.email || 'Signed in';
+      payload.email ||
+      'Signed in';
 
 
     $('userBadge').style.display =
@@ -3490,7 +3674,7 @@ function handleSignIn(
   catch(e){
 
     console.warn(
-      'Could not decode Google credential.',
+      'Could not decode credential.',
       e
     );
 
@@ -3511,9 +3695,8 @@ function handleSignIn(
 }
 
 
-
 /* =========================================================
-   WINDOW LOAD
+   STARTUP
 ========================================================= */
 
 window.onload =
@@ -3531,16 +3714,18 @@ window.onload =
 
     renderSlots();
 
+    createAudioSourceSelector();
 
-    if(!window.google?.accounts?.id){
+
+    if(
+      !window.google?.accounts?.id
+    ){
 
       $('signinError').textContent =
-        'Google Sign-In could not load. Refresh the page or check that accounts.google.com is not blocked.';
-
+        'Google Sign-In could not load.';
 
       $('signinError').style.display =
         'block';
-
 
       return;
 
@@ -3576,7 +3761,22 @@ window.onload =
 
   };
 
+
+/* =========================================================
+   CLEANUP
+========================================================= */
+
+window.addEventListener(
+  'beforeunload',
+  () => {
+
+    stopComputerAudio();
+
+  }
+);
+
 </script>
+
 
 </body>
 </html>
