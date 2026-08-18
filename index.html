@@ -3,449 +3,3580 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Translation Bridge — English ⇄ Japanese</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <style>
-  :root{
-    --paper:#F5F4EF;
-    --ink:#171F33;
-    --en:#25507A;
-    --ja:#9E2B20;
-    --line:#D8D4C9;
-    --card:#FFFFFF;
-    --muted:#6B6A63;
-    --good:#22c55e;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    display:flex;flex-direction:column;
-    height:100dvh;
-  }
-  header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 20px;border-bottom:2px solid var(--ink);
-    gap:12px;flex-wrap:wrap;
-  }
-  .brand{display:flex;align-items:baseline;gap:10px}
-  .brand h1{font-size:1.15rem;font-weight:900;letter-spacing:.02em}
-  .brand .subtitle{font-size:.85rem;color:var(--muted);font-weight:500}
-  .controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-  .toggle{display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer;user-select:none}
-  .toggle input{accent-color:var(--ink);width:16px;height:16px;cursor:pointer}
-  
-  .pill{
-    font-family:inherit;font-size:.8rem;font-weight:700;
-    background:#ef4444;border:2px solid #ef4444;border-radius:999px;
-    padding:5px 14px;cursor:pointer;color:#fff;transition:all .2s ease;
-  }
-  .pill:hover{background:#dc2626;border-color:#dc2626}
-  .pill.on{background:var(--good);border-color:var(--good);color:#fff;font-weight:900;box-shadow:0 0 0 4px rgba(34,197,94,0.25)}
 
-  .drawer{border-bottom:2px solid var(--ink);background:var(--card);padding:14px 20px;display:none}
-  .drawer.open{display:block}
-  .drawer h2{font-size:.72rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-  .slots{display:flex;gap:0;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;max-width:680px;margin-bottom:12px;background:var(--paper)}
-  .slots button{flex:1;background:none;border:0;padding:10px 12px;font-family:inherit;font-size:.82rem;color:var(--muted);cursor:pointer}
-  .slots button + button{border-left:1.5px solid var(--line)}
-  .slots button[aria-pressed="true"]{background:var(--ink);color:#fff;font-weight:700}
-  .slots .dot{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none;margin-right:8px}
-  .slots button[data-ok="true"] .dot{background:var(--good)}
-  .slots button[data-ok="false"] .dot{background:var(--ja)}
+:root{
+  --paper:#F5F4EF;
+  --ink:#171F33;
+  --en:#25507A;
+  --ja:#9E2B20;
+  --line:#D8D4C9;
+  --card:#FFFFFF;
+  --muted:#6B6A63;
+  --good:#22c55e;
+  --bad:#ef4444;
+}
 
-  .fld{display:flex;flex-direction:column;gap:4px;max-width:680px;margin-bottom:10px}
-  .fld label{font-size:.68rem;font-weight:700;letter-spacing:.06em;color:var(--muted)}
-  .fld input{font-family:inherit;font-size:.85rem;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
-  .probe{font-size:.75rem;color:var(--muted);font-weight:700}
-  .probe[data-state="ok"]{color:var(--good)}
-  .probe[data-state="bad"]{color:var(--ja)}
-  .hint{font-size:.75rem;color:var(--ja);font-weight:700;min-height:1.1em;max-width:680px;margin-bottom:10px}
-  .btn{font-family:inherit;font-size:.8rem;font-weight:700;border-radius:8px;cursor:pointer;padding:9px 16px;border:1.5px solid var(--ink);background:none;color:var(--ink)}
-  .btn:hover{background:var(--ink);color:#fff}
-  .btn.primary{background:var(--ink);color:#fff}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-  main{flex:1;overflow-y:auto;padding:20px;scroll-behavior:smooth;display:flex;flex-direction:column;gap:16px}
-  .status{text-align:center;font-size:.78rem;color:var(--muted);min-height:1.2em;font-weight:500}
-  .status.err{color:var(--ja);font-weight:700}
+html,
+body{
+  height:100%;
+}
 
-  .control-panel{max-width:680px;margin:0 auto;width:100%;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-  .btn-speak{font-family:inherit;font-size:1rem;font-weight:900;border:3px solid;border-radius:16px;padding:16px 32px;cursor:pointer;color:#fff;transition:all .2s ease;min-width:200px}
-  .btn-speak:hover{transform:scale(1.02)}
-  .btn-speak.active{box-shadow:0 0 0 6px rgba(34,197,94,0.3)}
-  .btn-speak:disabled{opacity:.45;cursor:not-allowed}
-  .en-btn{background:var(--en);border-color:var(--en)}
-  .en-btn:hover{background:#1e3a5f;border-color:#1e3a5f}
-  .en-btn.active{background:var(--good);border-color:var(--good)}
-  .ja-btn{background:var(--ja);border-color:var(--ja)}
-  .ja-btn:hover{background:#7a1f18;border-color:#7a1f18}
-  .ja-btn.active{background:var(--good);border-color:var(--good)}
+body{
+  font-family:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans","Yu Gothic",sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  display:flex;
+  flex-direction:column;
+  height:100dvh;
+}
 
-  .display-panel{max-width:680px;margin:0 auto;width:100%;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:20px;min-height:120px;display:none}
-  .display-panel.active{display:block}
-  .english-display{font-size:1.4rem;font-weight:700;line-height:1.6;color:var(--en);min-height:80px;margin-bottom:16px;padding-bottom:16px;border-bottom:2px solid var(--line)}
-  .english-display.empty{color:var(--muted);font-weight:400;font-size:1rem}
-  .japanese-ref{padding-top:12px;border-top:1px solid var(--line)}
-  .japanese-toggle{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--muted);user-select:none;margin-bottom:8px}
-  .japanese-toggle:hover{color:var(--ink)}
-  .japanese-content{display:none;font-size:1rem;color:var(--ja);line-height:1.6;padding:8px 12px;background:var(--paper);border-radius:8px}
-  .japanese-content.open{display:block}
 
-  .transcript{max-width:680px;margin:0 auto;width:100%}
-  .transcript h3{font-size:.85rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
-  .transcript-list{list-style:none;display:flex;flex-direction:column;gap:8px}
-  .transcript-item{background:var(--card);border-left:4px solid var(--line);padding:12px 14px;border-radius:4px;font-size:.9rem;line-height:1.6}
-  .transcript-item.en{border-left-color:var(--en)}
-  .transcript-item.ja{border-left-color:var(--ja)}
-  .transcript-label{font-size:.7rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;color:var(--muted)}
-  .transcript-text{font-weight:500}
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:14px 20px;
+
+  border-bottom:2px solid var(--ink);
+
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.brand{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+
+.brand h1{
+  font-size:1.15rem;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+
+.brand .subtitle{
+  font-size:.85rem;
+  color:var(--muted);
+  font-weight:500;
+}
+
+.controls{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  gap:6px;
+
+  font-size:.8rem;
+
+  cursor:pointer;
+  user-select:none;
+}
+
+.toggle input{
+  accent-color:var(--ink);
+  width:16px;
+  height:16px;
+  cursor:pointer;
+}
+
+
+/* =========================================================
+   HEADER PILLS
+========================================================= */
+
+.pill{
+  font-family:inherit;
+  font-size:.8rem;
+  font-weight:700;
+
+  background:var(--bad);
+  border:2px solid var(--bad);
+
+  border-radius:999px;
+
+  padding:5px 14px;
+
+  cursor:pointer;
+
+  color:#fff;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.pill:hover{
+  background:#dc2626;
+  border-color:#dc2626;
+}
+
+.pill.on{
+  background:var(--good);
+  border-color:var(--good);
+
+  color:#fff;
+
+  font-weight:900;
+
+  box-shadow:
+    0 0 0 4px rgba(34,197,94,0.25);
+}
+
+
+/* =========================================================
+   SETTINGS DRAWER
+========================================================= */
+
+.drawer{
+  border-bottom:2px solid var(--ink);
+
+  background:var(--card);
+
+  padding:14px 20px;
+
+  display:none;
+}
+
+.drawer.open{
+  display:block;
+}
+
+.drawer h2{
+  font-size:.72rem;
+  font-weight:900;
+  letter-spacing:.1em;
+
+  text-transform:uppercase;
+
+  color:var(--muted);
+
+  margin-bottom:10px;
+}
+
+
+/* =========================================================
+   ENDPOINT SELECTOR
+========================================================= */
+
+.slots{
+  display:flex;
+
+  gap:0;
+
+  border:1.5px solid var(--line);
+
+  border-radius:10px;
+
+  overflow:hidden;
+
+  max-width:680px;
+
+  margin-bottom:12px;
+
+  background:var(--paper);
+}
+
+.slots button{
+  flex:1;
+
+  background:none;
+
+  border:0;
+
+  padding:10px 12px;
+
+  font-family:inherit;
+
+  font-size:.82rem;
+
+  color:var(--muted);
+
+  cursor:pointer;
+}
+
+.slots button + button{
+  border-left:1.5px solid var(--line);
+}
+
+.slots button[aria-pressed="true"]{
+  background:var(--ink);
+  color:#fff;
+  font-weight:700;
+}
+
+.slots .dot{
+  width:8px;
+  height:8px;
+
+  border-radius:50%;
+
+  background:var(--line);
+
+  display:inline-block;
+
+  margin-right:8px;
+}
+
+.slots button[data-ok="true"] .dot{
+  background:var(--good);
+}
+
+.slots button[data-ok="false"] .dot{
+  background:var(--ja);
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.fld{
+  display:flex;
+  flex-direction:column;
+
+  gap:4px;
+
+  max-width:680px;
+
+  margin-bottom:10px;
+}
+
+.fld label{
+  font-size:.68rem;
+  font-weight:700;
+
+  letter-spacing:.06em;
+
+  color:var(--muted);
+}
+
+.fld input{
+  font-family:inherit;
+
+  font-size:.85rem;
+
+  padding:9px 12px;
+
+  border:1.5px solid var(--line);
+
+  border-radius:8px;
+
+  background:var(--paper);
+
+  color:var(--ink);
+}
+
+.probe{
+  font-size:.75rem;
+
+  color:var(--muted);
+
+  font-weight:700;
+}
+
+.probe[data-state="ok"]{
+  color:var(--good);
+}
+
+.probe[data-state="bad"]{
+  color:var(--ja);
+}
+
+.hint{
+  font-size:.75rem;
+
+  color:var(--ja);
+
+  font-weight:700;
+
+  min-height:1.1em;
+
+  max-width:680px;
+
+  margin-bottom:10px;
+}
+
+
+/* =========================================================
+   GENERAL BUTTON
+========================================================= */
+
+.btn{
+  font-family:inherit;
+
+  font-size:.8rem;
+
+  font-weight:700;
+
+  border-radius:8px;
+
+  cursor:pointer;
+
+  padding:9px 16px;
+
+  border:1.5px solid var(--ink);
+
+  background:none;
+
+  color:var(--ink);
+}
+
+.btn:hover{
+  background:var(--ink);
+  color:#fff;
+}
+
+.btn.primary{
+  background:var(--ink);
+  color:#fff;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main{
+  flex:1;
+
+  overflow-y:auto;
+
+  padding:20px;
+
+  scroll-behavior:smooth;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:16px;
+}
+
+.status{
+  text-align:center;
+
+  font-size:.78rem;
+
+  color:var(--muted);
+
+  min-height:1.2em;
+
+  font-weight:500;
+}
+
+.status.err{
+  color:var(--ja);
+  font-weight:700;
+}
+
+
+/* =========================================================
+   SPEAK BUTTONS
+========================================================= */
+
+.control-panel{
+  max-width:680px;
+
+  margin:0 auto;
+
+  width:100%;
+
+  display:flex;
+
+  gap:12px;
+
+  flex-wrap:wrap;
+
+  justify-content:center;
+}
+
+.btn-speak{
+  font-family:inherit;
+
+  font-size:1rem;
+
+  font-weight:900;
+
+  border:3px solid;
+
+  border-radius:16px;
+
+  padding:16px 32px;
+
+  cursor:pointer;
+
+  color:#fff;
+
+  transition:all .2s ease;
+
+  min-width:200px;
+}
+
+.btn-speak:hover{
+  transform:scale(1.02);
+}
+
+.btn-speak.active{
+  box-shadow:
+    0 0 0 6px rgba(34,197,94,0.3);
+}
+
+.btn-speak:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.en-btn{
+  background:var(--en);
+  border-color:var(--en);
+}
+
+.en-btn:hover{
+  background:#1e3a5f;
+  border-color:#1e3a5f;
+}
+
+.en-btn.active{
+  background:var(--good);
+  border-color:var(--good);
+}
+
+.ja-btn{
+  background:var(--ja);
+  border-color:var(--ja);
+}
+
+.ja-btn:hover{
+  background:#7a1f18;
+  border-color:#7a1f18;
+}
+
+.ja-btn.active{
+  background:var(--good);
+  border-color:var(--good);
+}
+
+
+/* =========================================================
+   TRANSLATION DISPLAY
+========================================================= */
+
+.display-panel{
+  max-width:680px;
+
+  margin:0 auto;
+
+  width:100%;
+
+  background:var(--card);
+
+  border:2px solid var(--line);
+
+  border-radius:12px;
+
+  padding:20px;
+
+  min-height:120px;
+
+  display:none;
+}
+
+.display-panel.active{
+  display:block;
+}
+
+.direction-label{
+  font-size:.72rem;
+  font-weight:900;
+
+  letter-spacing:.08em;
+
+  text-transform:uppercase;
+
+  color:var(--muted);
+
+  margin-bottom:8px;
+}
+
+.english-display{
+  font-size:1.4rem;
+
+  font-weight:700;
+
+  line-height:1.6;
+
+  color:var(--en);
+
+  min-height:80px;
+
+  margin-bottom:16px;
+
+  padding-bottom:16px;
+
+  border-bottom:2px solid var(--line);
+}
+
+.english-display.japanese-output{
+  color:var(--ja);
+}
+
+.english-display.empty{
+  color:var(--muted);
+
+  font-weight:400;
+
+  font-size:1rem;
+}
+
+.japanese-ref{
+  padding-top:12px;
+
+  border-top:1px solid var(--line);
+}
+
+.japanese-toggle{
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  font-size:.85rem;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  color:var(--muted);
+
+  user-select:none;
+
+  margin-bottom:8px;
+}
+
+.japanese-toggle:hover{
+  color:var(--ink);
+}
+
+.japanese-content{
+  display:none;
+
+  font-size:1rem;
+
+  color:var(--ink);
+
+  line-height:1.6;
+
+  padding:8px 12px;
+
+  background:var(--paper);
+
+  border-radius:8px;
+}
+
+.japanese-content.open{
+  display:block;
+}
+
+
+/* =========================================================
+   TRANSCRIPT
+========================================================= */
+
+.transcript{
+  max-width:680px;
+
+  margin:0 auto;
+
+  width:100%;
+}
+
+.transcript h3{
+  font-size:.85rem;
+
+  font-weight:900;
+
+  letter-spacing:.06em;
+
+  text-transform:uppercase;
+
+  color:var(--muted);
+
+  margin-bottom:12px;
+}
+
+.transcript-list{
+  list-style:none;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+}
+
+.transcript-item{
+  background:var(--card);
+
+  border-left:4px solid var(--line);
+
+  padding:12px 14px;
+
+  border-radius:4px;
+
+  font-size:.9rem;
+
+  line-height:1.6;
+}
+
+.transcript-item.en{
+  border-left-color:var(--en);
+}
+
+.transcript-item.ja{
+  border-left-color:var(--ja);
+}
+
+.transcript-label{
+  font-size:.7rem;
+
+  font-weight:900;
+
+  letter-spacing:.06em;
+
+  text-transform:uppercase;
+
+  margin-bottom:6px;
+
+  color:var(--muted);
+}
+
+.transcript-original{
+  font-weight:500;
+}
+
+.transcript-arrow{
+  color:var(--muted);
+
+  font-size:.75rem;
+
+  margin:5px 0;
+}
+
+.transcript-translation{
+  font-weight:800;
+}
+
+.transcript-item.en .transcript-translation{
+  color:var(--ja);
+}
+
+.transcript-item.ja .transcript-translation{
+  color:var(--en);
+}
+
 </style>
 </head>
+
+
 <body>
 
+
+<!-- ========================================================
+     HEADER
+========================================================= -->
+
 <header>
+
   <div class="brand">
-    <h1>Translation Bridge</h1>
-    <span class="subtitle">English ⇄ Japanese Translator</span>
+
+    <h1>
+      Translation Bridge
+    </h1>
+
+    <span class="subtitle">
+      English ⇄ Japanese Translator
+    </span>
+
   </div>
+
+
   <div class="controls">
-    <span id="userBadge" style="font-size:.78rem;color:var(--muted);display:none"></span>
-    <label class="toggle"><input type="checkbox" id="autoSpeak" checked>Speak aloud</label>
-    <label class="toggle"><input type="checkbox" id="usePhones" checked>Headphones</label>
-    <button class="pill" id="settingsBtn">Settings</button>
-    <button class="pill" id="copyBtn">Copy</button>
-    <button class="pill" id="clearBtn">Clear</button>
+
+    <span
+      id="userBadge"
+      style="
+        font-size:.78rem;
+        color:var(--muted);
+        display:none
+      "
+    ></span>
+
+
+    <label class="toggle">
+
+      <input
+        type="checkbox"
+        id="autoSpeak"
+        checked
+      >
+
+      Speak aloud
+
+    </label>
+
+
+    <label class="toggle">
+
+      <input
+        type="checkbox"
+        id="usePhones"
+        checked
+      >
+
+      Headphones
+
+    </label>
+
+
+    <button
+      class="pill"
+      id="settingsBtn"
+    >
+      Settings
+    </button>
+
+
+    <button
+      class="pill"
+      id="copyBtn"
+    >
+      Copy
+    </button>
+
+
+    <button
+      class="pill"
+      id="clearBtn"
+    >
+      Clear
+    </button>
+
   </div>
+
 </header>
 
-<section class="drawer" id="drawer">
-  <h2>Audio Setup (Important)</h2>
-  <div style="background:#fef3c7;border:1.5px solid #fcd34d;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:.85rem;line-height:1.6">
-    <strong>For conference calls:</strong> Enable Stereo Mix on your laptop so the app can hear both call audio and room speakers.
-    <div style="margin-top:10px"><strong>How to enable Stereo Mix (Windows):</strong>
+
+
+<!-- ========================================================
+     SETTINGS DRAWER
+========================================================= -->
+
+<section
+  class="drawer"
+  id="drawer"
+>
+
+  <h2>
+    Audio Setup (Important)
+  </h2>
+
+
+  <div
+    style="
+      background:#fef3c7;
+      border:1.5px solid #fcd34d;
+      border-radius:8px;
+      padding:12px 14px;
+      margin-bottom:16px;
+      font-size:.85rem;
+      line-height:1.6
+    "
+  >
+
+    <strong>
+      For conference calls:
+    </strong>
+
+    Enable Stereo Mix on your laptop so the app can hear both
+    call audio and room speakers.
+
+
+    <div style="margin-top:10px">
+
+      <strong>
+        How to enable Stereo Mix (Windows):
+      </strong>
+
+
       <ol style="margin:8px 0 0 20px">
-        <li>Right-click Volume icon (system tray) → Open Sound settings</li>
-        <li>Scroll down → Advanced → Volume mixer</li>
-        <li>Scroll down → Advanced → App volume and device preferences</li>
-        <li>Find "Translation Bridge" → Set Input to "Stereo Mix"</li>
-        <li>If Stereo Mix doesn't appear: Right-click speaker → Recording devices → Right-click empty space → Show disabled → Enable Stereo Mix</li>
+
+        <li>
+          Right-click Volume icon (system tray)
+          → Open Sound settings
+        </li>
+
+        <li>
+          Scroll down → Advanced → Volume mixer
+        </li>
+
+        <li>
+          Scroll down → Advanced
+          → App volume and device preferences
+        </li>
+
+        <li>
+          Find "Translation Bridge"
+          → Set Input to "Stereo Mix"
+        </li>
+
+        <li>
+          If Stereo Mix doesn't appear:
+          Right-click speaker
+          → Recording devices
+          → Right-click empty space
+          → Show disabled
+          → Enable Stereo Mix
+        </li>
+
       </ol>
+
     </div>
+
   </div>
 
-  <h2>Translation endpoint</h2>
+
+
+  <h2>
+    Translation endpoint
+  </h2>
+
+
   <div class="slots">
-    <button id="slotA" aria-pressed="true"><span class="dot"></span>A</button>
-    <button id="slotB" aria-pressed="false"><span class="dot"></span>B</button>
+
+    <button
+      id="slotA"
+      aria-pressed="true"
+    >
+
+      <span class="dot"></span>
+
+      A
+
+    </button>
+
+
+    <button
+      id="slotB"
+      aria-pressed="false"
+    >
+
+      <span class="dot"></span>
+
+      B
+
+    </button>
+
   </div>
+
+
+
   <div class="fld">
-    <label>Endpoint A</label>
-    <input id="nameA" type="text" placeholder="Apps Script" autocomplete="off">
-    <input id="urlA" type="url" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec">
+
+    <label>
+      Endpoint A
+    </label>
+
+    <input
+      id="nameA"
+      type="text"
+      placeholder="Apps Script"
+      autocomplete="off"
+    >
+
+    <input
+      id="urlA"
+      type="url"
+      spellcheck="false"
+      placeholder="https://script.google.com/macros/s/…/exec"
+    >
+
   </div>
+
+
+
   <div class="fld">
-    <label>Endpoint B</label>
-    <input id="nameB" type="text" placeholder="Worker" autocomplete="off">
-    <input id="urlB" type="url" spellcheck="false" placeholder="https://translate.your-name.workers.dev/">
+
+    <label>
+      Endpoint B
+    </label>
+
+    <input
+      id="nameB"
+      type="text"
+      placeholder="Worker"
+      autocomplete="off"
+    >
+
+    <input
+      id="urlB"
+      type="url"
+      spellcheck="false"
+      placeholder="https://translate.your-name.workers.dev/"
+    >
+
   </div>
-  <p class="hint" id="hint"></p>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn primary" id="saveBtn">Save</button>
-    <button class="btn" id="testBtn">Test</button>
-    <button class="btn" id="resetBtn">Reset</button>
-    <span class="probe" id="probe">Untested</span>
+
+
+  <p
+    class="hint"
+    id="hint"
+  ></p>
+
+
+  <div
+    style="
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap
+    "
+  >
+
+    <button
+      class="btn primary"
+      id="saveBtn"
+    >
+      Save
+    </button>
+
+
+    <button
+      class="btn"
+      id="testBtn"
+    >
+      Test
+    </button>
+
+
+    <button
+      class="btn"
+      id="resetBtn"
+    >
+      Reset
+    </button>
+
+
+    <span
+      class="probe"
+      id="probe"
+    >
+      Untested
+    </span>
+
   </div>
+
 </section>
 
-<div id="signinScreen" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:20px">
+
+
+<!-- ========================================================
+     SIGN IN SCREEN
+========================================================= -->
+
+<div
+  id="signinScreen"
+  style="
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    text-align:center;
+    padding:20px
+  "
+>
+
   <div>
-    <div style="font-size:1.3rem;font-weight:900;margin-bottom:6px">Sign in with your company Google account</div>
+
+    <div
+      style="
+        font-size:1.3rem;
+        font-weight:900;
+        margin-bottom:6px
+      "
+    >
+      Sign in with your company Google account
+    </div>
+
   </div>
+
+
   <div id="gsiButton"></div>
-  <div id="signinError" style="color:var(--ja);font-weight:700;font-size:.85rem;display:none"></div>
+
+
+  <div
+    id="signinError"
+    style="
+      color:var(--ja);
+      font-weight:700;
+      font-size:.85rem;
+      display:none
+    "
+  ></div>
+
 </div>
 
-<div id="appScreen" style="display:none;flex-direction:column;flex:1;min-height:0">
+
+
+<!-- ========================================================
+     APPLICATION
+========================================================= -->
+
+<div
+  id="appScreen"
+  style="
+    display:none;
+    flex-direction:column;
+    flex:1;
+    min-height:0
+  "
+>
+
 <main>
-  <div class="status" id="status"></div>
+
+
+  <div
+    class="status"
+    id="status"
+  ></div>
+
+
+
   <div class="control-panel">
-    <button class="btn-speak en-btn" id="enBtn">I speak English</button>
-    <button class="btn-speak ja-btn" id="jaBtn">They speak Japanese</button>
+
+    <button
+      class="btn-speak en-btn"
+      id="enBtn"
+    >
+      I speak English
+    </button>
+
+
+    <button
+      class="btn-speak ja-btn"
+      id="jaBtn"
+    >
+      They speak Japanese
+    </button>
+
   </div>
-  <div class="display-panel" id="displayPanel">
-    <div class="english-display empty" id="englishDisplay">Listening...</div>
-    <div class="japanese-ref">
-      <div class="japanese-toggle" id="japaneseToggle">▼ Original Japanese</div>
-      <div class="japanese-content" id="japaneseContent"></div>
+
+
+
+  <div
+    class="display-panel"
+    id="displayPanel"
+  >
+
+    <div
+      class="direction-label"
+      id="directionLabel"
+    >
+      Translation
     </div>
+
+
+    <div
+      class="english-display empty"
+      id="englishDisplay"
+    >
+      Listening...
+    </div>
+
+
+    <div class="japanese-ref">
+
+      <div
+        class="japanese-toggle"
+        id="japaneseToggle"
+      >
+        ▶ Show original
+      </div>
+
+
+      <div
+        class="japanese-content"
+        id="japaneseContent"
+      ></div>
+
+    </div>
+
   </div>
+
+
+
   <div class="transcript">
-    <h3>Conversation</h3>
-    <ol class="transcript-list" id="transcriptList"></ol>
+
+    <h3>
+      Conversation
+    </h3>
+
+
+    <ol
+      class="transcript-list"
+      id="transcriptList"
+    ></ol>
+
   </div>
+
+
 </main>
+
 </div>
+
+
 
 <script>
-const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec';
-const GOOGLE_CLIENT_ID = '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const DEFAULT_API_URL =
+  'https://script.google.com/macros/s/AKfycbw_t9XOYbHERS4udfUkLrOuzJZ_mmXDn_NV1PV_lGvwrcPPc2vE5xHKJqajtEei3FMZKA/exec';
+
+
+const GOOGLE_CLIENT_ID =
+  '1048196415578-9h18rlhc1hsd073tfgapp47rcn2hof4o.apps.googleusercontent.com';
+
+
+
+/* =========================================================
+   AUTH
+========================================================= */
 
 let idToken = null;
-const store = (()=>{
-  const mem = {}; let ok = false;
-  try { localStorage.setItem('__p','1'); localStorage.removeItem('__p'); ok = true; } catch(e){}
+
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+const store = (() => {
+
+  const mem = {};
+
+  let ok = false;
+
+
+  try {
+
+    localStorage.setItem('__p','1');
+
+    localStorage.removeItem('__p');
+
+    ok = true;
+
+  }
+  catch(e){}
+
+
   return {
-    get(k){ try { return ok ? localStorage.getItem(k) : mem[k]; } catch(e){ return mem[k]; } },
-    set(k,v){ try { ok ? localStorage.setItem(k,v) : (mem[k]=v); } catch(e){ mem[k]=v; } },
-    del(k){ try { ok ? localStorage.removeItem(k) : (delete mem[k]); } catch(e){ delete mem[k]; } }
+
+    get(k){
+
+      try {
+
+        return ok
+          ? localStorage.getItem(k)
+          : mem[k];
+
+      }
+      catch(e){
+
+        return mem[k];
+
+      }
+
+    },
+
+
+    set(k,v){
+
+      try {
+
+        if(ok){
+
+          localStorage.setItem(k,v);
+
+        }
+        else{
+
+          mem[k] = v;
+
+        }
+
+      }
+      catch(e){
+
+        mem[k] = v;
+
+      }
+
+    },
+
+
+    del(k){
+
+      try {
+
+        if(ok){
+
+          localStorage.removeItem(k);
+
+        }
+        else{
+
+          delete mem[k];
+
+        }
+
+      }
+      catch(e){
+
+        delete mem[k];
+
+      }
+
+    }
+
   };
+
 })();
 
+
+
+/* =========================================================
+   APP CONFIG
+========================================================= */
+
 let cfg = {
-  A: { name:'Apps Script', url: DEFAULT_API_URL },
-  B: { name:'Worker', url:'' },
-  active: 'A',
-  speak: true, phones: true
+
+  A:{
+    name:'Apps Script',
+    url:DEFAULT_API_URL
+  },
+
+  B:{
+    name:'Worker',
+    url:''
+  },
+
+  active:'A',
+
+  speak:true,
+
+  phones:true
+
 };
-try { const raw = store.get('gvl.kaigi.v1'); if(raw) cfg = Object.assign(cfg, JSON.parse(raw)); } catch(e){}
-function saveCfg(){ store.set('gvl.kaigi.v1', JSON.stringify(cfg)); }
-function activeUrl(){ return cfg[cfg.active].url; }
 
-const $ = id => document.getElementById(id);
-const autoSpeak=$('autoSpeak'), usePhones=$('usePhones'), settingsBtn=$('settingsBtn'),
-      copyBtn=$('copyBtn'), clearBtn=$('clearBtn'), drawer=$('drawer'),
-      nameA=$('nameA'), urlA=$('urlA'), nameB=$('nameB'), urlB=$('urlB'),
-      slotA=$('slotA'), slotB=$('slotB'), hint=$('hint'), saveBtn=$('saveBtn'),
-      testBtn=$('testBtn'), resetBtn=$('resetBtn'), probe=$('probe'),
-      status=$('status'), enBtn=$('enBtn'), jaBtn=$('jaBtn'), displayPanel=$('displayPanel'),
-      englishDisplay=$('englishDisplay'), japaneseContent=$('japaneseContent'),
-      japaneseToggle=$('japaneseToggle'), transcriptList=$('transcriptList');
 
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+try {
+
+  const raw =
+    store.get('gvl.kaigi.v1');
+
+
+  if(raw){
+
+    const saved =
+      JSON.parse(raw);
+
+
+    cfg = {
+
+      ...cfg,
+
+      ...saved,
+
+      A:{
+        ...cfg.A,
+        ...(saved.A || {})
+      },
+
+      B:{
+        ...cfg.B,
+        ...(saved.B || {})
+      }
+
+    };
+
+  }
+
+}
+catch(e){
+
+  console.warn(
+    'Could not load saved settings.',
+    e
+  );
+
+}
+
+
+
+function saveCfg(){
+
+  store.set(
+    'gvl.kaigi.v1',
+    JSON.stringify(cfg)
+  );
+
+}
+
+
+
+function activeUrl(){
+
+  return cfg[cfg.active]?.url || '';
+
+}
+
+
+
+/* =========================================================
+   ELEMENT REFERENCES
+========================================================= */
+
+const $ = id =>
+  document.getElementById(id);
+
+
+const autoSpeak =
+  $('autoSpeak');
+
+
+const usePhones =
+  $('usePhones');
+
+
+const settingsBtn =
+  $('settingsBtn');
+
+
+const copyBtn =
+  $('copyBtn');
+
+
+const clearBtn =
+  $('clearBtn');
+
+
+const drawer =
+  $('drawer');
+
+
+const nameA =
+  $('nameA');
+
+
+const urlA =
+  $('urlA');
+
+
+const nameB =
+  $('nameB');
+
+
+const urlB =
+  $('urlB');
+
+
+const slotA =
+  $('slotA');
+
+
+const slotB =
+  $('slotB');
+
+
+const hint =
+  $('hint');
+
+
+const saveBtn =
+  $('saveBtn');
+
+
+const testBtn =
+  $('testBtn');
+
+
+const resetBtn =
+  $('resetBtn');
+
+
+const probe =
+  $('probe');
+
+
+const status =
+  $('status');
+
+
+const enBtn =
+  $('enBtn');
+
+
+const jaBtn =
+  $('jaBtn');
+
+
+const displayPanel =
+  $('displayPanel');
+
+
+const englishDisplay =
+  $('englishDisplay');
+
+
+const japaneseContent =
+  $('japaneseContent');
+
+
+const japaneseToggle =
+  $('japaneseToggle');
+
+
+const transcriptList =
+  $('transcriptList');
+
+
+const directionLabel =
+  $('directionLabel');
+
+
+
+/* =========================================================
+   SPEECH RECOGNITION
+========================================================= */
+
+const SR =
+  window.SpeechRecognition ||
+  window.webkitSpeechRecognition;
+
+
+
+/* =========================================================
+   ROMANIZED JAPANESE FALLBACK
+========================================================= */
 
 const romanizedMap = {
-  'konichiwa': 'こんにちは',
-  'konbanwa': 'こんばんは',
-  'arigatou': 'ありがとう',
-  'arigatougozaimasu': 'ありがとうございます',
-  'gozaimasu': 'ございます',
-  'kudasai': 'ください',
-  'sumimasen': 'すみません',
-  'hai': 'はい',
-  'iie': 'いいえ',
-  'sayonara': 'さようなら',
-  'sensei': '先生',
-  'ohayo': 'おはよう',
-  'matte': '待って',
-  'nakatta': 'なかった',
-  'desuka': 'ですか',
-  'wakarimashita': 'わかりました',
-  'onegaishimasu': 'お願いします',
-  'tasukete': '助けて'
+
+  'konichiwa':'こんにちは',
+
+  'konnichiwa':'こんにちは',
+
+  'konbanwa':'こんばんは',
+
+  'arigatou':'ありがとう',
+
+  'arigatou gozaimasu':'ありがとうございます',
+
+  'arigatougozaimasu':'ありがとうございます',
+
+  'gozaimasu':'ございます',
+
+  'kudasai':'ください',
+
+  'sumimasen':'すみません',
+
+  'hai':'はい',
+
+  'iie':'いいえ',
+
+  'sayonara':'さようなら',
+
+  'sensei':'先生',
+
+  'ohayo':'おはよう',
+
+  'ohayou':'おはよう',
+
+  'matte':'待って',
+
+  'nakatta':'なかった',
+
+  'desuka':'ですか',
+
+  'wakarimashita':'わかりました',
+
+  'onegaishimasu':'お願いします',
+
+  'tasukete':'助けて'
+
 };
+
+
+
+/* =========================================================
+   STATE
+========================================================= */
 
 let translating = false;
+
 let currentDir = null;
+
 let rec = null;
-let lastFinal = { text: '', at: 0 };
+
+let recognitionSession = 0;
+
+let lastFinal = {
+
+  text:'',
+
+  at:0
+
+};
+
+
 const conversation = [];
 
-function setStatus(msg, isErr){ status.textContent = msg||''; status.className = 'status'+(isErr?' err':''); }
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setStatus(
+  msg,
+  isErr = false
+){
+
+  status.textContent =
+    msg || '';
+
+
+  status.className =
+    'status' +
+    (isErr ? ' err' : '');
+
+}
+
+
+
+/* =========================================================
+   SETTINGS UI
+========================================================= */
 
 function renderSlots(){
-  [['A',slotA],['B',slotB]].forEach(([k,btn])=>{ btn.setAttribute('aria-pressed', String(cfg.active===k)); });
+
+  [
+
+    ['A',slotA],
+
+    ['B',slotB]
+
+  ].forEach(([key,button]) => {
+
+    button.setAttribute(
+      'aria-pressed',
+      String(cfg.active === key)
+    );
+
+
+    button.dataset.ok =
+      String(
+        Boolean(
+          cfg[key]?.url
+        )
+      );
+
+  });
+
 }
+
+
 
 function fillEditor(){
-  nameA.value=cfg.A.name; urlA.value=cfg.A.url; nameB.value=cfg.B.name; urlB.value=cfg.B.url; hint.textContent='';
+
+  nameA.value =
+    cfg.A.name || '';
+
+
+  urlA.value =
+    cfg.A.url || '';
+
+
+  nameB.value =
+    cfg.B.name || '';
+
+
+  urlB.value =
+    cfg.B.url || '';
+
+
+  hint.textContent = '';
+
 }
 
-settingsBtn.addEventListener('click', ()=>{
-  const open = drawer.classList.toggle('open');
-  settingsBtn.classList.toggle('on', open);
-  if(open){ fillEditor(); renderSlots(); }
-});
 
-slotA.addEventListener('click', ()=>{ if(cfg.A.url){cfg.active='A';saveCfg();renderSlots();} });
-slotB.addEventListener('click', ()=>{ if(cfg.B.url){cfg.active='B';saveCfg();renderSlots();} });
 
-saveBtn.addEventListener('click', ()=>{
-  const a=urlA.value.trim(), b=urlB.value.trim();
-  cfg.A = { name:nameA.value.trim()||'Endpoint A', url:a };
-  cfg.B = { name:nameB.value.trim()||'Endpoint B', url:b };
-  if(!cfg[cfg.active].url) cfg.active = a ? 'A' : 'B';
-  saveCfg(); renderSlots();
-});
+settingsBtn.addEventListener(
+  'click',
+  () => {
 
-testBtn.addEventListener('click', async ()=>{
-  const url = cfg[cfg.active].url;
-  if(!url) return;
-  probe.textContent='Testing…';
-  try{
-    const r = await callBackend(url, 'test', 'ja-en');
-    probe.textContent = 'OK'; probe.dataset.state='ok';
-  }catch(err){ probe.textContent = 'Failed'; probe.dataset.state='bad'; }
-});
+    const open =
+      drawer.classList.toggle('open');
 
-resetBtn.addEventListener('click', ()=>{
-  store.del('gvl.kaigi.v1');
-  cfg = { A:{name:'Apps Script',url:DEFAULT_API_URL}, B:{name:'Worker',url:''}, active:'A', speak:true, phones:true };
-  fillEditor(); renderSlots();
-});
 
-function callBackend(url, text, dir){
-  const [src, tgt] = dir === 'en-ja' ? ['en','ja'] : ['ja','en'];
-  return fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ text, dir, source:src, target:tgt, idToken })
-  }).then(async res => {
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    let data = await res.json();
-    if(data.authFailed){ const e = new Error(data.error || 'Sign in again.'); e.authFailed = true; throw e; }
-    if(data.error) throw new Error(data.error);
-    const out = (data.translation || '').trim();
-    if(!out) throw new Error('Empty translation');
-    return { text: out };
-  });
-}
+    settingsBtn.classList.toggle(
+      'on',
+      open
+    );
 
-function addTranscript(dir, orig, trans){
-  const li = document.createElement('li');
-  li.className = 'transcript-item ' + (dir==='en-ja' ? 'en' : 'ja');
-  const label = dir==='en-ja' ? 'English' : 'Japanese';
-  li.innerHTML = `<div class="transcript-label">${label}</div><div class="transcript-text">${orig}</div>`;
-  transcriptList.insertBefore(li, transcriptList.firstChild);
-}
 
-function translate(dir, orig){
-  const url = activeUrl();
-  if(!url){ englishDisplay.textContent = 'No endpoint set — open Settings.'; return; }
-  if(dir === 'ja-en'){
-    englishDisplay.textContent = 'Translating…';
-    englishDisplay.classList.remove('empty');
+    if(open){
+
+      fillEditor();
+
+      renderSlots();
+
+    }
+
   }
-  callBackend(url, orig, dir).then(r => {
-    if(dir === 'ja-en'){
-      englishDisplay.textContent = r.text;
-      japaneseContent.textContent = orig;
+);
+
+
+
+slotA.addEventListener(
+  'click',
+  () => {
+
+    if(cfg.A.url){
+
+      cfg.active = 'A';
+
+      saveCfg();
+
+      renderSlots();
+
+      setStatus(
+        'Using ' +
+        (cfg.A.name || 'Endpoint A')
+      );
+
     }
-    addTranscript(dir, orig, r.text);
-    conversation.push({ dir, orig, trans: r.text });
-    if(autoSpeak.checked && dir==='ja-en'){
-      const u = new SpeechSynthesisUtterance(r.text);
-      u.lang = 'en-US';
-      u.rate = 1.15;
-      speechSynthesis.speak(u);
+
+  }
+);
+
+
+
+slotB.addEventListener(
+  'click',
+  () => {
+
+    if(cfg.B.url){
+
+      cfg.active = 'B';
+
+      saveCfg();
+
+      renderSlots();
+
+      setStatus(
+        'Using ' +
+        (cfg.B.name || 'Endpoint B')
+      );
+
     }
-  }).catch(err => {
-    if(err.authFailed){
-      idToken = null;
-      $('appScreen').style.display = 'none';
-      $('signinScreen').style.display = 'flex';
+
+  }
+);
+
+
+
+saveBtn.addEventListener(
+  'click',
+  () => {
+
+    const a =
+      urlA.value.trim();
+
+
+    const b =
+      urlB.value.trim();
+
+
+    cfg.A = {
+
+      name:
+        nameA.value.trim() ||
+        'Endpoint A',
+
+      url:a
+
+    };
+
+
+    cfg.B = {
+
+      name:
+        nameB.value.trim() ||
+        'Endpoint B',
+
+      url:b
+
+    };
+
+
+    if(!cfg[cfg.active]?.url){
+
+      cfg.active =
+        a
+          ? 'A'
+          : 'B';
+
+    }
+
+
+    saveCfg();
+
+    renderSlots();
+
+
+    hint.textContent =
+      'Settings saved.';
+
+  }
+);
+
+
+
+/* =========================================================
+   TEST ENDPOINT
+========================================================= */
+
+testBtn.addEventListener(
+  'click',
+  async () => {
+
+    const url =
+      activeUrl();
+
+
+    if(!url){
+
+      probe.textContent =
+        'No endpoint';
+
+      probe.dataset.state =
+        'bad';
+
       return;
+
     }
-    englishDisplay.textContent = 'Failed: ' + err.message;
-  });
+
+
+    probe.textContent =
+      'Testing…';
+
+
+    probe.dataset.state =
+      '';
+
+
+    try {
+
+      const result =
+        await callBackend(
+          url,
+          'こんにちは',
+          'ja-en'
+        );
+
+
+      if(result.text){
+
+        probe.textContent =
+          'OK';
+
+        probe.dataset.state =
+          'ok';
+
+      }
+
+    }
+    catch(err){
+
+      console.error(
+        'Endpoint test failed:',
+        err
+      );
+
+
+      probe.textContent =
+        'Failed';
+
+      probe.dataset.state =
+        'bad';
+
+      hint.textContent =
+        err.message;
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+resetBtn.addEventListener(
+  'click',
+  () => {
+
+    store.del(
+      'gvl.kaigi.v1'
+    );
+
+
+    cfg = {
+
+      A:{
+        name:'Apps Script',
+        url:DEFAULT_API_URL
+      },
+
+      B:{
+        name:'Worker',
+        url:''
+      },
+
+      active:'A',
+
+      speak:true,
+
+      phones:true
+
+    };
+
+
+    fillEditor();
+
+    renderSlots();
+
+
+    autoSpeak.checked =
+      true;
+
+
+    usePhones.checked =
+      true;
+
+
+    probe.textContent =
+      'Untested';
+
+
+    probe.dataset.state =
+      '';
+
+
+    hint.textContent =
+      'Settings reset.';
+
+  }
+);
+
+
+
+/* =========================================================
+   BACKEND TRANSLATION CALL
+========================================================= */
+
+async function callBackend(
+  url,
+  text,
+  dir
+){
+
+  const [src,tgt] =
+    dir === 'en-ja'
+
+      ? ['en','ja']
+
+      : ['ja','en'];
+
+
+  const response =
+    await fetch(
+      url,
+      {
+
+        method:'POST',
+
+        headers:{
+
+          'Content-Type':
+            'text/plain;charset=utf-8'
+
+        },
+
+        body:JSON.stringify({
+
+          text,
+
+          dir,
+
+          source:src,
+
+          target:tgt,
+
+          idToken
+
+        })
+
+      }
+    );
+
+
+  if(!response.ok){
+
+    throw new Error(
+      'HTTP ' +
+      response.status
+    );
+
+  }
+
+
+  let data;
+
+
+  try {
+
+    data =
+      await response.json();
+
+  }
+  catch(e){
+
+    throw new Error(
+      'Translation server returned invalid JSON.'
+    );
+
+  }
+
+
+  if(data.authFailed){
+
+    const error =
+      new Error(
+        data.error ||
+        'Sign in again.'
+      );
+
+
+    error.authFailed =
+      true;
+
+
+    throw error;
+
+  }
+
+
+  if(data.error){
+
+    throw new Error(
+      data.error
+    );
+
+  }
+
+
+  const output =
+    String(
+      data.translation || ''
+    ).trim();
+
+
+  if(!output){
+
+    throw new Error(
+      'Empty translation'
+    );
+
+  }
+
+
+  return {
+
+    text:output
+
+  };
+
 }
 
-enBtn.addEventListener('click', ()=>{ if(translating && currentDir === 'en-ja'){ stopTranslation(); } else { startTranslation('en-ja'); } });
-jaBtn.addEventListener('click', ()=>{ if(translating && currentDir === 'ja-en'){ stopTranslation(); } else { startTranslation('ja-en'); } });
+
+
+/* =========================================================
+   SAFE HTML
+========================================================= */
+
+function escapeHtml(value){
+
+  return String(value)
+
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+
+    .replace(
+      /</g,
+      '&lt;'
+    )
+
+    .replace(
+      />/g,
+      '&gt;'
+    )
+
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+
+/* =========================================================
+   TRANSCRIPT
+========================================================= */
+
+function addTranscript(
+  dir,
+  orig,
+  trans
+){
+
+  const li =
+    document.createElement('li');
+
+
+  li.className =
+    'transcript-item ' +
+    (
+      dir === 'en-ja'
+        ? 'en'
+        : 'ja'
+    );
+
+
+  const label =
+    dir === 'en-ja'
+
+      ? 'English → Japanese'
+
+      : 'Japanese → English';
+
+
+  li.innerHTML = `
+
+    <div class="transcript-label">
+      ${label}
+    </div>
+
+    <div class="transcript-original">
+      ${escapeHtml(orig)}
+    </div>
+
+    <div class="transcript-arrow">
+      ↓
+    </div>
+
+    <div class="transcript-translation">
+      ${escapeHtml(trans)}
+    </div>
+
+  `;
+
+
+  transcriptList.insertBefore(
+    li,
+    transcriptList.firstChild
+  );
+
+}
+
+
+
+/* =========================================================
+   SPEAK TRANSLATION
+========================================================= */
+
+function speakTranslation(
+  text,
+  dir
+){
+
+  if(
+    !autoSpeak.checked ||
+    !window.speechSynthesis
+  ){
+
+    return;
+
+  }
+
+
+  speechSynthesis.cancel();
+
+
+  const utterance =
+    new SpeechSynthesisUtterance(
+      text
+    );
+
+
+  if(dir === 'en-ja'){
+
+    utterance.lang =
+      'ja-JP';
+
+    utterance.rate =
+      0.95;
+
+  }
+  else{
+
+    utterance.lang =
+      'en-US';
+
+    utterance.rate =
+      1.05;
+
+  }
+
+
+  speechSynthesis.speak(
+    utterance
+  );
+
+}
+
+
+
+/* =========================================================
+   TRANSLATE
+========================================================= */
+
+async function translate(
+  dir,
+  orig
+){
+
+  const url =
+    activeUrl();
+
+
+  if(!url){
+
+    englishDisplay.textContent =
+      'No endpoint set — open Settings.';
+
+    setStatus(
+      'No translation endpoint configured.',
+      true
+    );
+
+    return;
+
+  }
+
+
+  displayPanel.classList.add(
+    'active'
+  );
+
+
+  englishDisplay.classList.remove(
+    'empty'
+  );
+
+
+  englishDisplay.classList.toggle(
+    'japanese-output',
+    dir === 'en-ja'
+  );
+
+
+  directionLabel.textContent =
+    dir === 'en-ja'
+
+      ? 'Japanese Translation'
+
+      : 'English Translation';
+
+
+  englishDisplay.textContent =
+    'Translating…';
+
+
+  japaneseContent.textContent =
+    orig;
+
+
+  japaneseToggle.textContent =
+    '▶ Show original';
+
+
+  japaneseContent.classList.remove(
+    'open'
+  );
+
+
+  try {
+
+    const result =
+      await callBackend(
+        url,
+        orig,
+        dir
+      );
+
+
+    englishDisplay.textContent =
+      result.text;
+
+
+    japaneseContent.textContent =
+      orig;
+
+
+    addTranscript(
+      dir,
+      orig,
+      result.text
+    );
+
+
+    conversation.push({
+
+      dir,
+
+      orig,
+
+      trans:result.text
+
+    });
+
+
+    setStatus(
+      dir === 'en-ja'
+
+        ? 'English translated to Japanese.'
+
+        : 'Japanese translated to English.'
+    );
+
+
+    speakTranslation(
+      result.text,
+      dir
+    );
+
+  }
+  catch(err){
+
+    console.error(
+      'Translation error:',
+      err
+    );
+
+
+    if(err.authFailed){
+
+      idToken = null;
+
+
+      $('appScreen').style.display =
+        'none';
+
+
+      $('signinScreen').style.display =
+        'flex';
+
+
+      $('signinError').textContent =
+        err.message ||
+        'Your session expired. Please sign in again.';
+
+
+      $('signinError').style.display =
+        'block';
+
+
+      stopTranslation();
+
+
+      return;
+
+    }
+
+
+    englishDisplay.textContent =
+      'Failed: ' +
+      err.message;
+
+
+    setStatus(
+      'Translation failed: ' +
+      err.message,
+      true
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   BUTTON HANDLERS
+========================================================= */
+
+enBtn.addEventListener(
+  'click',
+  () => {
+
+    if(
+      translating &&
+      currentDir === 'en-ja'
+    ){
+
+      stopTranslation();
+
+    }
+    else{
+
+      startTranslation(
+        'en-ja'
+      );
+
+    }
+
+  }
+);
+
+
+
+jaBtn.addEventListener(
+  'click',
+  () => {
+
+    if(
+      translating &&
+      currentDir === 'ja-en'
+    ){
+
+      stopTranslation();
+
+    }
+    else{
+
+      startTranslation(
+        'ja-en'
+      );
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   START SPEECH RECOGNITION
+========================================================= */
 
 function startTranslation(dir){
-  if(!activeUrl()){ drawer.classList.add('open'); settingsBtn.classList.add('on'); setStatus('Set endpoint first.', true); return; }
-  translating = true;
-  currentDir = dir;
-  displayPanel.classList.add('active');
-  englishDisplay.textContent = 'Listening...';
-  englishDisplay.classList.add('empty');
-  japaneseContent.textContent = '';
-  if(dir === 'en-ja'){ enBtn.classList.add('active'); jaBtn.classList.remove('active'); setStatus('Speak English...'); }
-  else { jaBtn.classList.add('active'); enBtn.classList.remove('active'); setStatus('Listening for Japanese...'); }
-  if(!SR) return;
-  rec = new SR();
-  rec.continuous = true;
-  rec.interimResults = true;
-  rec.lang = dir === 'en-ja' ? 'en-US' : 'ja-JP';
-  rec.onresult = (e)=>{
-    for(let i=e.resultIndex; i<e.results.length; i++){
-      let text = e.results[i][0].transcript.trim();
-      if(e.results[i].isFinal){
-        if(!text) continue;
-        if(currentDir === 'ja-en'){
-          const lower = text.toLowerCase();
-          const converted = romanizedMap[lower];
-          if(converted) text = converted;
-        }
-        const now = Date.now();
-        if(text === lastFinal.text && now - lastFinal.at < 1500) continue;
-        lastFinal = { text, at: now };
-        translate(currentDir, text);
-      }
+
+  if(!activeUrl()){
+
+    drawer.classList.add(
+      'open'
+    );
+
+
+    settingsBtn.classList.add(
+      'on'
+    );
+
+
+    setStatus(
+      'Set endpoint first.',
+      true
+    );
+
+
+    return;
+
+  }
+
+
+  /* Stop any previous recognition instance */
+
+  if(rec){
+
+    try{
+
+      rec.onend = null;
+
+      rec.stop();
+
     }
-  };
-  rec.onerror = (e)=>{
-    if(e.error === 'not-allowed'){ setStatus('Microphone blocked.', true); stopTranslation(); }
-    else if(e.error !== 'no-speech' && e.error !== 'aborted'){ setStatus('Mic error: '+e.error, true); }
-  };
-  rec.onend = ()=>{ rec = null; if(translating){ setTimeout(()=>{ if(translating) startTranslation(currentDir); }, 250); } };
-  try { rec.start(); }
-  catch(err){ setStatus('Microphone error.', true); stopTranslation(); }
+    catch(e){}
+
+
+    rec = null;
+
+  }
+
+
+  recognitionSession++;
+
+
+  const session =
+    recognitionSession;
+
+
+  translating = true;
+
+  currentDir = dir;
+
+
+  displayPanel.classList.add(
+    'active'
+  );
+
+
+  englishDisplay.classList.remove(
+    'japanese-output'
+  );
+
+
+  englishDisplay.textContent =
+    'Listening...';
+
+
+  englishDisplay.classList.add(
+    'empty'
+  );
+
+
+  japaneseContent.textContent =
+    '';
+
+
+  japaneseContent.classList.remove(
+    'open'
+  );
+
+
+  japaneseToggle.textContent =
+    '▶ Show original';
+
+
+
+  if(dir === 'en-ja'){
+
+    enBtn.classList.add(
+      'active'
+    );
+
+
+    jaBtn.classList.remove(
+      'active'
+    );
+
+
+    directionLabel.textContent =
+      'English → Japanese';
+
+
+    setStatus(
+      'Listening for English...'
+    );
+
+  }
+  else{
+
+    jaBtn.classList.add(
+      'active'
+    );
+
+
+    enBtn.classList.remove(
+      'active'
+    );
+
+
+    directionLabel.textContent =
+      'Japanese → English';
+
+
+    setStatus(
+      'Listening for Japanese...'
+    );
+
+  }
+
+
+
+  if(!SR){
+
+    setStatus(
+      'Speech recognition is not supported in this browser. Use Chrome or Edge.',
+      true
+    );
+
+
+    translating =
+      false;
+
+
+    currentDir =
+      null;
+
+
+    enBtn.classList.remove(
+      'active'
+    );
+
+
+    jaBtn.classList.remove(
+      'active'
+    );
+
+
+    return;
+
+  }
+
+
+
+  const recognition =
+    new SR();
+
+
+  rec =
+    recognition;
+
+
+  recognition.continuous =
+    true;
+
+
+  recognition.interimResults =
+    true;
+
+
+  recognition.maxAlternatives =
+    1;
+
+
+  recognition.lang =
+    dir === 'en-ja'
+
+      ? 'en-US'
+
+      : 'ja-JP';
+
+
+
+  recognition.onresult =
+    event => {
+
+      if(
+        !translating ||
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      for(
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ){
+
+        let text =
+          event.results[i][0]
+            .transcript
+            .trim();
+
+
+        if(
+          !event.results[i].isFinal ||
+          !text
+        ){
+
+          continue;
+
+        }
+
+
+        if(
+          currentDir === 'ja-en'
+        ){
+
+          const lower =
+            text
+              .toLowerCase()
+              .trim();
+
+
+          const converted =
+            romanizedMap[lower];
+
+
+          if(converted){
+
+            text =
+              converted;
+
+          }
+
+        }
+
+
+        const now =
+          Date.now();
+
+
+        if(
+          text === lastFinal.text &&
+          now - lastFinal.at < 1500
+        ){
+
+          continue;
+
+        }
+
+
+        lastFinal = {
+
+          text,
+
+          at:now
+
+        };
+
+
+        translate(
+          currentDir,
+          text
+        );
+
+      }
+
+    };
+
+
+
+  recognition.onerror =
+    event => {
+
+      if(
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      console.warn(
+        'Speech recognition error:',
+        event.error
+      );
+
+
+      if(
+        event.error === 'not-allowed' ||
+        event.error === 'service-not-allowed'
+      ){
+
+        setStatus(
+          'Microphone blocked. Allow microphone access in your browser.',
+          true
+        );
+
+
+        stopTranslation();
+
+      }
+
+      else if(
+        event.error === 'audio-capture'
+      ){
+
+        setStatus(
+          'No microphone was detected.',
+          true
+        );
+
+
+        stopTranslation();
+
+      }
+
+      else if(
+        event.error !== 'no-speech' &&
+        event.error !== 'aborted'
+      ){
+
+        setStatus(
+          'Mic error: ' +
+          event.error,
+          true
+        );
+
+      }
+
+    };
+
+
+
+  recognition.onend =
+    () => {
+
+      if(
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      if(rec === recognition){
+
+        rec = null;
+
+      }
+
+
+      if(
+        translating &&
+        currentDir === dir
+      ){
+
+        setTimeout(
+          () => {
+
+            if(
+              translating &&
+              currentDir === dir &&
+              session === recognitionSession
+            ){
+
+              restartRecognition(
+                dir,
+                session
+              );
+
+            }
+
+          },
+          300
+        );
+
+      }
+
+    };
+
+
+
+  try{
+
+    recognition.start();
+
+  }
+  catch(err){
+
+    console.error(
+      'Microphone start error:',
+      err
+    );
+
+
+    setStatus(
+      'Microphone error: ' +
+      err.message,
+      true
+    );
+
+
+    stopTranslation();
+
+  }
+
 }
+
+
+
+/* =========================================================
+   RESTART SPEECH RECOGNITION
+========================================================= */
+
+function restartRecognition(
+  dir,
+  session
+){
+
+  if(
+    !translating ||
+    currentDir !== dir ||
+    session !== recognitionSession
+  ){
+
+    return;
+
+  }
+
+
+  const recognition =
+    new SR();
+
+
+  rec =
+    recognition;
+
+
+  recognition.continuous =
+    true;
+
+
+  recognition.interimResults =
+    true;
+
+
+  recognition.maxAlternatives =
+    1;
+
+
+  recognition.lang =
+    dir === 'en-ja'
+
+      ? 'en-US'
+
+      : 'ja-JP';
+
+
+
+  recognition.onresult =
+    event => {
+
+      if(
+        !translating ||
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      for(
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ){
+
+        let text =
+          event.results[i][0]
+            .transcript
+            .trim();
+
+
+        if(
+          !event.results[i].isFinal ||
+          !text
+        ){
+
+          continue;
+
+        }
+
+
+        if(
+          currentDir === 'ja-en'
+        ){
+
+          const lower =
+            text
+              .toLowerCase()
+              .trim();
+
+
+          const converted =
+            romanizedMap[lower];
+
+
+          if(converted){
+
+            text =
+              converted;
+
+          }
+
+        }
+
+
+        const now =
+          Date.now();
+
+
+        if(
+          text === lastFinal.text &&
+          now - lastFinal.at < 1500
+        ){
+
+          continue;
+
+        }
+
+
+        lastFinal = {
+
+          text,
+
+          at:now
+
+        };
+
+
+        translate(
+          currentDir,
+          text
+        );
+
+      }
+
+    };
+
+
+
+  recognition.onerror =
+    event => {
+
+      if(
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      if(
+        event.error === 'not-allowed' ||
+        event.error === 'service-not-allowed'
+      ){
+
+        setStatus(
+          'Microphone blocked.',
+          true
+        );
+
+
+        stopTranslation();
+
+      }
+
+      else if(
+        event.error !== 'no-speech' &&
+        event.error !== 'aborted'
+      ){
+
+        setStatus(
+          'Mic error: ' +
+          event.error,
+          true
+        );
+
+      }
+
+    };
+
+
+
+  recognition.onend =
+    () => {
+
+      if(
+        session !== recognitionSession
+      ){
+
+        return;
+
+      }
+
+
+      if(rec === recognition){
+
+        rec = null;
+
+      }
+
+
+      if(
+        translating &&
+        currentDir === dir
+      ){
+
+        setTimeout(
+          () => {
+
+            restartRecognition(
+              dir,
+              session
+            );
+
+          },
+          300
+        );
+
+      }
+
+    };
+
+
+
+  try{
+
+    recognition.start();
+
+  }
+  catch(err){
+
+    console.warn(
+      'Recognition restart failed:',
+      err
+    );
+
+  }
+
+}
+
+
+
+/* =========================================================
+   STOP TRANSLATION
+========================================================= */
 
 function stopTranslation(){
-  translating = false;
-  currentDir = null;
-  enBtn.classList.remove('active');
-  jaBtn.classList.remove('active');
+
+  translating =
+    false;
+
+
+  currentDir =
+    null;
+
+
+  recognitionSession++;
+
+
+  enBtn.classList.remove(
+    'active'
+  );
+
+
+  jaBtn.classList.remove(
+    'active'
+  );
+
+
   setStatus('');
-  if(rec){ try{ rec.stop(); }catch(e){} rec = null; }
+
+
+  if(rec){
+
+    try{
+
+      rec.onend =
+        null;
+
+
+      rec.stop();
+
+    }
+    catch(e){}
+
+
+    rec =
+      null;
+
+  }
+
 }
 
-japaneseToggle.addEventListener('click', ()=>{
-  japaneseContent.classList.toggle('open');
-  japaneseToggle.textContent = japaneseContent.classList.contains('open') ? '▼ Original Japanese' : '▶ Original Japanese';
-});
 
-copyBtn.addEventListener('click', async ()=>{
-  if(!conversation.length){ copyBtn.textContent = 'Nothing'; setTimeout(()=>copyBtn.textContent='Copy', 1400); return; }
-  const text = conversation.map(c => c.orig + '\n' + c.trans).join('\n\n');
-  try { await navigator.clipboard.writeText(text); copyBtn.textContent = 'Copied!'; }
-  catch(e){ copyBtn.textContent = 'Failed'; }
-  setTimeout(()=>copyBtn.textContent='Copy', 1400);
-});
 
-clearBtn.addEventListener('click', ()=>{
-  stopTranslation();
-  conversation.length = 0;
-  transcriptList.innerHTML = '';
-  englishDisplay.textContent = 'Listening...';
-  englishDisplay.classList.add('empty');
-  japaneseContent.textContent = '';
-  japaneseContent.classList.remove('open');
-  japaneseToggle.textContent = '▼ Original Japanese';
-  setStatus('');
-});
+/* =========================================================
+   ORIGINAL TEXT TOGGLE
+========================================================= */
 
-function handleSignIn(response){
-  idToken = response.credential;
-  try{ const p = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); $('userBadge').textContent = p.email; $('userBadge').style.display = 'inline'; }catch(e){}
-  $('signinScreen').style.display = 'none';
-  $('appScreen').style.display = 'flex';
+japaneseToggle.addEventListener(
+  'click',
+  () => {
+
+    japaneseContent.classList.toggle(
+      'open'
+    );
+
+
+    japaneseToggle.textContent =
+      japaneseContent.classList.contains(
+        'open'
+      )
+
+        ? '▼ Hide original'
+
+        : '▶ Show original';
+
+  }
+);
+
+
+
+/* =========================================================
+   COPY
+========================================================= */
+
+copyBtn.addEventListener(
+  'click',
+  async () => {
+
+    if(!conversation.length){
+
+      copyBtn.textContent =
+        'Nothing';
+
+
+      setTimeout(
+        () => {
+
+          copyBtn.textContent =
+            'Copy';
+
+        },
+        1400
+      );
+
+
+      return;
+
+    }
+
+
+    const text =
+      conversation
+        .map(
+          item => {
+
+            const label =
+              item.dir === 'en-ja'
+
+                ? 'English → Japanese'
+
+                : 'Japanese → English';
+
+
+            return (
+              label +
+              '\n' +
+              item.orig +
+              '\n' +
+              item.trans
+            );
+
+          }
+        )
+        .join(
+          '\n\n'
+        );
+
+
+    try{
+
+      await navigator.clipboard.writeText(
+        text
+      );
+
+
+      copyBtn.textContent =
+        'Copied!';
+
+    }
+    catch(e){
+
+      console.error(
+        'Clipboard error:',
+        e
+      );
+
+
+      copyBtn.textContent =
+        'Failed';
+
+    }
+
+
+    setTimeout(
+      () => {
+
+        copyBtn.textContent =
+          'Copy';
+
+      },
+      1400
+    );
+
+  }
+);
+
+
+
+/* =========================================================
+   CLEAR
+========================================================= */
+
+clearBtn.addEventListener(
+  'click',
+  () => {
+
+    stopTranslation();
+
+
+    speechSynthesis?.cancel();
+
+
+    conversation.length =
+      0;
+
+
+    transcriptList.innerHTML =
+      '';
+
+
+    englishDisplay.textContent =
+      'Listening...';
+
+
+    englishDisplay.classList.add(
+      'empty'
+    );
+
+
+    englishDisplay.classList.remove(
+      'japanese-output'
+    );
+
+
+    japaneseContent.textContent =
+      '';
+
+
+    japaneseContent.classList.remove(
+      'open'
+    );
+
+
+    japaneseToggle.textContent =
+      '▶ Show original';
+
+
+    directionLabel.textContent =
+      'Translation';
+
+
+    displayPanel.classList.remove(
+      'active'
+    );
+
+
+    setStatus('');
+
+
+    clearBtn.textContent =
+      'Cleared!';
+
+
+    setTimeout(
+      () => {
+
+        clearBtn.textContent =
+          'Clear';
+
+      },
+      1000
+    );
+
+  }
+);
+
+
+
+/* =========================================================
+   SAVE CHECKBOX SETTINGS
+========================================================= */
+
+autoSpeak.addEventListener(
+  'change',
+  () => {
+
+    cfg.speak =
+      autoSpeak.checked;
+
+
+    saveCfg();
+
+  }
+);
+
+
+
+usePhones.addEventListener(
+  'change',
+  () => {
+
+    cfg.phones =
+      usePhones.checked;
+
+
+    saveCfg();
+
+  }
+);
+
+
+
+/* =========================================================
+   GOOGLE SIGN IN
+========================================================= */
+
+function handleSignIn(
+  response
+){
+
+  if(
+    !response ||
+    !response.credential
+  ){
+
+    $('signinError').textContent =
+      'Google sign-in did not return a credential.';
+
+
+    $('signinError').style.display =
+      'block';
+
+
+    return;
+
+  }
+
+
+  idToken =
+    response.credential;
+
+
+  try{
+
+    const tokenPart =
+      response.credential
+        .split('.')[1]
+        .replace(
+          /-/g,
+          '+'
+        )
+        .replace(
+          /_/g,
+          '/'
+        );
+
+
+    const padded =
+      tokenPart.padEnd(
+        Math.ceil(tokenPart.length / 4) * 4,
+        '='
+      );
+
+
+    const payload =
+      JSON.parse(
+        decodeURIComponent(
+          atob(padded)
+            .split('')
+            .map(
+              c =>
+                '%' +
+                ('00' + c.charCodeAt(0).toString(16))
+                  .slice(-2)
+            )
+            .join('')
+        )
+      );
+
+
+    $('userBadge').textContent =
+      payload.email || 'Signed in';
+
+
+    $('userBadge').style.display =
+      'inline';
+
+  }
+  catch(e){
+
+    console.warn(
+      'Could not decode Google credential.',
+      e
+    );
+
+  }
+
+
+  $('signinError').style.display =
+    'none';
+
+
+  $('signinScreen').style.display =
+    'none';
+
+
+  $('appScreen').style.display =
+    'flex';
+
 }
 
-window.onload = function(){
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleSignIn });
-  google.accounts.id.renderButton($('gsiButton'), { theme:'filled_blue', size:'large', text:'signin_with' });
-  autoSpeak.checked = cfg.speak !== false;
-  usePhones.checked = cfg.phones !== false;
-  fillEditor();
-  renderSlots();
-};
+
+
+/* =========================================================
+   WINDOW LOAD
+========================================================= */
+
+window.onload =
+  function(){
+
+    autoSpeak.checked =
+      cfg.speak !== false;
+
+
+    usePhones.checked =
+      cfg.phones !== false;
+
+
+    fillEditor();
+
+    renderSlots();
+
+
+    if(!window.google?.accounts?.id){
+
+      $('signinError').textContent =
+        'Google Sign-In could not load. Refresh the page or check that accounts.google.com is not blocked.';
+
+
+      $('signinError').style.display =
+        'block';
+
+
+      return;
+
+    }
+
+
+    google.accounts.id.initialize({
+
+      client_id:
+        GOOGLE_CLIENT_ID,
+
+      callback:
+        handleSignIn
+
+    });
+
+
+    google.accounts.id.renderButton(
+
+      $('gsiButton'),
+
+      {
+
+        theme:'filled_blue',
+
+        size:'large',
+
+        text:'signin_with'
+
+      }
+
+    );
+
+  };
+
 </script>
+
 </body>
 </html>
