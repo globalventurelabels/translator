@@ -487,8 +487,13 @@ function startTranslation(){
         const text = transcript.trim();
         if(!text) continue;
         
-        // Simple language detection: check for Japanese characters
-        const isJapanese = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(text);
+        // Language detection: check for Japanese characters OR romanized Japanese
+        const hasJapaneseChars = /[\u3040-\u30FF\u4E00-\u9FFF]/.test(text);
+        
+        // Common romanized Japanese words/patterns
+        const romanizedJapanese = /\b(konichiwa|konbanwa|arigatou|gozaimasu|kudasai|onegaishimasu|sumimasen|hai|iie|desu|masu|san|sama|kun|chan|sensei|ohayo|sayonara|mata|ne|yo|na|da|ka|ki|ku|ke|ko|ta|chi|tsu|te|to|na|ni|nu|ne|no|ha|hi|fu|he|ho|ma|mi|mu|me|mo|ya|yu|yo|ra|ri|ru|re|ro|wa|wo)\b/i.test(text);
+        
+        const isJapanese = hasJapaneseChars || romanizedJapanese;
         
         if(isJapanese){
           const now = Date.now();
